@@ -34,6 +34,7 @@ export default class CpgMenuIcon extends HTMLElement {
     this.lineColor = this.dataset.lineColor || 'rgba(0, 0, 0, 1)';
     this.targetX = (parseFloat(this.dataset.targetX) || 0) * this.width;
     this.targetY = (parseFloat(this.dataset.targetY) || 0.5) * this.height;
+    this.targetDirection = this.dataset.targetDirection || 'left';
     /* ---------------------- */
     /* ---------------------- */
     /* ---------------------- */
@@ -81,14 +82,19 @@ export default class CpgMenuIcon extends HTMLElement {
 
   update() {
     this.lines.forEach(line => {
-      var newPoint;
-      if (this.hovering) {
-        newPoint = CpgMenuIcon.movePoint(line.x1, line.y1, this.targetX, this.targetY, this.speed);
+      if (this.targetDirection === 'right') {
+        var newPoint = this.hovering
+          ? newPoint = CpgMenuIcon.movePoint(line.x2, line.y2, this.targetX, this.targetY, this.speed)
+          : newPoint = CpgMenuIcon.movePoint(line.x2, line.y2, line.initial.x2, line.initial.y2, this.speed);
+        line.x2 = newPoint.x;
+        line.y2 = newPoint.y;
       } else {
-        newPoint = CpgMenuIcon.movePoint(line.x1, line.y1, line.initial.x1, line.initial.y1, this.speed);
+        var newPoint  = this.hovering
+          ? CpgMenuIcon.movePoint(line.x1, line.y1, this.targetX, this.targetY, this.speed)
+          : newPoint = CpgMenuIcon.movePoint(line.x1, line.y1, line.initial.x1, line.initial.y1, this.speed);
+        line.x1 = newPoint.x;
+        line.y1 = newPoint.y;
       }
-      line.x1 = newPoint.x;
-      line.y1 = newPoint.y;
     });
   }
 
