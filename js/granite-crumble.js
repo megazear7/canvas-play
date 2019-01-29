@@ -4,15 +4,17 @@ canvas.height = window.innerHeight;
 
 var c = canvas.getContext('2d');
 
-c.beginPath();
+var segmentCount = 2;
+var lineCount = 5;
 
-var segmentCount = 1;
-for (var i=0; i < segmentCount+1; i++){
-  c.lineTo(randomX(), randomY());
+for (var j=0; j < lineCount; j++) {
+  c.beginPath();
+  for (var i=0; i < segmentCount+1; i++) {
+    c.lineTo(randomX(), randomY());
+  }
+  c.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+  c.stroke();
 }
-
-c.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-c.stroke();
 
 function randomY() {
   return Math.random() * window.innerHeight;
