@@ -3,14 +3,13 @@ import canvas from '/js/full-canvas.js';
 
 var context = canvas.getContext('2d');
 var pebbles = [];
-var pebbleCount = 1;
+var pebbleCount = 100;
 
 for (var i = 0; i < pebbleCount; i++) {
   pebbles.push(new Pebble({
     context: context,
     speed: 0.5,
-    radius: (Math.random() * 80) + 20,
-    minRadius: (Math.random() * 20) + 5
+    radius: (Math.random() * 10) + 5
   }));
 }
 
