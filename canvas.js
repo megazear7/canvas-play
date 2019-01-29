@@ -36,27 +36,20 @@ for (var i=0; i < circleCount; i++){
 }
 */
 
-var x = randomX();
-var y = randomY();
-var dx = randomSpeed(20);
-var dy = randomSpeed(20);
-var radius = 30;
+var balls = [];
+var ballCount = 10;
+for (var i=0; i < ballCount; i++){
+  balls.push(createBall());
+}
 
 function animate() {
   requestAnimationFrame(animate);
-  c.clearRect(0, 0, innerWidth, innerHeight);
-  drawCircle(x, y, radius, dx, dy);
+  c.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-  if (x + radius > innerWidth || x - radius < 0) {
-    dx = -dx;
-  }
-
-  if (y + radius > innerHeight || y - radius < 0) {
-    dy = -dy;
-  }
-
-  x += dx;
-  y += dy;
+  balls.forEach(ball => {
+    ball.draw();
+    ball.move();
+  });
 }
 
 animate();
@@ -68,6 +61,51 @@ function drawCircle(x, y, radius, red, green, blue) {
   c.arc(x, y, radius, 0, Math.PI * 2, false);
   c.strokeStyle = `rgba(${red}, ${green}, ${blue}, 0.5)`;
   c.stroke();
+}
+
+function createBall() {
+  return {
+    x: randomX(),
+    y: randomY(),
+    dx: randomSpeed(20),
+    dy: randomSpeed(20),
+    radius: (Math.random() * 40) + 10,
+    right: function() {
+      return this.x + this.radius;
+    },
+    left: function() {
+      return this.x - this.radius;
+    },
+    bottom: function() {
+      return this.y + this.radius;
+    },
+    top: function() {
+      return this.y - this.radius;
+    },
+    draw: function() {
+      drawCircle(this.x, this.y, this.radius, this.dx, this.dy);
+    },
+    move: function() {
+      if (this.right() > window.innerWidth) {
+        this.dx = -Math.abs(this.dx);
+      }
+
+      if (this.left() < 0) {
+        this.dx = Math.abs(this.dx);
+      }
+
+      if (this.bottom() > window.innerHeight) {
+        this.dy = -Math.abs(this.dy);
+      }
+
+      if (this.top() < 0) {
+        this.dy = Math.abs(this.dy);
+      }
+
+      this.x += this.dx;
+      this.y += this.dy;
+    }
+  };
 }
 
 function randomColor() {
