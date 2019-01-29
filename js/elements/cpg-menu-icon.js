@@ -27,6 +27,9 @@ export default class CpgMenuIcon extends HTMLElement {
     this.canvas.height = this.height;
     this.hovering = false;
     this.thickness = 2;
+    this.speed = 0.2;
+    this.targetX = 0;
+    this.targetY = this.height / 2;
 
     this.initialLines = [
       this.offsetWidth * (1/8),
@@ -40,7 +43,13 @@ export default class CpgMenuIcon extends HTMLElement {
         x1: 0,
         y1: initialLine,
         x2: this.offsetWidth,
-        y2: initialLine
+        y2: initialLine,
+        initial: {
+          x1: 0,
+          y1: initialLine,
+          x2: this.offsetWidth,
+          y2: initialLine
+        }
       });
     });
 
@@ -65,11 +74,29 @@ export default class CpgMenuIcon extends HTMLElement {
   }
 
   update() {
-    if (this.hovering) {
-      // move to arrow state
-    } else {
-      // move back to rest
-    }
+    this.lines.forEach(line => {
+      var newPoint;
+      if (this.hovering) {
+        newPoint = CpgMenuIcon.movePoint(line.x1, line.y1, this.targetX, this.targetY, this.speed);
+      } else {
+        newPoint = CpgMenuIcon.movePoint(line.x1, line.y1, line.initial.x1, line.initial.y1, this.speed);
+      }
+      line.x1 = newPoint.x;
+      line.y1 = newPoint.y;
+    });
+  }
+
+  /** @function movePoint
+   *  Returns a new point that is directly between point (x1, y1) and (x2, y2)
+   *  and has moved the specified percentage between them.
+   */
+  static movePoint(x1, y1, x2, y2, move) {
+    var xDiff = x1 - x2;
+    var yDiff = y1 - y2;
+    var xMove = -xDiff * move;
+    var yMove = -yDiff * move;
+
+    return { x: x1 + xMove, y: y1 + yMove };
   }
 
   draw() {
