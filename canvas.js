@@ -3,6 +3,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 var c = canvas.getContext('2d');
+var mousePosition = {x: 0, y: 0};
 
 /* Rectangles
 c.fillStyle = 'rgba(255, 0, 0, 0.5)';
@@ -40,17 +41,18 @@ class Ball {
   constructor({
               x = randomX(),
               y = randomY(),
-              dx = randomSpeed(20),
-              dy = randomSpeed(20),
+              dx = randomSpeed(10),
+              dy = randomSpeed(10),
               red = randomColor(),
               green = randomColor(),
               blue = randomColor(),
-              radius = (Math.random() * 40) + 10
+              radius = (Math.random() * 40) + 10,
+              speed = 1
             } = {}) {
     this.x = x;
     this.y = y;
-    this.dx = dx;
-    this.dy = dy;
+    this.dx = dx * speed;
+    this.dy = dy * speed;
     this.red = red;
     this.green = green;
     this.blue = blue;
@@ -104,13 +106,24 @@ class Ball {
   }
 }
 
-var balls = [];
-var ballCount = 10;
-for (var i=0; i < ballCount; i++){
-  balls.push(new Ball());
+class Bubble extends Ball {
+  constructor(props) {
+    super(props);
+    this.radius = 20;
+  }
+
+  draw() {
+    var distance = getDistance(mousePosition.x, mousePosition.y, this.x, this.y);
+    this.radius = Math.max(100 - distance, 10);
+    super.draw();
+  }
 }
 
-var mousePosition = {x: 0, y: 0};
+var balls = [];
+var ballCount = 40;
+for (var i=0; i < ballCount; i++){
+  balls.push(new Bubble({speed: 0.5}));
+}
 
 function animate() {
   requestAnimationFrame(animate);
@@ -119,20 +132,25 @@ function animate() {
 }
 
 canvas.addEventListener('mousemove', event => {
-    mousePosition.x = event.clientX;
-    mousePosition.y = event.clientY;
+  mousePosition = getMousePos(event);
 }, false);
 
 animate();
 
 /* ----------------- */
 /* Utility Functions */
-function getMousePos(evt) {
+function getMousePos(event) {
   var rect = canvas.getBoundingClientRect();
   return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top
   };
+}
+
+function getDistance(x1, y1, x2, y2) {
+  var a = x1 - x2;
+  var b = y1 - y2;
+  return Math.sqrt( a*a + b*b );
 }
 
 function drawCircle(x, y, radius = 30, width = 5, red = 0, green = 0, blue = 0, opacity = 1) {
