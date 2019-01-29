@@ -1,3 +1,5 @@
+import { getMousePos } from '/js/utility.js';
+
 export default class CpgMenuIcon extends HTMLElement {
   constructor() {
     super();
@@ -5,17 +7,21 @@ export default class CpgMenuIcon extends HTMLElement {
     shadow.innerHTML = `
       <style media="screen">
         canvas {
-          background-color: red;
+          padding: 0;
+          margin: 0;
         }
       </style>
       <canvas></canvas>
     `;
 
     this.canvas = shadow.querySelector('canvas');
-    this.canvas.width = 50;
-    this.canvas.height = 50;
     this.context = this.canvas.getContext('2d');
     this.mousePosition = {x: 0, y: 0};
+
+    this.width = this.clientWidth;
+    this.height = this.clientHeight;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
 
     this.canvas.addEventListener('mousemove', event => {
       this.mousePosition = getMousePos(this.canvas, event);
@@ -30,8 +36,19 @@ export default class CpgMenuIcon extends HTMLElement {
   }
 
   doAnimate() {
-    this.context.clearRect(0, 0, 50, 50);
-    this.context.fillRect(0, 0, 30, 30);
+    this.context.clearRect(0, 0, this.width, this.height);
+    this.drawLine(this.offsetWidth * (1/8), 2);
+    this.drawLine(this.offsetWidth * (4/8), 2);
+    this.drawLine(this.offsetWidth * (7/8), 2);
+  }
+
+  drawLine(shift, thickness) {
+    this.context.beginPath();
+    this.context.lineWidth = thickness;
+    this.context.strokeStyle = `rgba(0, 0, 0, 1)`;
+    this.context.lineTo(0, shift);
+    this.context.lineTo(this.offsetWidth, shift);
+    this.context.stroke();
   }
 }
 
