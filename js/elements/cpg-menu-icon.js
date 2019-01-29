@@ -16,13 +16,6 @@ export default class CpgMenuIcon extends HTMLElement {
   }
 
   connectedCallback() {
-    /* Configuration Options */
-    this.speed = parseFloat(this.dataset.speed) || 0.2;
-    this.lineCount = parseFloat(this.dataset.lineCount) || 3;
-    this.lineThickness = parseFloat(this.dataset.lineThickness) || 2;
-    this.lineColor = this.dataset.lineColor || 'rgba(0, 0, 0, 1)';
-    /* ---------------------- */
-
     this.canvas = this.shadow.querySelector('canvas');
     this.context = this.canvas.getContext('2d');
     this.mousePosition = {x: 0, y: 0};
@@ -31,8 +24,19 @@ export default class CpgMenuIcon extends HTMLElement {
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.hovering = false;
-    this.targetX = 0;
-    this.targetY = this.height / 2;
+
+    /* ---------------------- */
+    /* Configuration Options */
+    /* ---------------------- */
+    this.speed = parseFloat(this.dataset.speed) || 0.2;
+    this.lineCount = parseFloat(this.dataset.lineCount) || 3;
+    this.lineThickness = parseFloat(this.dataset.lineThickness) || 2;
+    this.lineColor = this.dataset.lineColor || 'rgba(0, 0, 0, 1)';
+    this.targetX = (parseFloat(this.dataset.targetX) || 0) * this.width;
+    this.targetY = (parseFloat(this.dataset.targetY) || 0.5) * this.height;
+    /* ---------------------- */
+    /* ---------------------- */
+    /* ---------------------- */
 
     this.initialLines = [];
     for (var i = 0; i < this.lineCount; i++ ) {
