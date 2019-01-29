@@ -71,7 +71,7 @@ export function fillAbove(context, points, gap) {
   context.lineTo(0, 0);
   context.lineTo(points[0].x, points[points.length-1].y);
   context.fillStyle = `rgba(0, 0, 0)`;
-  context.fillStyle = 'rgb(0, 0, 0, 0.4)';
+  context.fillStyle = 'rgb(0, 0, 0, 0.1)';
   context.fill();
   context.strokeStyle = `rgba(0, 0, 0)`;
   context.stroke();
