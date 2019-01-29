@@ -51,28 +51,23 @@ export function getMousePos(canvas, event) {
   };
 }
 
-export function fillBelow(context, points, gap) {
+export function fillPoints({
+          context,
+          points,
+          shift,
+          fillRed = 0,
+          fillGreen = 0,
+          fillBlue = 0,
+          fillOpacity = 1,
+          lineRed = 0,
+          lineGreen = 0,
+          lineBlue = 0,
+          lineOpacity = 1} = {}) {
   context.beginPath();
-  points.forEach(point => context.lineTo(point.x, point.y + gap));
-  context.lineTo(window.innerWidth, window.innerHeight);
-  context.lineTo(0, window.innerHeight);
+  points.forEach(point => context.lineTo(point.x, point.y + shift));
   context.lineTo(points[0].x, points[points.length-1].y);
-  context.fillStyle = `rgba(0, 0, 0)`;
-  context.fillStyle = 'rgb(0, 0, 0, 0.1)';
+  context.fillStyle = `rgba(${fillRed}, ${fillGreen}, ${fillBlue}, ${fillOpacity})`;
   context.fill();
-  context.strokeStyle = `rgba(0, 0, 0)`;
-  context.stroke();
-}
-
-export function fillAbove(context, points, gap) {
-  context.beginPath();
-  points.forEach(point => context.lineTo(point.x, point.y - gap));
-  context.lineTo(window.innerWidth, 0);
-  context.lineTo(0, 0);
-  context.lineTo(points[0].x, points[points.length-1].y);
-  context.fillStyle = `rgba(0, 0, 0)`;
-  context.fillStyle = 'rgb(0, 0, 0, 0.1)';
-  context.fill();
-  context.strokeStyle = `rgba(0, 0, 0)`;
+  context.strokeStyle = `rgba(${lineRed}, ${lineGreen}, ${lineBlue}, ${lineOpacity})`;
   context.stroke();
 }
