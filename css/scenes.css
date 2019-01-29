@@ -14,7 +14,7 @@ a {
 }
 
 a {
-  display: block;
+  display: inline-block;
   text-decoration: none;
   color: #6700DF;
   padding: 1rem;
