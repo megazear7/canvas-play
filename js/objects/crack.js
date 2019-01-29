@@ -49,7 +49,6 @@ export default class Crack {
     for (var i = 0; i < segmentCount; i++) {
       this.addEndPoint()
     }
-
   }
 
   get startPoint() {

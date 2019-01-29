@@ -26,12 +26,22 @@ export function getDistance(x1, y1, x2, y2) {
   return Math.sqrt( a*a + b*b );
 }
 
-export function drawCircle({context, x = 0, y = 0, radius = 30, lineWidth = 1, width = 5, red = 0, green = 0, blue = 0, opacity = 1}) {
+export function drawCircle({
+            context,
+            x = 0,
+            y = 0,
+            radius = 30,
+            lineWidth = 1,
+            width = 5,
+            red = 0,
+            green = 0,
+            blue = 0,
+            opacity = 1}) {
   context.beginPath();
   context.arc(x, y, radius, 0, Math.PI * 2, false);
   context.lineWidth = lineWidth;
   context.stroke();
-  context.fillStyle = `rgba(${red}, ${green}, ${blue}, 0.5)`;
+  context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
   context.fill();
 }
 

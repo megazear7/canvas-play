@@ -11,7 +11,7 @@ export default class CpgCrackOpening extends HTMLElement {
           position: absolute;
           top: 0;
           left: 0;
-          z-index: -1;
+          z-index: 1000;
         }
       </style>
       <canvas></canvas>
@@ -34,9 +34,17 @@ export default class CpgCrackOpening extends HTMLElement {
   connectedCallback() {
     this.context = this.canvas.getContext('2d');
     this.gap = 0;
-    this.gapSpeed = 0;
-    this.gapAcceleration = 0.2;
-    this.opacity = 0.3;
+    this.gapSpeed = parseFloat(this.dataset.gapSpeed) || 0;
+    this.gapAcceleration = parseFloat(this.dataset.gapAcceleration) || 0.2;
+    this.lineRed = parseFloat(this.dataset.lineRed) || 0;
+    this.lineGreen = parseFloat(this.dataset.lineGreen) || 0;
+    this.lineBlue = parseFloat(this.dataset.lineBlue) || 0;
+    this.lineOpacity = parseFloat(this.dataset.lineOpacity) || 1;
+    this.fillRed = parseFloat(this.dataset.fillRed) || 230;
+    this.fillGreen = parseFloat(this.dataset.fillGreen) || 230;
+    this.fillBlue = parseFloat(this.dataset.fillBlue) || 230;
+    this.fillOpacity = parseFloat(this.dataset.fillOpacity) || 1;
+    this.acceleration = parseFloat(this.dataset.acceleration) || 0.05;
 
     this.crack = new Crack({
       context: this.context,
@@ -44,9 +52,12 @@ export default class CpgCrackOpening extends HTMLElement {
       startY: (randomY() / 4) + (window.innerHeight * (3/8)),
       segmentCount: 1,
       breakSize: 10,
-      opacity: Math.min(this.opacity * 2, 1),
+      red: this.lineRed,
+      blue: this.lineBlue,
+      green: this.lineGreen,
+      opacity: this.lineOpacity,
       breakSpeed: 0,
-      breakAcceleration: 0.05,
+      breakAcceleration: this.acceleration,
       startGrows: false,
       endGrowHorizontalDir: 1,
       stayBounded: true
@@ -56,8 +67,8 @@ export default class CpgCrackOpening extends HTMLElement {
     function animate() {
       requestAnimationFrame(animate);
       self.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      self.crack.update();
       self.doAnimate();
+      self.crack.update();
     }
 
     animate();
@@ -77,8 +88,11 @@ export default class CpgCrackOpening extends HTMLElement {
         context: this.context,
         points: belowPoints,
         shift: this.gap,
-        lineOpacity: 0,
-        fillOpacity: this.opacity
+        fillRed: this.fillRed,
+        fillGreen: this.fillGreen,
+        fillBlue: this.fillBlue,
+        fillOpacity: this.fillOpacity,
+        lineOpacity: 0
       });
 
       var abovePoints = Array.from(this.crack.points);
@@ -88,11 +102,14 @@ export default class CpgCrackOpening extends HTMLElement {
         context: this.context,
         points: abovePoints,
         shift: -this.gap,
-        lineOpacity: 0,
-        fillOpacity: this.opacity
+        fillRed: this.fillRed,
+        fillGreen: this.fillGreen,
+        fillBlue: this.fillBlue,
+        fillOpacity: this.fillOpacity,
+        lineOpacity: 0
       });
     } else {
-      this.context.fillStyle = `rgb(0, 0, 0, ${this.opacity})`;
+      this.context.fillStyle = `rgb(${this.fillRed}, ${this.fillGreen}, ${this.fillBlue}, ${this.fillOpacity})`;
       this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
     }
   }
