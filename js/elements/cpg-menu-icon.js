@@ -3,22 +3,27 @@ import { getMousePos } from '/js/utility.js';
 export default class CpgMenuIcon extends HTMLElement {
   constructor() {
     super();
-    var shadow = this.attachShadow({mode: 'open'});
-    shadow.innerHTML = `
+
+    this.shadow = this.attachShadow({mode: 'open'});
+    this.shadow.innerHTML = `
       <style media="screen">
         :host {
           cursor: pointer;
         }
-
-        canvas {
-          padding: 0;
-          margin: 0;
-        }
       </style>
       <canvas></canvas>
     `;
+  }
 
-    this.canvas = shadow.querySelector('canvas');
+  connectedCallback() {
+    /* Configuration Options */
+    this.speed = parseFloat(this.dataset.speed) || 0.2;
+    this.lineCount = parseFloat(this.dataset.lineCount) || 3;
+    this.lineThickness = parseFloat(this.dataset.lineThickness) || 2;
+    this.lineColor = this.dataset.lineColor || 'rgba(0, 0, 0, 1)';
+    /* ---------------------- */
+
+    this.canvas = this.shadow.querySelector('canvas');
     this.context = this.canvas.getContext('2d');
     this.mousePosition = {x: 0, y: 0};
     this.width = this.clientWidth;
@@ -26,28 +31,25 @@ export default class CpgMenuIcon extends HTMLElement {
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.hovering = false;
-    this.thickness = 2;
-    this.speed = 0.2;
     this.targetX = 0;
     this.targetY = this.height / 2;
 
-    this.initialLines = [
-      this.offsetWidth * (1/8),
-      this.offsetWidth * (4/8),
-      this.offsetWidth * (7/8)
-    ];
+    this.initialLines = [];
+    for (var i = 0; i < this.lineCount; i++ ) {
+      this.initialLines.push(this.height * ((i+1)/(this.lineCount+1)));
+    }
 
     this.lines = [];
     this.initialLines.forEach(initialLine => {
       this.lines.push({
         x1: 0,
         y1: initialLine,
-        x2: this.offsetWidth,
+        x2: this.width,
         y2: initialLine,
         initial: {
           x1: 0,
           y1: initialLine,
-          x2: this.offsetWidth,
+          x2: this.width,
           y2: initialLine
         }
       });
@@ -106,8 +108,8 @@ export default class CpgMenuIcon extends HTMLElement {
 
   drawLine(x1, y1, x2, y2) {
     this.context.beginPath();
-    this.context.lineWidth = this.thickness;
-    this.context.strokeStyle = `rgba(0, 0, 0, 1)`;
+    this.context.lineWidth = this.lineThickness;
+    this.context.strokeStyle = this.lineColor;
     this.context.lineTo(x1, y1);
     this.context.lineTo(x2, y2);
     this.context.stroke();
