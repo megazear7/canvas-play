@@ -39,11 +39,15 @@ export default class Crack {
     this.endGrowVerticalDir = endGrowVerticalDir;
     this.endGrowHorizontalDir = endGrowHorizontalDir;
     this.stayBounded = stayBounded;
+    this.doUpdate = true;
+    this.render = true;
+    this.reachedEdge = false;
     this.points = [{ x: startX, y: startY }];
 
     for (var i = 0; i < segmentCount; i++) {
       this.addEndPoint()
     }
+
   }
 
   addEndPoint() {
@@ -71,6 +75,26 @@ export default class Crack {
 
     var x = startX + newX;
     var y = startY + newY;
+
+    if (this.stayBounded) {
+      if (x > window.innerWidth) {
+        x = window.innerWidth;
+        this.reachedEdge = true;
+      }
+      if (x < 0) {
+        x = 0;
+        this.reachedEdge = true;
+      }
+      if (y > window.innerHeight) {
+        y = window.innerHeight;
+        this.reachedEdge = true;
+      }
+      if (y < 0) {
+        y = 0;
+        this.reachedEdge = true;
+      }
+    }
+
     this.points.push({ x: x, y: y });
   }
 
@@ -82,25 +106,29 @@ export default class Crack {
   }
 
   update() {
-    this.breakSpeed += this.breakAcceleration;
-    this.breakSize += this.breakSizeAcceleration;
+    if (this.doUpdate) {
+      this.breakSpeed += this.breakAcceleration;
+      this.breakSize += this.breakSizeAcceleration;
 
-    if (this.endGrows) {
-      this.nextEndBreak += Math.random() * this.breakSpeed;
-      if (this.nextEndBreak > 1) {
-        this.nextEndBreak = 0;
-        this.addEndPoint();
+      if (this.endGrows) {
+        this.nextEndBreak += Math.random() * this.breakSpeed;
+        if (this.nextEndBreak > 1) {
+          this.nextEndBreak = 0;
+          this.addEndPoint();
+        }
+      }
+
+      if (this.startGrows) {
+        this.nextStartBreak += Math.random() * this.breakSpeed;
+        if (this.nextStartBreak > 1) {
+          this.nextStartBreak = 0;
+          this.addStartPoint();
+        }
       }
     }
 
-    if (this.startGrows) {
-      this.nextStartBreak += Math.random() * this.breakSpeed;
-      if (this.nextStartBreak > 1) {
-        this.nextStartBreak = 0;
-        this.addStartPoint();
-      }
+    if (this.render) {
+      this.draw();
     }
-
-    this.draw();
   }
 }

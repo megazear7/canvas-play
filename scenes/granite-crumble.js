@@ -13,7 +13,7 @@ for (var i = 0; i < crackCount; i++) {
   cracks.push(new Crack({
     context: c,
     segmentCount: randomSegmentCount(10),
-    maxSize: 50,
+    breakSize: 50,
     opacity: 0.5,
     breakSpeed: 0.01,
     breakAcceleration: 0.01
