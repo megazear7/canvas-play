@@ -8,18 +8,18 @@ var c = canvas.getContext('2d');
 
 var gap = 0;
 var gapSpeed = 0;
-var gapAcceleration = 0.1;
+var gapAcceleration = 0.2;
 var opacity = 0.3;
 
 var crack = new Crack({
     context: c,
     startX: 0,
-    startY: (randomY() / 2) + (window.innerHeight / 4),
+    startY: (randomY() / 4) + (window.innerHeight * (3/8)),
     segmentCount: 1,
     breakSize: 10,
     opacity: Math.min(opacity * 2, 1),
-    breakSpeed: 0.3,
-    breakAcceleration: 0.04,
+    breakSpeed: 0,
+    breakAcceleration: 0.05,
     startGrows: false,
     endGrowHorizontalDir: 1,
     stayBounded: true
