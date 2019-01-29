@@ -1,8 +1,10 @@
-import { positiveOrNegative, randomNumber, randomX, randomY } from '/js/utility.js';
+import { randomNumber, randomX, randomY } from '/js/utility.js';
 
 export default class Crack {
   constructor({
                 context,
+                startX = randomX(),
+                startY = randomY(),
                 segmentCount = 2,
                 breakSize = 100,
                 breakSizeAcceleration = 0,
@@ -13,7 +15,11 @@ export default class Crack {
                 breakSpeed = 0,
                 breakAcceleration = 0,
                 startGrows = true,
-                endGrows = true} = {}) {
+                endGrows = true,
+                startGrowVerticalDir = 0,
+                startGrowHorizontalDir = 0,
+                endGrowVerticalDir = 0,
+                endGrowHorizontalDir = 0} = {}) {
     this.context = context;
     this.breakSize = breakSize;
     this.breakSizeAcceleration = breakSizeAcceleration;
@@ -27,7 +33,11 @@ export default class Crack {
     this.nextStartBreak = Math.random();
     this.startGrows = startGrows;
     this.endGrows = endGrows;
-    this.points = [{ x: randomX(), y: randomY() }];
+    this.startGrowVerticalDir = startGrowVerticalDir;
+    this.startGrowHorizontalDir = startGrowHorizontalDir;
+    this.endGrowVerticalDir = endGrowVerticalDir;
+    this.endGrowHorizontalDir = endGrowHorizontalDir;
+    this.points = [{ x: startX, y: startY }];
 
     for (var i = 0; i < segmentCount; i++) {
       this.addEndPoint()
@@ -35,16 +45,24 @@ export default class Crack {
   }
 
   addEndPoint() {
-    this.addPoint(this.points[this.points.length-1]);
+    this.addPoint(this.points[this.points.length-1], this.endGrowHorizontalDir, this.endGrowVerticalDir);
   }
 
   addStartPoint() {
-    this.addPoint(this.points[0]);
+    this.addPoint(this.points[0], this.startGrowHorizontalDir, this.startGrowVerticalDir);
   }
 
-  addPoint(from) {
-    var newX = randomNumber({min: 1, max: this.breakSize}) * positiveOrNegative();
-    var newY = randomNumber({min: 1, max: this.breakSize}) * positiveOrNegative();
+  addPoint(from, horizontalDir, verticalDir) {
+    var newX = randomNumber({
+      min: -(this.breakSize * (1 - horizontalDir)),
+      max: (this.breakSize * (1 + horizontalDir))
+    });
+
+    var newY = randomNumber({
+      min: -(this.breakSize * (1 - verticalDir)),
+      max: (this.breakSize * (1 + verticalDir))
+    });
+
     var startPoint = this.points[0];
     var startX = from.x;
     var startY = from.y;

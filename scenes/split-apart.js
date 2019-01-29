@@ -7,12 +7,13 @@ var c = canvas.getContext('2d');
 
 var crack = new Crack({
     context: c,
-    segmentCount: 10,
-    maxSize: 50,
+    startX: 0,
+    segmentCount: 3,
+    maxSize: 20,
     opacity: 0.5,
-    breakSpeed: 0.01,
-    breakAcceleration: 0.01,
-    startGrows: false
+    breakSpeed: 0.1,
+    startGrows: false,
+    endGrowHorizontalDir: 1
 });
 
 function animate() {
