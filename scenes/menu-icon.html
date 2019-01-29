@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Canvas Play</title>
-  <meta name="description" content="List of html canvas examples.">
-  <link rel="stylesheet" type="text/css" href="/css/home.css">
+  <title>Cpg Menu Icon</title>
+  <meta name="description" content="Example menu icon implementation using canvas and a web component.">
+  <link rel="stylesheet" type="text/css" href="/css/scenes.css">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/images/icons/favicon.ico">
@@ -33,15 +33,19 @@
   <meta name="twitter:site" content="@username">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="canvas-play">
-  <meta property="og:image" content="/images/icons/icon-640x640.png" />
-</head>
+  <meta property="og:image" content="/images/icons/icon-640x640.png" /></head></head>
+
+  <style media="screen">
+    cpg-menu-icon {
+      background-color: red;
+    }
+  </style>
 <body>
-  <h1>Canvas Play</h1>
-  <ol>
-    <li><a href="/scenes/rainbow-bubbles.html">Rainbow Bubbles</a></li>
-    <li><a href="/scenes/granite-crumble.html">Granite Crumble</a></li>
-    <li><a href="/scenes/split-apart.html">Split Apart</a></li>
-    <li><a href="/scenes/menu-icon.html">Menu Icon</a></li>
-  </ol>
+  <a href="/">Back to menu</a>
+  <cpg-menu-icon></cpg-menu-icon>
+
+  <script type="module">
+    import CpgMenuIcon from '/js/elements/cpg-menu-icon.js';
+  </script>
 </body>
 </html>
