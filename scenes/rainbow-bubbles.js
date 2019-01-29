@@ -5,10 +5,16 @@ import canvas from '/js/full-canvas.js';
 var context = canvas.getContext('2d');
 var mousePosition = {x: 0, y: 0};
 var bubbles = [];
-var bubbleCount = 200;
+var bubbleCount = 300;
 
 for (var i = 0; i < bubbleCount; i++) {
-  bubbles.push(new Bubble({context: context, speed: 0.5, mousePosition: mousePosition}));
+  bubbles.push(new Bubble({
+    context: context,
+    speed: 0.5,
+    mousePosition: mousePosition,
+    radius: (Math.random() * 80) + 20,
+    minRadius: (Math.random() * 20) + 5
+  }));
 }
 
 function animate() {
