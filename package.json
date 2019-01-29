@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "A playground for using canvas",
   "main": "server.js",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "static-server": "^2.2.1"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
