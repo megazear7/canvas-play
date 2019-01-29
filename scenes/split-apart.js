@@ -1,10 +1,7 @@
 import { fillPoints, randomY } from '/js/utility.js';
 import Crack from '/js/objects/crack.js';
-
-var canvas = document.querySelector('canvas');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-var c = canvas.getContext('2d');
+import canvas from '/js/full-canvas.js';
+var context = canvas.getContext('2d');
 
 var gap = 0;
 var gapSpeed = 0;
@@ -12,7 +9,7 @@ var gapAcceleration = 0.2;
 var opacity = 0.3;
 
 var crack = new Crack({
-    context: c,
+    context: context,
     startX: 0,
     startY: (randomY() / 4) + (window.innerHeight * (3/8)),
     segmentCount: 1,
@@ -27,7 +24,7 @@ var crack = new Crack({
 
 function animate() {
   requestAnimationFrame(animate);
-  c.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  context.clearRect(0, 0, window.innerWidth, window.innerHeight);
   crack.update();
 
   if (crack.reachedEdge) {
@@ -40,7 +37,7 @@ function animate() {
     belowPoints.push({x: window.innerWidth, y: window.innerHeight});
     belowPoints.push({x: 0, y: window.innerHeight});
     fillPoints({
-      context: c,
+      context: context,
       points: belowPoints,
       shift: gap,
       lineOpacity: 0,
@@ -51,7 +48,7 @@ function animate() {
     abovePoints.push({x: window.innerWidth, y: 0});
     abovePoints.push({x: 0, y: 0});
     fillPoints({
-      context: c,
+      context: context,
       points: abovePoints,
       shift: -gap,
       lineOpacity: 0,
@@ -59,8 +56,8 @@ function animate() {
     });
 
   } else {
-    c.fillStyle = `rgb(0, 0, 0, ${opacity})`;
-    c.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    context.fillStyle = `rgb(0, 0, 0, ${opacity})`;
+    context.fillRect(0, 0, window.innerWidth, window.innerHeight);
   }
 }
 
