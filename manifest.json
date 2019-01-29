@@ -1,0 +1,31 @@
+{
+  "name": "Canvas Play",
+  "short_name": "Canvas",
+  "description": "Some examples of using html canvas.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#FF2F2F",
+  "background_color": "#f6f6f6",
+  "icons": [
+    {
+      "src": "/images/icons/icon-640x640.png",
+      "sizes": "640x640",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icons/icon-320x320.png",
+      "sizes": "320x320",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icons/icon-64x64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ]
+}
