@@ -1,5 +1,5 @@
-import Crack from './crack.js';
-import { randomSegmentCount } from './utility.js';
+import Crack from '/js/objects/crack.js';
+import { randomSegmentCount } from '/js/utility.js';
 
 var canvas = document.querySelector('canvas');
 canvas.width = window.innerWidth;

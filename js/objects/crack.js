@@ -1,4 +1,4 @@
-import { positiveOrNegative, randomNumber, randomX, randomY } from './utility.js';
+import { positiveOrNegative, randomNumber, randomX, randomY } from '/js/utility.js';
 
 export default class Crack {
   constructor({context: context, segmentCount = 2, breakSize = 100, breakSizeAcceleration = 0, red = 0, green = 0, blue = 0, opacity = 0.1, breakSpeed = 0, breakAcceleration = 0} = {}) {

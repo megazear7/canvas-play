@@ -1,4 +1,4 @@
-import { randomX, randomY, randomSpeed, randomColor, drawCircle } from './utility.js';
+import { randomX, randomY, randomSpeed, randomColor, drawCircle } from '/js/utility.js';
 
 export default class Ball {
   constructor({

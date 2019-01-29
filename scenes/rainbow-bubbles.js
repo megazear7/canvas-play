@@ -1,5 +1,5 @@
-import Bubble from './bubble.js';
-import { getMousePos } from './utility.js';
+import Bubble from '/js/objects/bubble.js';
+import { getMousePos } from '/js/utility.js';
 
 var canvas = document.querySelector('canvas');
 canvas.width = window.innerWidth;

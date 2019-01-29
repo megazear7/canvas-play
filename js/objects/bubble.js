@@ -1,4 +1,4 @@
-import { getDistance } from './utility.js';
+import { getDistance } from '/js/utility.js';
 import Ball from './ball.js';
 
 export default class Bubble extends Ball {
