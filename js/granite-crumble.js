@@ -5,21 +5,30 @@ canvas.height = window.innerHeight;
 var c = canvas.getContext('2d');
 
 class Crack {
-  constructor({segmentCount = 2} = {}) {
+  constructor({segmentCount = 2, maxSize = 100, red = 0, green = 0, blue = 0, opacity = 0.1} = {}) {
     this.points = [];
 
+    var x = randomX();
+    var y = randomY();
+
     for (var i=0; i < segmentCount+1; i++) {
-      this.points.push({
-        x: randomX(),
-        y: randomY()
-      });
+      var newX = randomNumber({min: 1, max: maxSize}) * positiveOrNegative();
+      var newY = randomNumber({min: 1, max: maxSize}) * positiveOrNegative();
+      x = x + newX > window.innerWidth ? x = x - newX : x = x + newX;
+      y = y + newY > window.innerWidth ? y = y - newY : y = y + newY;
+      this.points.push({ x: x, y: y });
     }
+
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+    this.opacity = opacity;
   }
 
   draw() {
     c.beginPath();
     this.points.forEach(point => c.lineTo(point.x, point.y));
-    c.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+    c.strokeStyle = `rgba(${this.red}, ${this.green}, ${this.blue}, ${this.opacity})`;
     c.stroke();
   }
 
@@ -28,12 +37,11 @@ class Crack {
   }
 }
 
-
 var cracks = [];
-var crackCount = randomNumber({min: 4, max: 7});
+var crackCount = randomNumber({min: 300, max: 400});
 
 for (var i = 0; i < crackCount; i++) {
-  cracks.push(new Crack({segmentCount: randomSegmentCount()}));
+  cracks.push(new Crack({ segmentCount: randomSegmentCount(), maxSize: 50, opacity: 0.1 }));
 }
 
 function animate() {
@@ -43,6 +51,10 @@ function animate() {
 }
 
 animate();
+
+function positiveOrNegative() {
+  return Math.random() > 0.5 ? 1 : -1;
+}
 
 function randomNumber({min = 1, max = 100}) {
   min = Math.ceil(min);
