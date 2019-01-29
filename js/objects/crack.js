@@ -117,7 +117,6 @@ export default class Crack {
     if (this.doUpdate) {
       this.breakSize += this.breakSizeAcceleration;
       this.breakSpeed += this.breakAcceleration;
-      console.log(this.breakSpeed);
 
       if (this.endGrows) {
         this.nextEndBreak += Math.random() * this.breakSpeed;
