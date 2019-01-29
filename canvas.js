@@ -23,20 +23,6 @@ c.strokeStyle = 'rgba(255, 0, 0, 0.5)';
 c.stroke();
 */
 
-/* Circle
-c.beginPath();
-c.arc(300, 100, 30, 0, Math.PI * 2, false);
-c.strokeStyle = 'rgba(255, 0, 255, 0.5)';
-c.stroke();
-*/
-
-/*
-var circleCount = 50;
-for (var i=0; i < circleCount; i++){
-  drawCircle(randomX(), randomY(), 30, randomColor(), randomColor(), randomColor());
-}
-*/
-
 class Ball {
   constructor({
               x = randomX(),
@@ -76,7 +62,7 @@ class Ball {
   }
 
   draw() {
-    drawCircle(this.x, this.y, this.radius, 5, this.red, this.green, this.blue);
+    drawCircle({x: this.x, y: this.y, radius: this.radius, width: 5, lineWidth: 0, red: this.red, green: this.green, blue: this.blue});
   }
 
   move() {
@@ -120,7 +106,7 @@ class Bubble extends Ball {
 }
 
 var balls = [];
-var ballCount = 40;
+var ballCount = 200;
 for (var i=0; i < ballCount; i++){
   balls.push(new Bubble({speed: 0.5}));
 }
@@ -153,12 +139,13 @@ function getDistance(x1, y1, x2, y2) {
   return Math.sqrt( a*a + b*b );
 }
 
-function drawCircle(x, y, radius = 30, width = 5, red = 0, green = 0, blue = 0, opacity = 1) {
+function drawCircle({x = 0, y = 0, radius = 30, lineWidth = 1, width = 5, red = 0, green = 0, blue = 0, opacity = 1}) {
   c.beginPath();
   c.arc(x, y, radius, 0, Math.PI * 2, false);
-  c.lineWidth = 10;
-  c.strokeStyle = `rgba(${red}, ${green}, ${blue}, 0.5)`;
+  c.lineWidth = lineWidth;
   c.stroke();
+  c.fillStyle = `rgba(${red}, ${green}, ${blue}, 0.5)`;
+  c.fill();
 }
 
 function randomColor() {
