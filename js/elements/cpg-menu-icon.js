@@ -32,8 +32,8 @@ export default class CpgMenuIcon extends HTMLElement {
     this.lineCount = parseFloat(this.dataset.lineCount) || 3;
     this.lineThickness = parseFloat(this.dataset.lineThickness) || 2;
     this.lineColor = this.dataset.lineColor || 'rgba(0, 0, 0, 1)';
-    this.targetX = (parseFloat(this.dataset.targetX) || 0) * this.width;
-    this.targetY = (parseFloat(this.dataset.targetY) || 0.5) * this.height;
+    this.targetX = (parseFloat(this.dataset.targetX || 0)) * this.width;
+    this.targetY = (parseFloat(this.dataset.targetY || 0.5)) * this.height;
     this.targetDirection = this.dataset.targetDirection || 'left';
     /* ---------------------- */
     /* ---------------------- */
