@@ -1,7 +1,19 @@
 import { positiveOrNegative, randomNumber, randomX, randomY } from '/js/utility.js';
 
 export default class Crack {
-  constructor({context: context, segmentCount = 2, breakSize = 100, breakSizeAcceleration = 0, red = 0, green = 0, blue = 0, opacity = 0.1, breakSpeed = 0, breakAcceleration = 0} = {}) {
+  constructor({
+                context,
+                segmentCount = 2,
+                breakSize = 100,
+                breakSizeAcceleration = 0,
+                red = 0,
+                green = 0,
+                blue = 0,
+                opacity = 0.1,
+                breakSpeed = 0,
+                breakAcceleration = 0,
+                startGrows = true,
+                endGrows = true} = {}) {
     this.context = context;
     this.breakSize = breakSize;
     this.breakSizeAcceleration = breakSizeAcceleration;
@@ -13,6 +25,8 @@ export default class Crack {
     this.breakAcceleration = breakAcceleration;
     this.nextEndBreak = Math.random();
     this.nextStartBreak = Math.random();
+    this.startGrows = startGrows;
+    this.endGrows = endGrows;
     this.points = [{ x: randomX(), y: randomY() }];
 
     for (var i = 0; i < segmentCount; i++) {
@@ -50,16 +64,20 @@ export default class Crack {
     this.breakSpeed += this.breakAcceleration;
     this.breakSize += this.breakSizeAcceleration;
 
-    this.nextEndBreak += Math.random() * this.breakSpeed;
-    if (this.nextEndBreak > 1) {
-      this.nextEndBreak = 0;
-      this.addEndPoint();
+    if (this.endGrows) {
+      this.nextEndBreak += Math.random() * this.breakSpeed;
+      if (this.nextEndBreak > 1) {
+        this.nextEndBreak = 0;
+        this.addEndPoint();
+      }
     }
 
-    this.nextStartBreak += Math.random() * this.breakSpeed;
-    if (this.nextStartBreak > 1) {
-      this.nextStartBreak = 0;
-      this.addStartPoint();
+    if (this.startGrows) {
+      this.nextStartBreak += Math.random() * this.breakSpeed;
+      if (this.nextStartBreak > 1) {
+        this.nextStartBreak = 0;
+        this.addStartPoint();
+      }
     }
 
     this.draw();
