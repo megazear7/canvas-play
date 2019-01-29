@@ -50,3 +50,29 @@ export function getMousePos(canvas, event) {
     y: event.clientY - rect.top
   };
 }
+
+export function fillBelow(context, points, gap) {
+  context.beginPath();
+  points.forEach(point => context.lineTo(point.x, point.y + gap));
+  context.lineTo(window.innerWidth, window.innerHeight);
+  context.lineTo(0, window.innerHeight);
+  context.lineTo(points[0].x, points[points.length-1].y);
+  context.fillStyle = `rgba(0, 0, 0)`;
+  context.fillStyle = 'rgb(0, 0, 0, 0.1)';
+  context.fill();
+  context.strokeStyle = `rgba(0, 0, 0)`;
+  context.stroke();
+}
+
+export function fillAbove(context, points, gap) {
+  context.beginPath();
+  points.forEach(point => context.lineTo(point.x, point.y - gap));
+  context.lineTo(window.innerWidth, 0);
+  context.lineTo(0, 0);
+  context.lineTo(points[0].x, points[points.length-1].y);
+  context.fillStyle = `rgba(0, 0, 0)`;
+  context.fillStyle = 'rgb(0, 0, 0, 0.4)';
+  context.fill();
+  context.strokeStyle = `rgba(0, 0, 0)`;
+  context.stroke();
+}
