@@ -115,21 +115,22 @@ export default class Crack {
 
   update() {
     if (this.doUpdate) {
-      this.breakSpeed += this.breakAcceleration;
       this.breakSize += this.breakSizeAcceleration;
+      this.breakSpeed += this.breakAcceleration;
+      console.log(this.breakSpeed);
 
       if (this.endGrows) {
         this.nextEndBreak += Math.random() * this.breakSpeed;
-        if (this.nextEndBreak > 1) {
-          this.nextEndBreak = 0;
+        while (this.nextEndBreak > 1) {
+          this.nextEndBreak--;
           this.addEndPoint();
         }
       }
 
       if (this.startGrows) {
         this.nextStartBreak += Math.random() * this.breakSpeed;
-        if (this.nextStartBreak > 1) {
-          this.nextStartBreak = 0;
+        while (this.nextStartBreak > 1) {
+          this.nextStartBreak--;
           this.addStartPoint();
         }
       }

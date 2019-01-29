@@ -1,13 +1,11 @@
 import { fillAbove, fillBelow, randomY } from '/js/utility.js';
 import Crack from '/js/objects/crack.js';
 
-/* Setup */
 var canvas = document.querySelector('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 var c = canvas.getContext('2d');
 
-/* Configuration options */
 var crack = new Crack({
     context: c,
     startX: 0,
@@ -15,18 +13,17 @@ var crack = new Crack({
     segmentCount: 1,
     breakSize: 10,
     opacity: 0.5,
-    breakSpeed: 1,
-    breakAcceleration: 0.1,
+    breakSpeed: 0.3,
+    breakAcceleration: 0.04,
     startGrows: false,
     endGrowHorizontalDir: 1,
     stayBounded: true
 });
 
 var gap = 0;
-var gapSpeed = 1;
-var gapAcceleration = 0.1;
+var gapSpeed = 3;
+var gapAcceleration = 0.2;
 
-/* Animation Sequence */
 function animate() {
   requestAnimationFrame(animate);
   c.clearRect(0, 0, window.innerWidth, window.innerHeight);
