@@ -9,6 +9,7 @@ for (var i = 0; i < pebbleCount; i++) {
   pebbles.push(new Pebble({
     context: context,
     speed: 0.5,
+    weight: 0.3,
     radius: (Math.random() * 10) + 5
   }));
 }
@@ -16,7 +17,7 @@ for (var i = 0; i < pebbleCount; i++) {
 function animate() {
   requestAnimationFrame(animate);
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  pebbles.forEach(bubble => bubble.update());
+  pebbles.forEach(pebble => pebble.update());
 }
 
 animate();

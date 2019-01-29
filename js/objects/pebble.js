@@ -4,8 +4,9 @@ import Ball from './ball.js';
 export default class Bubble extends Ball {
   constructor(props) {
     super(props);
-    this.energyLoss = 0.2;
-    this.absoluteEnergyLoss = 0.5;
+    this.weight = props.weight || 1;
+    this.energyLoss = this.weight;
+    this.absoluteEnergyLoss = this.weight;
   }
 
   move() {

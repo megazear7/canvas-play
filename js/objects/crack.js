@@ -1,4 +1,5 @@
 import { randomNumber, randomX, randomY } from '/js/utility.js';
+import Pebble from '/js/objects/pebble.js';
 
 export default class Crack {
   constructor({
@@ -43,6 +44,7 @@ export default class Crack {
     this.render = true;
     this.reachedEdge = false;
     this.points = [{ x: startX, y: startY }];
+    this.pebbles = [];
 
     for (var i = 0; i < segmentCount; i++) {
       this.addEndPoint()
@@ -60,10 +62,31 @@ export default class Crack {
 
   addEndPoint() {
     this.addPoint(this.points[this.points.length-1], this.endGrowHorizontalDir, this.endGrowVerticalDir);
+    this.throwRubble(this.points[this.points.length-1]);
   }
 
   addStartPoint() {
     this.addPoint(this.points[0], this.startGrowHorizontalDir, this.startGrowVerticalDir);
+    this.throwRubble(this.points[0]);
+  }
+
+  throwRubble(point) {
+    var pebbleCount = 1;
+
+    for (var i = 0; i < pebbleCount; i++) {
+      this.pebbles.push(new Pebble({
+        context: this.context,
+        x: point.x,
+        y: point.y,
+        red: 0,
+        green: 0,
+        blue: 0,
+        opacity: 1,
+        speed: 0.5,
+        weight: 0.7,
+        radius: Math.random() + 1
+      }));
+    }
   }
 
   addPoint(from, horizontalDir, verticalDir) {
@@ -138,5 +161,6 @@ export default class Crack {
     if (this.render) {
       this.draw();
     }
+    this.pebbles.forEach(pebble => pebble.update());
   }
 }
