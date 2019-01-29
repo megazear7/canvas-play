@@ -50,6 +50,14 @@ export default class Crack {
 
   }
 
+  get startPoint() {
+    return this.points[0];
+  }
+
+  get endPoint() {
+    return this.points[this.points.length-1];
+  }
+
   addEndPoint() {
     this.addPoint(this.points[this.points.length-1], this.endGrowHorizontalDir, this.endGrowVerticalDir);
   }
