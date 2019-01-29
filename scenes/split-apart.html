@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <style media="screen">
+    body {
+      margin: 0;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    a {
+      z-index: 1;
+    }
+
+    a {
+      display: block;
+      text-decoration: none;
+      color: #6700DF;
+      padding: 1rem;
+      transition: font-color 0.3s ease, font-size 0.3s ease, background-color 0.3s ease;
+      height: 3rem;
+    }
+
+    a:hover {
+      color: #6700DF;
+      font-size: 1.5rem;
+    }
+  </style>
+  <a href="/">Back to menu</a>
+  <canvas></canvas>
+  <script type="module" src="/scenes/split-apart.js"></script>
+</body>
+</html>
