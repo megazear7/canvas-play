@@ -1,4 +1,4 @@
-import { randomX, randomY, randomSpeed, randomColor, drawCircle } from '/js/utility.js';
+import { randomX, randomY, randomSpeed, randomColor, drawCircle } from '../utility.js';
 
 export default class Ball {
   constructor({
@@ -72,7 +72,7 @@ export default class Ball {
     if (Math.abs(this.dx) > 0.5) {
       this.x += this.dx;
     }
-    
+
     if (Math.abs(this.dy) > 0.5) {
       this.y += this.dy;
     }

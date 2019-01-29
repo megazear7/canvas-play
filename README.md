@@ -9,5 +9,6 @@
 * http://localhost:8000
 
 ## Deployment
+* `npm run build`
 * `git commit -m "my commit message"`
 * https://canvas.alexlockhart.me/

@@ -1,0 +1,15 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": ["ie 11"]
+      },
+      "modules": "umd"
+    }]
+  ],
+  "env": {
+    "production": {
+      "presets": ["minify"]
+    }
+  }
+}

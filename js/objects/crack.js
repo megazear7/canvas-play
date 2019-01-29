@@ -1,5 +1,5 @@
-import { randomNumber, randomX, randomY } from '/js/utility.js';
-import Pebble from '/js/objects/pebble.js';
+import { randomNumber, randomX, randomY } from '../utility.js';
+import Pebble from './pebble.js';
 
 export default class Crack {
   constructor({

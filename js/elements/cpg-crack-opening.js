@@ -1,5 +1,5 @@
-import { fillPoints, randomY } from '/js/utility.js';
-import Crack from '/js/objects/crack.js';
+import { fillPoints, randomY } from '../utility.js';
+import Crack from '../objects/crack.js';
 
 export default class CpgCrackOpening extends HTMLElement {
   constructor() {
