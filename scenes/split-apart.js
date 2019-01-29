@@ -13,7 +13,8 @@ var crack = new Crack({
     opacity: 0.5,
     breakSpeed: 0.1,
     startGrows: false,
-    endGrowHorizontalDir: 1
+    endGrowHorizontalDir: 1,
+    stayBounded: true
 });
 
 function animate() {

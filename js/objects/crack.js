@@ -19,7 +19,8 @@ export default class Crack {
                 startGrowVerticalDir = 0,
                 startGrowHorizontalDir = 0,
                 endGrowVerticalDir = 0,
-                endGrowHorizontalDir = 0} = {}) {
+                endGrowHorizontalDir = 0,
+                stayBounded = false} = {}) {
     this.context = context;
     this.breakSize = breakSize;
     this.breakSizeAcceleration = breakSizeAcceleration;
@@ -37,6 +38,7 @@ export default class Crack {
     this.startGrowHorizontalDir = startGrowHorizontalDir;
     this.endGrowVerticalDir = endGrowVerticalDir;
     this.endGrowHorizontalDir = endGrowHorizontalDir;
+    this.stayBounded = stayBounded;
     this.points = [{ x: startX, y: startY }];
 
     for (var i = 0; i < segmentCount; i++) {
@@ -66,8 +68,9 @@ export default class Crack {
     var startPoint = this.points[0];
     var startX = from.x;
     var startY = from.y;
-    var x = this.startX + newX > window.innerWidth ? startX - newX : startX + newX;
-    var y = this.startY + newY > window.innerWidth ? startX - newY : startY + newY;
+
+    var x = startX + newX;
+    var y = startY + newY;
     this.points.push({ x: x, y: y });
   }
 
