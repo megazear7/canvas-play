@@ -36,11 +36,81 @@ for (var i=0; i < circleCount; i++){
 }
 */
 
+class Ball {
+  constructor({
+              x = randomX(),
+              y = randomY(),
+              dx = randomSpeed(20),
+              dy = randomSpeed(20),
+              red = randomColor(),
+              green = randomColor(),
+              blue = randomColor(),
+              radius = (Math.random() * 40) + 10
+            } = {}) {
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = dy;
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+    this.radius = radius;
+  }
+
+  right() {
+    return this.x + this.radius;
+  }
+
+  left() {
+    return this.x - this.radius;
+  }
+
+  bottom() {
+    return this.y + this.radius;
+  }
+
+  top() {
+    return this.y - this.radius;
+  }
+
+  draw() {
+    drawCircle(this.x, this.y, this.radius, 5, this.red, this.green, this.blue);
+  }
+
+  move() {
+    if (this.right() > window.innerWidth) {
+      this.dx = -Math.abs(this.dx);
+    }
+
+    if (this.left() < 0) {
+      this.dx = Math.abs(this.dx);
+    }
+
+    if (this.bottom() > window.innerHeight) {
+      this.dy = -Math.abs(this.dy);
+    }
+
+    if (this.top() < 0) {
+      this.dy = Math.abs(this.dy);
+    }
+
+    this.x += this.dx;
+    this.y += this.dy;
+  }
+
+  update() {
+    this.draw();
+    this.move();
+  }
+}
+
 var balls = [];
 var ballCount = 10;
 for (var i=0; i < ballCount; i++){
-  balls.push(createBall(200, 200));
+  balls.push(new Ball());
 }
+
+var mousePosition = {x: 0, y: 0};
 
 function animate() {
   requestAnimationFrame(animate);
@@ -48,68 +118,29 @@ function animate() {
   balls.forEach(ball => ball.update());
 }
 
+canvas.addEventListener('mousemove', event => {
+    mousePosition.x = event.clientX;
+    mousePosition.y = event.clientY;
+}, false);
+
 animate();
 
 /* ----------------- */
 /* Utility Functions */
+function getMousePos(evt) {
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top
+  };
+}
+
 function drawCircle(x, y, radius = 30, width = 5, red = 0, green = 0, blue = 0, opacity = 1) {
   c.beginPath();
   c.arc(x, y, radius, 0, Math.PI * 2, false);
   c.lineWidth = 10;
   c.strokeStyle = `rgba(${red}, ${green}, ${blue}, 0.5)`;
   c.stroke();
-}
-
-function createBall(x = randomX(), y = randomY(), dx = randomSpeed(20), dy = randomSpeed(20), red = randomColor(), green = randomColor(), blue = randomColor(), radius = (Math.random() * 40) + 10) {
-  return {
-    x: x,
-    y: y,
-    dx: dx,
-    dy: dy,
-    red: randomColor(),
-    green: randomColor(),
-    blue: randomColor(),
-    radius: (Math.random() * 40) + 10,
-    right: function() {
-      return this.x + this.radius;
-    },
-    left: function() {
-      return this.x - this.radius;
-    },
-    bottom: function() {
-      return this.y + this.radius;
-    },
-    top: function() {
-      return this.y - this.radius;
-    },
-    draw: function() {
-      drawCircle(this.x, this.y, this.radius, 5, this.red, this.green, this.blue);
-    },
-    move: function() {
-      if (this.right() > window.innerWidth) {
-        this.dx = -Math.abs(this.dx);
-      }
-
-      if (this.left() < 0) {
-        this.dx = Math.abs(this.dx);
-      }
-
-      if (this.bottom() > window.innerHeight) {
-        this.dy = -Math.abs(this.dy);
-      }
-
-      if (this.top() < 0) {
-        this.dy = Math.abs(this.dy);
-      }
-
-      this.x += this.dx;
-      this.y += this.dy;
-    },
-    update: function() {
-      this.draw();
-      this.move();
-    }
-  };
 }
 
 function randomColor() {
