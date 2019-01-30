@@ -3,36 +3,37 @@ import { randomX, randomY, randomSpeed, randomColor, drawCircle } from '../utili
 export default class Droplet {
   constructor({
               context,
-              x = Math.random() * window.innerWidth,
+              x = (Math.random() * window.innerWidth * 2) - (window.innerWidth / 2),
               y = 0,
+              dx = 0,
+              dy = 1,
               size = 10
             } = {}) {
     this.context = context;
     this.x = x;
     this.y = y;
-    this.dx = 0;
-    this.dy = 0;
+    this.dx = dx;
+    this.dy = dy;
     this.size = size;
   }
 
   right() {
-    return this.x + this.radius;
+    return this.x + (this.size / 2);
   }
 
   left() {
-    return this.x - this.radius;
+    return this.x - (this.size / 2);
   }
 
   bottom() {
-    return this.y + this.radius;
+    return this.y;
   }
 
   top() {
-    return this.y - this.radius;
+    return this.y - this.size;
   }
 
   draw() {
-
     this.context.beginPath();
     this.context.moveTo(this.x, this.y);
 
@@ -52,7 +53,6 @@ export default class Droplet {
       this.x,
       this.y);
 
-
     this.context.lineWidth = 0;
     this.context.strokeStyle = 'rgba(0, 0, 0, 0)';
     this.context.stroke();
@@ -65,43 +65,19 @@ export default class Droplet {
     this.context.fill();
   }
 
-  impactedWall() {
-    // Nothing to do
-  }
-
-  impactedWall() {
-    // Nothing to do
-  }
-
   impactedGround() {
     // TODO
   }
 
   move() {
-    if (this.right() > window.innerWidth) {
-      this.dx = -Math.abs(this.dx);
-      this.impactedWall();
-    }
-
-    if (this.left() < 0) {
-      this.dx = Math.abs(this.dx);
-      this.impactedWall();
-    }
-
     if (this.bottom() > window.innerHeight) {
-      this.dy = -Math.abs(this.dy);
       this.impactedGround();
-    }
-
-    if (this.top() < 0) {
-      this.dy = Math.abs(this.dy);
-      this.impactedCeiling();
     }
 
     this.x += this.dx;
     this.y += this.dy;
 
-    this.dy += 0.1;
+    this.dy += 0.15;
   }
 
   update() {

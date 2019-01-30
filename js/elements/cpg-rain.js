@@ -44,12 +44,27 @@ export default class CpgRain extends HTMLElement {
     /* ---------------------- */
     /* Configuration options */
     /* --------------------- */
-    this.dropletCount = 1;
+    this.interval = parseFloat(this.getAttribute('interval')) || 15;
+    this.startSpeed = parseFloat(this.getAttribute('start-speed')) || 7;
+    this.size = parseFloat(this.getAttribute('size')) || 10;
+    this.wind = parseFloat(this.getAttribute('wind')) || 2;
     /* --------------------- */
 
-    for (var i = 0; i < this.dropletCount; i++) {
-      this.droplets.push(new Droplet({ context: this.context }));
-    }
+    setInterval(() => {
+      var drop = new Droplet({
+        context: this.context,
+        dy: this.startSpeed,
+        dx: this.wind,
+        size: this.size
+      });
+      this.droplets.push(drop);
+    }, this.interval);
+
+    setTimeout(() => {
+      setInterval(() => {
+        this.droplets.shift();
+      }, this.interval);
+    }, this.interval * 100);
 
     var self = this;
     function animate() {
