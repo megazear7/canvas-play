@@ -38,18 +38,18 @@ export default class Droplet {
     this.context.moveTo(this.x, this.y);
 
     this.context.bezierCurveTo(
-      this.x + (this.size / 2),
-      this.y - (this.size / 4),
-      this.x + (this.size / 4),
+      this.x + (this.size / 3),
+      this.y,
+      this.x + (this.size / 3),
       this.y - (this.size / 2),
       this.x,
-      this.y - this.size);
+      this.y - this.size * 1.75);
 
     this.context.bezierCurveTo(
-      this.x - (this.size / 4),
+      this.x - (this.size / 3),
       this.y - (this.size / 2),
-      this.x - (this.size / 2),
-      this.y - (this.size / 4),
+      this.x - (this.size / 3),
+      this.y,
       this.x,
       this.y);
 
@@ -57,11 +57,16 @@ export default class Droplet {
     this.context.strokeStyle = 'rgba(0, 0, 0, 0)';
     this.context.stroke();
 
-    var grd = this.context.createRadialGradient(this.x, this.y, this.size/4, this.x, this.y, this.size);
-    grd.addColorStop(0, "rgba(0, 0, 0, 0.5)");
-    grd.addColorStop(1, "rgba(0, 0, 0, 0)");
-
+    var grd = this.context.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 1.75);
+    grd.addColorStop(0, "rgba(0, 0, 0, 0.6)");
+    grd.addColorStop(1, "rgba(0, 0, 0, 0.1)");
     this.context.fillStyle = grd;
+    this.context.fill();
+
+    this.context.beginPath();
+    this.context.arc(this.x + (this.size/10), this.y - (this.size/6), this.size / 16, 0, Math.PI * 2, false);
+    this.context.stroke();
+    this.context.fillStyle = `rgba(255, 255, 255, 1)`;
     this.context.fill();
   }
 

@@ -44,11 +44,23 @@ export default class CpgRain extends HTMLElement {
     /* ---------------------- */
     /* Configuration options */
     /* --------------------- */
-    this.interval = parseFloat(this.getAttribute('interval')) || 15;
-    this.startSpeed = parseFloat(this.getAttribute('start-speed')) || 7;
-    this.size = parseFloat(this.getAttribute('size')) || 10;
+    this.interval = parseFloat(this.getAttribute('interval')) || 5;
+    this.startSpeed = parseFloat(this.getAttribute('start-speed')) || 10;
+    this.size = parseFloat(this.getAttribute('size')) || 5;
     this.wind = parseFloat(this.getAttribute('wind')) || 2;
     /* --------------------- */
+
+    /*
+    var test = new Droplet({
+      context: this.context,
+      dy: this.startSpeed,
+      dx: this.wind,
+      y: 500,
+      x: 500,
+      size: 200
+    });
+    this.droplets.push(test);
+    */
 
     setInterval(() => {
       var drop = new Droplet({
@@ -64,7 +76,7 @@ export default class CpgRain extends HTMLElement {
       setInterval(() => {
         this.droplets.shift();
       }, this.interval);
-    }, this.interval * 100);
+    }, this.interval * 300);
 
     var self = this;
     function animate() {
