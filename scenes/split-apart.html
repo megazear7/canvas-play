@@ -36,16 +36,22 @@
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
 </head>
 <body>
-  <a href="/">Back to menu</a>
-  <h1>Split Apart</h1>
-  <xmp>
-    import CpgCrackOpening from '/js/elements/cpg-crack-opening.js';
-    <cpg-crack-opening></cpg-crack-opening>
-  </xmp>
+  <div class="hider" style="display:none">
+    <a href="/">Back to menu</a>
+    <h1>Split Apart</h1>
+    <xmp>
+      import CpgCrackOpening from '/js/elements/cpg-crack-opening.js';
+      <cpg-crack-opening></cpg-crack-opening>
+    </xmp>
+  </div>
 
   <cpg-crack-opening></cpg-crack-opening>
   <script type="module">
     import CpgCrackOpening from '/js/elements/cpg-crack-opening.js';
+
+    // Hide the main content of the webpage until the cpg-crack-opening has had
+    // time to load and take over the rendering of the page.
+    document.querySelector('.hider').style.display = 'block';
   </script>
 </body>
 </html>
