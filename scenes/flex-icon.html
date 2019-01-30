@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cpg Menu Icon</title>
+  <meta name="description" content="Example menu icon implementation using canvas and a web component.">
+  <link rel="stylesheet" type="text/css" href="/css/scenes.css">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="/images/icons/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#FF2F2F">
+
+  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Canvas Play">
+
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Canvas Play">
+
+  <!-- Homescreen icons -->
+  <link rel="apple-touch-icon" href="/images/icons/icon-640x640.png">
+  <link rel="apple-touch-icon" sizes="640x640" href="/images/icons/icon-640x640.png">
+
+  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="/images/icons/icon-640x640.png">
+  <meta name="msapplication-TileColor" content="#FF2F2F">
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <!-- Default twitter cards -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@username">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="canvas-play">
+  <meta property="og:image" content="/images/icons/icon-640x640.png" /></head></head>
+
+  <style media="screen">
+    cpg-menu-icon {
+      display: block;
+      margin: 0 auto;
+      width: 50px;
+      height: 50px;
+      margin-bottom: 25px;
+    }
+  </style>
+<body>
+  <a href="/">Back to menu</a>
+  <div>
+    <cpg-menu-icon></cpg-menu-icon>
+
+    <cpg-menu-icon data-target-x="0.5" data-target-y="0.5"></cpg-menu-icon>
+
+    <cpg-menu-icon data-target-x="0.5" data-target-y="0.5" data-target-direction="right"></cpg-menu-icon>
+
+    <cpg-menu-icon
+      data-target-x="1"
+      data-target-y="0.5"
+      data-line-count="4"
+      data-target-direction="right"
+      data-line-color="rgba(200, 100, 100, 1)"></cpg-menu-icon>
+
+    <cpg-menu-icon
+      data-target-x="1"
+      data-target-y="0.1"
+      data-line-count="2"
+      data-target-direction="right"
+      data-line-color="rgba(200, 0, 255, 1)"></cpg-menu-icon>
+
+    <cpg-menu-icon data-line-count="5"></cpg-menu-icon>
+
+    <cpg-menu-icon data-line-count="2" data-line-thickness="5"></cpg-menu-icon>
+
+    <cpg-menu-icon data-line-count="4" data-line-color="rgba(255, 0, 0, 0.5)"></cpg-menu-icon>
+
+    <cpg-flex-icon
+      data-line-count="8"
+      data-line-thickness="1"
+      data-line-color="rgba(255, 0, 255, 0.7)"></cpg-flex-icon>
+  </div>
+
+  <script type="module">
+    import CpgFlexIcon from '/js/elements/cpg-flex-icon.js';
+  </script>
+</body>
+</html>

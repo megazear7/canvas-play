@@ -81,3 +81,28 @@ export function fillPoints({
   context.strokeStyle = `rgba(${lineRed}, ${lineGreen}, ${lineBlue}, ${lineOpacity})`;
   context.stroke();
 }
+
+/** @function movePoint
+ *  Returns a new point that is directly between point (x1, y1) and (x2, y2)
+ *  and has moved the specified percentage between them.
+ */
+export function movePoint(x1, y1, x2, y2, move) {
+  var xDiff = x1 - x2;
+  var yDiff = y1 - y2;
+  var xMove = -xDiff * move;
+  var yMove = -yDiff * move;
+
+  return {
+    x: x1 + xMove,
+    y: y1 + yMove
+  };
+}
+
+export function drawLine(context, p1, p2, thickness, color) {
+    context.beginPath();
+    context.lineWidth = thickness;
+    context.strokeStyle = color;
+    context.lineTo(p1.x, p1.y);
+    context.lineTo(p2.x, p2.y);
+    context.stroke();
+  }

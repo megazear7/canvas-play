@@ -1,4 +1,4 @@
-import { getMousePos } from '../utility.js';
+import { getMousePos, movePoint, drawLine } from '../utility.js';
 
 export default class CpgMenuIcon extends HTMLElement {
   constructor() {
@@ -84,45 +84,29 @@ export default class CpgMenuIcon extends HTMLElement {
     this.lines.forEach(line => {
       if (this.targetDirection === 'right') {
         var newPoint = this.hovering
-          ? newPoint = CpgMenuIcon.movePoint(line.x2, line.y2, this.targetX, this.targetY, this.speed)
-          : newPoint = CpgMenuIcon.movePoint(line.x2, line.y2, line.initial.x2, line.initial.y2, this.speed);
+          ? newPoint = movePoint(line.x2, line.y2, this.targetX, this.targetY, this.speed)
+          : newPoint = movePoint(line.x2, line.y2, line.initial.x2, line.initial.y2, this.speed);
         line.x2 = newPoint.x;
         line.y2 = newPoint.y;
       } else {
         var newPoint  = this.hovering
-          ? CpgMenuIcon.movePoint(line.x1, line.y1, this.targetX, this.targetY, this.speed)
-          : newPoint = CpgMenuIcon.movePoint(line.x1, line.y1, line.initial.x1, line.initial.y1, this.speed);
+          ? movePoint(line.x1, line.y1, this.targetX, this.targetY, this.speed)
+          : newPoint = movePoint(line.x1, line.y1, line.initial.x1, line.initial.y1, this.speed);
         line.x1 = newPoint.x;
         line.y1 = newPoint.y;
       }
     });
   }
 
-  /** @function movePoint
-   *  Returns a new point that is directly between point (x1, y1) and (x2, y2)
-   *  and has moved the specified percentage between them.
-   */
-  static movePoint(x1, y1, x2, y2, move) {
-    var xDiff = x1 - x2;
-    var yDiff = y1 - y2;
-    var xMove = -xDiff * move;
-    var yMove = -yDiff * move;
-
-    return { x: x1 + xMove, y: y1 + yMove };
-  }
-
   draw() {
     this.context.clearRect(0, 0, this.width, this.height);
-    this.lines.forEach(line => this.drawLine(line.x1, line.y1, line.x2, line.y2));
-  }
-
-  drawLine(x1, y1, x2, y2) {
-    this.context.beginPath();
-    this.context.lineWidth = this.lineThickness;
-    this.context.strokeStyle = this.lineColor;
-    this.context.lineTo(x1, y1);
-    this.context.lineTo(x2, y2);
-    this.context.stroke();
+    this.lines.forEach(line => drawLine(
+      this.context,
+      {x: line.x1, y: line.y1},
+      {x: line.x2, y: line.y2},
+      this.lineThickness,
+      this.lineColor
+    ));
   }
 }
 
