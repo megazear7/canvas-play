@@ -1,0 +1,92 @@
+import { randomX, randomY, randomSpeed, randomColor, drawCircle } from '../utility.js';
+
+export default class Droplet {
+  constructor({
+              context,
+              x = 200,
+              y = 50,
+              size = 5
+            } = {}) {
+    this.context = context;
+    this.x = x;
+    this.y = y;
+    this.dx = 0;
+    this.dy = 0;
+    this.size = size;
+  }
+
+  right() {
+    return this.x + this.radius;
+  }
+
+  left() {
+    return this.x - this.radius;
+  }
+
+  bottom() {
+    return this.y + this.radius;
+  }
+
+  top() {
+    return this.y - this.radius;
+  }
+
+  draw() {
+    this.context.beginPath();
+    this.context.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+    this.context.lineWidth = 0;
+    this.context.strokeStyle = 'rgba(0, 0, 0, 0)';
+    this.context.stroke();
+
+    var grd = this.context.createRadialGradient(this.x, this.y, this.size/4, this.x, this.y, this.size);
+    grd.addColorStop(0, "rgba(0, 0, 0, 0.5)");
+    grd.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+    this.context.fillStyle = grd;
+    this.context.fill();
+  }
+
+  impactedWall() {
+    // Nothing to do
+  }
+
+  impactedWall() {
+    // Nothing to do
+  }
+
+  impactedGround() {
+    // TODO
+  }
+
+  move() {
+    if (this.right() > window.innerWidth) {
+      this.dx = -Math.abs(this.dx);
+      this.impactedWall();
+    }
+
+    if (this.left() < 0) {
+      this.dx = Math.abs(this.dx);
+      this.impactedWall();
+    }
+
+    if (this.bottom() > window.innerHeight) {
+      this.dy = -Math.abs(this.dy);
+      this.impactedGround();
+    }
+
+    if (this.top() < 0) {
+      this.dy = Math.abs(this.dy);
+      this.impactedCeiling();
+    }
+
+    this.x += this.dx;
+    this.y += this.dy;
+
+    this.dy += 0.1;
+  }
+
+  update() {
+    this.draw();
+    this.move();
+  }
+}

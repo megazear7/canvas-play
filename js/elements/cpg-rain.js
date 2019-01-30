@@ -1,4 +1,4 @@
-import Bubble from '/js/objects/bubble.js';
+import Droplet from '/js/objects/droplet.js';
 import { getMousePos } from '/js/utility.js';
 
 export default class CpgRain extends HTMLElement {
@@ -28,6 +28,7 @@ export default class CpgRain extends HTMLElement {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.context = this.canvas.getContext('2d');
+    this.droplets = [];
 
     var resizeTimer;
     window.onresize = event => {
@@ -43,10 +44,11 @@ export default class CpgRain extends HTMLElement {
     /* ---------------------- */
     /* Configuration options */
     /* --------------------- */
-    // TODO
+    this.dropletCount = 1;
     /* --------------------- */
 
-    for (var i = 0; i < this.bubbleCount; i++) {
+    for (var i = 0; i < this.dropletCount; i++) {
+      this.droplets.push(new Droplet({ context: this.context }));
     }
 
     var self = this;
@@ -60,6 +62,7 @@ export default class CpgRain extends HTMLElement {
   }
 
   doAnimate() {
+    this.droplets.forEach(droplet => droplet.update());
   }
 }
 

@@ -33,6 +33,7 @@ export function drawCircle({
             radius = 30,
             lineWidth = 1,
             width = 5,
+            lineStyle = `rgba(0, 0, 0, 1)`,
             red = 0,
             green = 0,
             blue = 0,
@@ -40,6 +41,7 @@ export function drawCircle({
   context.beginPath();
   context.arc(x, y, radius, 0, Math.PI * 2, false);
   context.lineWidth = lineWidth;
+  context.strokeStyle = lineStyle;
   context.stroke();
   context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
   context.fill();
