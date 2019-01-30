@@ -1,16 +1,17 @@
-import Pebble from '/js/objects/pebble.js';
+import Crack from '/js/objects/crack.js';
 
-export default class CpgFallingPebbles extends HTMLElement {
+export default class CpgGraniteCrumble extends HTMLElement {
   constructor() {
     super();
 
     /* Configuration options */
     /* --------------------- */
-    this.pebbleCount = parseInt(this.getAttribute('pebble-count')) || 100;
-    this.speed = parseFloat(this.getAttribute('speed')) || 0.5;
-    this.weight = parseFloat(this.getAttribute('weight')) || 0.3;
-    this.minSize = parseFloat(this.getAttribute('min-size')) || 5.0;
-    this.maxSize = parseFloat(this.getAttribute('max-size')) || 15.0;
+    this.crackCount = parseInt(this.getAttribute('crack-count')) || window.innerWidth / 25;
+    this.size = parseFloat(this.getAttribute('size')) || 50;
+    this.speed = parseFloat(this.getAttribute('speed')) || 0.01;
+    this.acceleration = parseFloat(this.getAttribute('acceleration')) || 0.01;
+    this.opacity = parseFloat(this.getAttribute('opacity')) || 0.5;
+    this.animationLength = parseFloat(this.getAttribute('animation-length')) || 1500;
     /* --------------------- */
 
     this.shadow = this.attachShadow({mode: 'open'});
@@ -30,7 +31,7 @@ export default class CpgFallingPebbles extends HTMLElement {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.context = this.canvas.getContext('2d');
-    this.pebbles = [];
+    this.cracks = [];
 
     var resizeTimer;
     window.onresize = event => {
@@ -43,12 +44,14 @@ export default class CpgFallingPebbles extends HTMLElement {
   }
 
   connectedCallback() {
-    for (var i = 0; i < this.pebbleCount; i++) {
-      this.pebbles.push(new Pebble({
+    for (var i = 0; i < this.crackCount; i++) {
+      this.cracks.push(new Crack({
         context: this.context,
-        speed: this.speed,
-        weight: this.weight,
-        radius: (Math.random() * this.maxSize - this.minSize) + this.minSize
+        segmentCount: 1,
+        breakSize: this.size,
+        breakSpeed: this.speed,
+        breakAcceleration: this.acceleration,
+        opacity: this.opacity
       }));
     }
 
@@ -60,11 +63,17 @@ export default class CpgFallingPebbles extends HTMLElement {
     }
 
     animate();
+
+    setTimeout(() => {
+      this.cracks.forEach(crack => {
+        crack.doUpdate = false;
+      });
+    }, this.animationLength);
   }
 
   doAnimate() {
-    this.pebbles.forEach(pebble => pebble.update());
+    this.cracks.forEach(crack => crack.update());
   }
 }
 
-customElements.define('cpg-falling-pebbles', CpgFallingPebbles);
+customElements.define('cpg-granite-crumble', CpgGraniteCrumble);
