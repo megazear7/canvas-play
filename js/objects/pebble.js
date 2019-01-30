@@ -16,7 +16,10 @@ export default class Bubble extends Ball {
   }
 
   impactedWall() {
-    this.dy = this.dy * (1- this.energyLoss) + this.absoluteEnergyLoss;
     this.dx = this.dx * (1- this.energyLoss);
+  }
+
+  impactedFloor() {
+    this.dy = this.dy * (1- this.energyLoss) + this.absoluteEnergyLoss;
   }
 }

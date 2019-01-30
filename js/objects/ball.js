@@ -48,6 +48,10 @@ export default class Ball {
     // Stub method for super classes
   }
 
+  impactedFloor() {
+    // Stub method for super classes
+  }
+
   move() {
     if (this.right() > window.innerWidth) {
       this.dx = -Math.abs(this.dx);
@@ -62,6 +66,7 @@ export default class Ball {
     if (this.bottom() > window.innerHeight) {
       this.dy = -Math.abs(this.dy);
       this.impactedWall();
+      this.impactedFloor();
     }
 
     if (this.top() < 0) {
