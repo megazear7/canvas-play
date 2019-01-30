@@ -3,9 +3,9 @@ import { randomX, randomY, randomSpeed, randomColor, drawCircle } from '../utili
 export default class Droplet {
   constructor({
               context,
-              x = 200,
-              y = 50,
-              size = 5
+              x = Math.random() * window.innerWidth,
+              y = 0,
+              size = 10
             } = {}) {
     this.context = context;
     this.x = x;
@@ -32,8 +32,27 @@ export default class Droplet {
   }
 
   draw() {
+
     this.context.beginPath();
-    this.context.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+    this.context.moveTo(this.x, this.y);
+
+    this.context.bezierCurveTo(
+      this.x + (this.size / 2),
+      this.y - (this.size / 4),
+      this.x + (this.size / 4),
+      this.y - (this.size / 2),
+      this.x,
+      this.y - this.size);
+
+    this.context.bezierCurveTo(
+      this.x - (this.size / 4),
+      this.y - (this.size / 2),
+      this.x - (this.size / 2),
+      this.y - (this.size / 4),
+      this.x,
+      this.y);
+
+
     this.context.lineWidth = 0;
     this.context.strokeStyle = 'rgba(0, 0, 0, 0)';
     this.context.stroke();
