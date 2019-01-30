@@ -20,6 +20,8 @@ export default class MovingLine {
       this.target.p1 = config.target.p1;
       this.target.p2 = config.target.p2;
     }
+
+    this.moving = false;
   }
 
   get pos() {
@@ -36,5 +38,9 @@ export default class MovingLine {
   }
 
   move() {
+    if (this.moving) {
+      this.p1 = movePoint(this.p1, this.target.p1, this.speed);
+      this.p2 = movePoint(this.p2, this.target.p2, this.speed);
+    }
   }
 }

@@ -84,14 +84,14 @@ export default class CpgMenuIcon extends HTMLElement {
     this.lines.forEach(line => {
       if (this.targetDirection === 'right') {
         var newPoint = this.hovering
-          ? newPoint = movePoint(line.x2, line.y2, this.targetX, this.targetY, this.speed)
-          : newPoint = movePoint(line.x2, line.y2, line.initial.x2, line.initial.y2, this.speed);
+          ? newPoint = movePoint({x: line.x2, y: line.y2}, {x: this.targetX, y: this.targetY}, this.speed)
+          : newPoint = movePoint({x: line.x2, y: line.y2}, {x: line.initial.x2, y: line.initial.y2}, this.speed);
         line.x2 = newPoint.x;
         line.y2 = newPoint.y;
       } else {
         var newPoint  = this.hovering
-          ? movePoint(line.x1, line.y1, this.targetX, this.targetY, this.speed)
-          : newPoint = movePoint(line.x1, line.y1, line.initial.x1, line.initial.y1, this.speed);
+          ? movePoint({x: line.x1, y: line.y1}, {x: this.targetX, y: this.targetY}, this.speed)
+          : newPoint = movePoint({x: line.x1, y: line.y1}, {x: line.initial.x1, y: line.initial.y1}, this.speed);
         line.x1 = newPoint.x;
         line.y1 = newPoint.y;
       }

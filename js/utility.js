@@ -86,15 +86,15 @@ export function fillPoints({
  *  Returns a new point that is directly between point (x1, y1) and (x2, y2)
  *  and has moved the specified percentage between them.
  */
-export function movePoint(x1, y1, x2, y2, move) {
-  var xDiff = x1 - x2;
-  var yDiff = y1 - y2;
+export function movePoint(p1, p2, move) {
+  var xDiff = p1.x - p2.x;
+  var yDiff = p1.y - p2.y;
   var xMove = -xDiff * move;
   var yMove = -yDiff * move;
 
   return {
-    x: x1 + xMove,
-    y: y1 + yMove
+    x: p1.x + xMove,
+    y: p1.y + yMove
   };
 }
 
