@@ -63,16 +63,13 @@ export default class CpgFlexIcon extends HTMLElement {
 
   draw() {
     this.context.clearRect(0, 0, this.width, this.height);
-    this.lines.forEach(line => this.drawLine(line.p1.x, line.p1.y, line.p2.x, line.p2.y));
-  }
-
-  drawLine(x1, y1, x2, y2) {
-    this.context.beginPath();
-    this.context.lineWidth = this.lineThickness;
-    this.context.strokeStyle = this.lineColor;
-    this.context.lineTo(x1, y1);
-    this.context.lineTo(x2, y2);
-    this.context.stroke();
+    this.lines.forEach(line => drawLine(
+      this.context,
+      {x: line.x1, y: line.y1},
+      {x: line.x2, y: line.y2},
+      this.lineThickness,
+      this.lineColor
+    ));
   }
 }
 
