@@ -1,4 +1,4 @@
-import { getMousePos, movePoint, drawLine, parseLineAttr } from '../utility.js';
+import { getMousePos, parseLineAttr } from '../utility.js';
 import MovingLine from '../objects/moving-line.js';
 
 export default class CpgFlexIcon extends HTMLElement {
@@ -61,17 +61,12 @@ export default class CpgFlexIcon extends HTMLElement {
   }
 
   update() {
+    //this.lines.forEach(line => line.update(this.hovering));
   }
 
   draw() {
     this.context.clearRect(0, 0, this.width, this.height);
-    this.lines.forEach(line => drawLine(
-      this.context,
-      line.pos.p1,
-      line.pos.p2,
-      this.lineThickness,
-      this.lineColor
-    ));
+    this.lines.forEach(line => line.draw());
   }
 
   createLines() {
@@ -85,6 +80,8 @@ export default class CpgFlexIcon extends HTMLElement {
         line.contextWidth = this.clientWidth;
         line.contextHeight = this.clientHeight;
         line.speed = this.speed;
+        line.thickness = this.lineThickness;
+        line.color = this.lineColor;
 
         let hoverLineAttr = this.getAttribute('line-' + (i+1) + '-hover');
         if (hoverLineAttr) {
