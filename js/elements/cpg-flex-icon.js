@@ -1,4 +1,5 @@
 import { getMousePos, movePoint, drawLine } from '../utility.js';
+import MovingLine from '../objects/moving-line.js';
 
 export default class CpgFlexIcon extends HTMLElement {
   constructor() {
@@ -29,14 +30,64 @@ export default class CpgFlexIcon extends HTMLElement {
     /* Configuration Options */
     /* ---------------------- */
 
-    this.lineThickness = parseFloat(this.dataset.lineThickness) || 2;
-    this.lineColor = this.dataset.lineColor || 'rgba(0, 0, 0, 1)';
-
-    /* ---------------------- */
-    /* ---------------------- */
-    /* ---------------------- */
+    this.lineThickness = parseFloat(this.getAttribute('lineThickness')) || 2;
+    this.maxLineCount = parseFloat(this.getAttribute('maxLineCount')) || 10;
+    this.lineColor = this.getAttribute('lineColor') || 'rgba(0, 0, 0, 1)';
 
     this.lines = [];
+    for (var i = 0; i < this.maxLineCount; i++) {
+      let lineAttr = this.getAttribute('line-' + (i+1))
+      if (lineAttr) {
+        let points = lineAttr.split(/\s*/).map(stringNumber => parseFloat(stringNumber));
+        let line = {
+          p1: {
+            x: points[0],
+            y: points[1]
+          },
+          p2: {
+            x: points[2],
+            y: points[3]
+          },
+          rest: {
+            p1: {
+              x: points[0],
+              y: points[1]
+            },
+            p2: {
+              x: points[2],
+              y: points[3]
+            }
+          }
+        };
+
+        line.context = this.context;
+        line.contextWidth = this.clientWidth;
+        line.contextHeight = this.clientHeight;
+
+        let hoverLineAttr = this.getAttribute('line-' + (i+1) + '-hover');
+        if (hoverLineAttr) {
+          let points = hoverLineAttr.split(" ");
+          line.target = {
+            p1: {
+              x: points[0],
+              y: points[1]
+            },
+            p2: {
+              x: points[2],
+              y: points[3]
+            }
+          }
+        }
+
+        this.lines.push(new MovingLine(line));
+      }
+    }
+    console.log(this.lines);
+
+    /* ---------------------- */
+    /* ---------------------- */
+    /* ---------------------- */
+
 
     this.canvas.addEventListener('mousemove', event => {
       this.mousePosition = getMousePos(this.canvas, event);
@@ -65,8 +116,8 @@ export default class CpgFlexIcon extends HTMLElement {
     this.context.clearRect(0, 0, this.width, this.height);
     this.lines.forEach(line => drawLine(
       this.context,
-      {x: line.x1, y: line.y1},
-      {x: line.x2, y: line.y2},
+      line.pos.p1,
+      line.pos.p2,
       this.lineThickness,
       this.lineColor
     ));
