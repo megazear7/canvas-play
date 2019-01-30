@@ -40,9 +40,9 @@ export default class CpgCrackOpening extends HTMLElement {
     this.lineGreen = parseFloat(this.dataset.lineGreen) || 0;
     this.lineBlue = parseFloat(this.dataset.lineBlue) || 0;
     this.lineOpacity = parseFloat(this.dataset.lineOpacity) || 1;
-    this.fillRed = parseFloat(this.dataset.fillRed) || 230;
-    this.fillGreen = parseFloat(this.dataset.fillGreen) || 230;
-    this.fillBlue = parseFloat(this.dataset.fillBlue) || 230;
+    this.fillRed = parseFloat(this.dataset.fillRed) || 150;
+    this.fillGreen = parseFloat(this.dataset.fillGreen) || 150;
+    this.fillBlue = parseFloat(this.dataset.fillBlue) || 150;
     this.fillOpacity = parseFloat(this.dataset.fillOpacity) || 1;
     this.acceleration = parseFloat(this.dataset.acceleration) || 0.05;
 
@@ -76,6 +76,7 @@ export default class CpgCrackOpening extends HTMLElement {
 
   doAnimate() {
     if (this.crack.reachedEdge) {
+      this.canvas.style.zIndex = -1000;
       this.crack.doUpdate = false;
       this.crack.render = false;
       this.gap += this.gapSpeed;

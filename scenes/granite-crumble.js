@@ -4,7 +4,7 @@ import canvas from '/js/full-canvas.js';
 
 var context = canvas.getContext('2d');
 var cracks = [];
-var crackCount = 5;
+var crackCount = window.innerWidth / 25;
 
 for (var i = 0; i < crackCount; i++) {
   cracks.push(new Crack({
@@ -22,5 +22,9 @@ function animate() {
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
   cracks.forEach(crack => crack.update());
 }
+
+setTimeout(() => {
+  cracks.forEach(crack => crack.doUpdate = false);
+}, 1500);
 
 animate();
