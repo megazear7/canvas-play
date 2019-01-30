@@ -10,6 +10,7 @@ export default class MovingLine {
     // Line configurations
     this.thickness = config.thickness;
     this.color = config.color;
+    this.speed = config.speed;
 
     // Current position
     this.p1 = config.p1;
