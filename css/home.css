@@ -41,3 +41,12 @@ li a:hover {
   color: #6700DF;
   background: #f6f6f6;
 }
+
+xmp {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  line-height: 25px;
+  border-radius: 5px;
+  color: #777;
+}
