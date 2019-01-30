@@ -30,6 +30,7 @@ export default class CpgCrackOpening extends HTMLElement {
     this.canvas.height = window.innerHeight;
     this.context = this.canvas.getContext('2d');
     this.gap = 0;
+    this.active = true;
 
     var resizeTimer;
     window.onresize = event => {
@@ -79,8 +80,10 @@ export default class CpgCrackOpening extends HTMLElement {
     function animate() {
       requestAnimationFrame(animate);
       self.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      self.doAnimate();
-      self.crack.update();
+      if (self.active) {
+        self.doAnimate();
+        self.crack.update();
+      }
     }
 
     animate();
@@ -88,7 +91,10 @@ export default class CpgCrackOpening extends HTMLElement {
 
   doAnimate() {
     if (this.crack.reachedEdge) {
-      this.canvas.style.zIndex = -1000;
+      if (this.gap > window.innerHeight) {
+        this.canvas.style.zIndex = -1000;
+        this.active = false;
+      }
       this.crack.doUpdate = false;
       this.crack.render = false;
       this.gap += this.gapSpeed;
