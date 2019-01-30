@@ -1,0 +1,15 @@
+// Web components
+export { default as CpgFallingPebbles } from './js/elements/cpg-falling-pebbles.js';
+export { default as CpgFlexIcon } from './js/elements/cpg-flex-icon.js';
+export { default as CpgGraniteCrumble } from './js/elements/cpg-granite-crumble.js';
+export { default as CpgRain } from './js/elements/cpg-rain.js';
+export { default as CpgRainbowBubble } from './js/elements/cpg-rainbow-bubbles.js';
+export { default as CpgCrackOpening } from './js/elements/cpg-crack-opening.js';
+
+// Canvas objects
+export { default as Crack } from './js/objects/crack.js';
+export { default as Pebble } from './js/objects/pebble.js';
+export { default as MovingLine } from './js/objects/moving-line.js';
+export { default as Droplet } from './js/objects/droplet.js';
+export { default as Bubble } from './js/objects/bubble.js';
+export { default as Ball } from './js/objects/ball.js';

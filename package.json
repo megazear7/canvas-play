@@ -2,7 +2,7 @@
   "name": "canvas-play",
   "version": "2.3.0",
   "description": "A playground for using canvas",
-  "main": "server.js",
+  "main": "index.js",
   "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.2.3",
