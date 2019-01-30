@@ -22,6 +22,7 @@ export default class Ball {
     this.green = green;
     this.blue = blue;
     this.radius = radius;
+    this.impacting = false;
   }
 
   right() {
@@ -52,35 +53,41 @@ export default class Ball {
     // Stub method for super classes
   }
 
+  impactedCeiling() {
+    // Stub method for super classes
+  }
+
   move() {
-    if (this.right() > window.innerWidth) {
+    if (! this.impacting && this.right() > window.innerWidth) {
       this.dx = -Math.abs(this.dx);
+      this.impacting = true;
+      setTimeout(() => { this.impacting = false; }, 200);
       this.impactedWall();
     }
 
-    if (this.left() < 0) {
+    if (! this.impacting && this.left() < 0) {
       this.dx = Math.abs(this.dx);
+      this.impacting = true;
+      setTimeout(() => { this.impacting = false; }, 200);
       this.impactedWall();
     }
 
-    if (this.bottom() > window.innerHeight) {
+    if (! this.impacting && this.bottom() > window.innerHeight) {
       this.dy = -Math.abs(this.dy);
-      this.impactedWall();
+      this.impacting = true;
+      setTimeout(() => { this.impacting = false; }, 200);
       this.impactedFloor();
     }
 
-    if (this.top() < 0) {
+    if (! this.impacting && this.top() < 0) {
       this.dy = Math.abs(this.dy);
-      this.impactedWall();
+      this.impacting = true;
+      setTimeout(() => { this.impacting = false; }, 200);
+      this.impactedCeiling();
     }
 
-    if (Math.abs(this.dx) > 0.5) {
-      this.x += this.dx;
-    }
-
-    if (Math.abs(this.dy) > 0.5) {
-      this.y += this.dy;
-    }
+    this.x += this.dx;
+    this.y += this.dy;
   }
 
   update() {

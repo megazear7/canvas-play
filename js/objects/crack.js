@@ -21,7 +21,8 @@ export default class Crack {
                 startGrowHorizontalDir = 0,
                 endGrowVerticalDir = 0,
                 endGrowHorizontalDir = 0,
-                stayBounded = false} = {}) {
+                stayBounded = false,
+                pebbleCount = 1} = {}) {
     this.context = context;
     this.breakSize = breakSize;
     this.breakSizeAcceleration = breakSizeAcceleration;
@@ -40,6 +41,7 @@ export default class Crack {
     this.endGrowVerticalDir = endGrowVerticalDir;
     this.endGrowHorizontalDir = endGrowHorizontalDir;
     this.stayBounded = stayBounded;
+    this.pebbleCount = pebbleCount;
     this.doUpdate = true;
     this.render = true;
     this.reachedEdge = false;
@@ -70,9 +72,7 @@ export default class Crack {
   }
 
   throwRubble(point) {
-    var pebbleCount = 1;
-
-    for (var i = 0; i < pebbleCount; i++) {
+    for (var i = 0; i < this.pebbleCount; i++) {
       this.pebbles.push(new Pebble({
         context: this.context,
         x: point.x,
@@ -82,7 +82,7 @@ export default class Crack {
         blue: 0,
         opacity: 1,
         speed: 0.5,
-        weight: 0.7,
+        weight: 0.8,
         radius: Math.random() + 1
       }));
     }
