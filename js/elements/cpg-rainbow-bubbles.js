@@ -4,15 +4,6 @@ import { getMousePos } from '/js/utility.js';
 export default class CpgRainbowBubbles extends HTMLElement {
   constructor() {
     super();
-
-    /* Configuration options */
-    /* --------------------- */
-    this.bubbleCount = parseInt(this.getAttribute('bubble-count')) || window.innerWidth / 5;
-    this.speed = parseFloat(this.getAttribute('speed')) || 0.5;
-    this.radius = parseFloat(this.getAttribute('radius')) || 80;
-
-    /* --------------------- */
-
     this.shadow = this.attachShadow({mode: 'open'});
     this.shadow.innerHTML = `
       <style>
@@ -50,6 +41,14 @@ export default class CpgRainbowBubbles extends HTMLElement {
   }
 
   connectedCallback() {
+    /* ---------------------- */
+    /* Configuration options */
+    /* --------------------- */
+    this.bubbleCount = parseInt(this.getAttribute('bubble-count')) || window.innerWidth / 5;
+    this.speed = parseFloat(this.getAttribute('speed')) || 0.5;
+    this.radius = parseFloat(this.getAttribute('radius')) || 80;
+    /* --------------------- */
+
     for (var i = 0; i < this.bubbleCount; i++) {
       this.bubbles.push(new Bubble({
         context: this.context,

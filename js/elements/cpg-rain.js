@@ -1,6 +1,7 @@
-import Pebble from '/js/objects/pebble.js';
+import Bubble from '/js/objects/bubble.js';
+import { getMousePos } from '/js/utility.js';
 
-export default class CpgFallingPebbles extends HTMLElement {
+export default class CpgRain extends HTMLElement {
   constructor() {
     super();
     this.shadow = this.attachShadow({mode: 'open'});
@@ -27,7 +28,6 @@ export default class CpgFallingPebbles extends HTMLElement {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.context = this.canvas.getContext('2d');
-    this.pebbles = [];
 
     var resizeTimer;
     window.onresize = event => {
@@ -43,20 +43,10 @@ export default class CpgFallingPebbles extends HTMLElement {
     /* ---------------------- */
     /* Configuration options */
     /* --------------------- */
-    this.pebbleCount = parseInt(this.getAttribute('pebble-count')) || 100;
-    this.speed = parseFloat(this.getAttribute('speed')) || 0.5;
-    this.weight = parseFloat(this.getAttribute('weight')) || 0.3;
-    this.minSize = parseFloat(this.getAttribute('min-size')) || 5.0;
-    this.maxSize = parseFloat(this.getAttribute('max-size')) || 15.0;
+    // TODO
     /* --------------------- */
 
-    for (var i = 0; i < this.pebbleCount; i++) {
-      this.pebbles.push(new Pebble({
-        context: this.context,
-        speed: this.speed,
-        weight: this.weight,
-        radius: (Math.random() * this.maxSize - this.minSize) + this.minSize
-      }));
+    for (var i = 0; i < this.bubbleCount; i++) {
     }
 
     var self = this;
@@ -70,8 +60,7 @@ export default class CpgFallingPebbles extends HTMLElement {
   }
 
   doAnimate() {
-    this.pebbles.forEach(pebble => pebble.update());
   }
 }
 
-customElements.define('cpg-falling-pebbles', CpgFallingPebbles);
+customElements.define('cpg-rain', CpgRain);

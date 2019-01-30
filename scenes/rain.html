@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Canvas Play</title>
-  <meta name="description" content="List of html canvas examples.">
-  <link rel="stylesheet" type="text/css" href="/css/home.css">
+  <title>Rain</title>
+  <meta name="description" content="A rain background">
+  <link rel="stylesheet" type="text/css" href="/css/scenes.css">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/images/icons/favicon.ico">
@@ -36,17 +36,22 @@
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
 </head>
 <body>
-  <h1>Canvas Play</h1>
-  <xmp>
-    npm install canvas-play
-  </xmp>
-  <ol>
-    <li><a href="/scenes/split-apart.html">Split Apart</a></li>
-    <li><a href="/scenes/flex-icon.html">Flex Icon</a></li>
-    <li><a href="/scenes/granite-crumble.html">Granite Crumble</a></li>
-    <li><a href="/scenes/falling-pebbles.html">Falling Pebbles</a></li>
-    <li><a href="/scenes/rainbow-bubbles.html">Rainbow Bubbles</a></li>
-    <li><a href="/scenes/rain.html">Rain</a></li>
-  </ol>
+  <div class="hider" style="display:none">
+    <a href="/">Back to menu</a>
+    <h1>Rain</h1>
+    <xmp>
+      import CpgRain from '/js/elements/cpg-rain.js';
+      <cpg-rain></cpg-rain>
+    </xmp>
+  </div>
+
+  <cpg-rain></cpg-rain>
+  <script type="module">
+    import CpgRain from '/js/elements/cpg-rain.js';
+
+    // Hide the main content of the webpage until the cpg-crack-opening has had
+    // time to load and take over the rendering of the page.
+    document.querySelector('.hider').style.display = 'block';
+  </script>
 </body>
 </html>

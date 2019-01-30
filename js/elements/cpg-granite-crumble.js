@@ -4,16 +4,6 @@ import { getMousePos } from '/js/utility.js';
 export default class CpgGraniteCrumble extends HTMLElement {
   constructor() {
     super();
-
-    /* Configuration options */
-    /* --------------------- */
-    this.size = parseFloat(this.getAttribute('size')) || 10;
-    this.speed = parseFloat(this.getAttribute('speed')) || 0;
-    this.acceleration = parseFloat(this.getAttribute('acceleration')) || 0.03;
-    this.opacity = parseFloat(this.getAttribute('opacity')) || 0.5;
-    this.animationLength = parseFloat(this.getAttribute('animation-length')) || 500;
-    /* --------------------- */
-
     this.shadow = this.attachShadow({mode: 'open'});
     this.shadow.innerHTML = `
       <style>
@@ -51,6 +41,16 @@ export default class CpgGraniteCrumble extends HTMLElement {
   }
 
   connectedCallback() {
+    /* ---------------------- */
+    /* Configuration options */
+    /* --------------------- */
+    this.size = parseFloat(this.getAttribute('size')) || 10;
+    this.speed = parseFloat(this.getAttribute('speed')) || 0;
+    this.acceleration = parseFloat(this.getAttribute('acceleration')) || 0.03;
+    this.opacity = parseFloat(this.getAttribute('opacity')) || 0.5;
+    this.animationLength = parseFloat(this.getAttribute('animation-length')) || 500;
+    /* --------------------- */
+
     var self = this;
     function animate() {
       requestAnimationFrame(animate);

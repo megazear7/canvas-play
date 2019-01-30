@@ -14,7 +14,7 @@ export default class CpgCrackOpening extends HTMLElement {
           top: 0;
           left: 0;
         }
-        
+
         canvas {
           position: absolute;
           top: 0;
@@ -29,6 +29,7 @@ export default class CpgCrackOpening extends HTMLElement {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.context = this.canvas.getContext('2d');
+    this.gap = 0;
 
     var resizeTimer;
     window.onresize = event => {
@@ -41,7 +42,9 @@ export default class CpgCrackOpening extends HTMLElement {
   }
 
   connectedCallback() {
-    this.gap = 0;
+    /* ---------------------- */
+    /* Configuration options */
+    /* --------------------- */
     this.gapSpeed = parseFloat(this.dataset.gapSpeed) || 0;
     this.gapAcceleration = parseFloat(this.dataset.gapAcceleration) || 0.2;
     this.lineRed = parseFloat(this.dataset.lineRed) || 0;
@@ -53,6 +56,7 @@ export default class CpgCrackOpening extends HTMLElement {
     this.fillBlue = parseFloat(this.dataset.fillBlue) || 150;
     this.fillOpacity = parseFloat(this.dataset.fillOpacity) || 1;
     this.acceleration = parseFloat(this.dataset.acceleration) || 0.05;
+    /* ---------------------- */
 
     this.crack = new Crack({
       context: this.context,
