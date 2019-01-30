@@ -58,6 +58,6 @@ xmp {
   text-align: center;
   font-size: 13px;
   line-height: 25px;
-  border-radius: 5px;
   color: #777;
+  white-space: pre-line;
 }
