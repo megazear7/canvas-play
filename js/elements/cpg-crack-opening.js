@@ -20,6 +20,7 @@ export default class CpgCrackOpening extends HTMLElement {
     this.canvas = this.shadow.querySelector('canvas');
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+    this.context = this.canvas.getContext('2d');
 
     var resizeTimer;
     window.onresize = event => {
@@ -32,7 +33,6 @@ export default class CpgCrackOpening extends HTMLElement {
   }
 
   connectedCallback() {
-    this.context = this.canvas.getContext('2d');
     this.gap = 0;
     this.gapSpeed = parseFloat(this.dataset.gapSpeed) || 0;
     this.gapAcceleration = parseFloat(this.dataset.gapAcceleration) || 0.2;
