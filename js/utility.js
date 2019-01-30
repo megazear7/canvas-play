@@ -99,10 +99,24 @@ export function movePoint(p1, p2, move) {
 }
 
 export function drawLine(context, p1, p2, thickness, color) {
-    context.beginPath();
-    context.lineWidth = thickness;
-    context.strokeStyle = color;
-    context.lineTo(p1.x, p1.y);
-    context.lineTo(p2.x, p2.y);
-    context.stroke();
-  }
+  context.beginPath();
+  context.lineWidth = thickness;
+  context.strokeStyle = color;
+  context.lineTo(p1.x, p1.y);
+  context.lineTo(p2.x, p2.y);
+  context.stroke();
+}
+
+export function parseLineAttr(lineAttr) {
+  let points = lineAttr.split(/\s+/).map(stringNumber => parseFloat(stringNumber));
+  return {
+    p1: {
+      x: points[0],
+      y: points[1]
+    },
+    p2: {
+      x: points[2],
+      y: points[3]
+    }
+  };
+}
