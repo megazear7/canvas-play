@@ -1,4 +1,5 @@
 import Crack from '/js/objects/crack.js';
+import { getMousePos } from '/js/utility.js';
 
 export default class CpgGraniteCrumble extends HTMLElement {
   constructor() {
@@ -6,22 +7,28 @@ export default class CpgGraniteCrumble extends HTMLElement {
 
     /* Configuration options */
     /* --------------------- */
-    this.crackCount = parseInt(this.getAttribute('crack-count')) || window.innerWidth / 25;
-    this.size = parseFloat(this.getAttribute('size')) || 50;
-    this.speed = parseFloat(this.getAttribute('speed')) || 0.01;
-    this.acceleration = parseFloat(this.getAttribute('acceleration')) || 0.01;
+    this.size = parseFloat(this.getAttribute('size')) || 10;
+    this.speed = parseFloat(this.getAttribute('speed')) || 0;
+    this.acceleration = parseFloat(this.getAttribute('acceleration')) || 0.03;
     this.opacity = parseFloat(this.getAttribute('opacity')) || 0.5;
-    this.animationLength = parseFloat(this.getAttribute('animation-length')) || 1500;
+    this.animationLength = parseFloat(this.getAttribute('animation-length')) || 500;
     /* --------------------- */
 
     this.shadow = this.attachShadow({mode: 'open'});
     this.shadow.innerHTML = `
       <style>
+        :host {
+          position: absolute;
+          height: 100%;
+          width: 100%;
+          top: 0;
+          left: 0;
+        }
+
         canvas {
           position: absolute;
           top: 0;
           left: 0;
-          z-index: -1000;
         }
       </style>
       <canvas></canvas>
@@ -44,17 +51,6 @@ export default class CpgGraniteCrumble extends HTMLElement {
   }
 
   connectedCallback() {
-    for (var i = 0; i < this.crackCount; i++) {
-      this.cracks.push(new Crack({
-        context: this.context,
-        segmentCount: 1,
-        breakSize: this.size,
-        breakSpeed: this.speed,
-        breakAcceleration: this.acceleration,
-        opacity: this.opacity
-      }));
-    }
-
     var self = this;
     function animate() {
       requestAnimationFrame(animate);
@@ -64,11 +60,38 @@ export default class CpgGraniteCrumble extends HTMLElement {
 
     animate();
 
-    setTimeout(() => {
-      this.cracks.forEach(crack => {
-        crack.doUpdate = false;
+    this.canvas.addEventListener('click', event => {
+      var mousePosition = getMousePos(this.canvas, event);
+      var directions = [-1, 0, 1];
+
+      directions.forEach(horizontalDir => {
+        directions.forEach(verticalDir => {
+          if (Math.random() >= 0.5) {
+            var crack = new Crack({
+              context: this.context,
+              segmentCount: 1,
+              startX: mousePosition.x,
+              startY: mousePosition.y,
+              breakSize: this.size,
+              breakSpeed: this.speed,
+              breakAcceleration: this.acceleration,
+              endGrowHorizontalDir: horizontalDir,
+              endGrowVerticalDir: verticalDir,
+              startGrows: false,
+              opacity: this.opacity
+            });
+
+            setTimeout(() => {
+              this.cracks.forEach(crack => {
+                crack.doUpdate = false;
+              });
+            }, this.animationLength);
+
+            this.cracks.push(crack);
+          }
+        });
       });
-    }, this.animationLength);
+    }, false);
   }
 
   doAnimate() {

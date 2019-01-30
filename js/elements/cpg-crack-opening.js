@@ -7,6 +7,14 @@ export default class CpgCrackOpening extends HTMLElement {
     this.shadow = this.attachShadow({mode: 'open'});
     this.shadow.innerHTML = `
       <style>
+        :host {
+          position: absolute;
+          height: 100%;
+          width: 100%;
+          top: 0;
+          left: 0;
+        }
+        
         canvas {
           position: absolute;
           top: 0;
