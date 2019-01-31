@@ -87,17 +87,32 @@ export function fillPoints({
 /** @function movePoint
  *  Returns a new point that is directly between point (x1, y1) and (x2, y2)
  *  and has moved the specified percentage between them.
+ * If the percentage move is ever less than the provided absoluteMin the point will
+ * move to the target.
  */
-export function movePoint(p1, p2, move) {
+export function movePoint(p1, p2, move, absoluteMin = 0) {
   var xDiff = p1.x - p2.x;
   var yDiff = p1.y - p2.y;
   var xMove = -xDiff * move;
   var yMove = -yDiff * move;
 
-  return {
+  var newPoint = {
     x: p1.x + xMove,
     y: p1.y + yMove
   };
+
+  var newXDiff = newPoint.x - p2.x;
+  var newYDiff = newPoint.y - p2.y;
+
+  if (Math.abs(newXDiff) < absoluteMin) {
+    newPoint.x = p2.x;
+  }
+
+  if (Math.abs(newYDiff) < absoluteMin) {
+    newPoint.y = p2.y;
+  }
+
+  return newPoint;
 }
 
 export function drawLine(context, p1, p2, thickness, color) {

@@ -30,7 +30,7 @@ export default class CpgFlexIcon extends HTMLElement {
     /* ---------------------- */
     this.lineThickness = parseFloat(this.getAttribute('line-thickness')) * 2 || 2;
     this.maxLineCount = parseFloat(this.getAttribute('max-line-count')) || 10;
-    this.speed = parseFloat(this.getAttribute('speed')) / 10 || 0.1;
+    this.speed = parseFloat(this.getAttribute('speed')) / 8 || 0.125;
     this.color = this.getAttribute('color') || 'rgba(0, 0, 0, 1)';
     this.lines = this.createLines();
     /* ---------------------- */
