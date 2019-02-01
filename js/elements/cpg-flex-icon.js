@@ -24,13 +24,15 @@ export default class CpgFlexIcon extends HTMLElement {
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.hovering = false;
+    this._lineThicknessMod = 2;
+    this._defaultLineThickness = 1;
 
     /* ---------------------- */
     /* Configuration Options */
     /* ---------------------- */
-    this.lineThickness = parseFloat(this.getAttribute('line-thickness')) * 2 || 2;
+    this.lineThickness = parseFloat(this.getAttribute('line-thickness')) || this._defaultLineThickness;
     this.maxLineCount = parseFloat(this.getAttribute('max-line-count')) || 10;
-    this.speed = parseFloat(this.getAttribute('speed')) / 8 || 0.125;
+    this.speed = parseFloat(this.getAttribute('speed')) / 5 || 0.2;
     this.color = this.getAttribute('color') || 'rgba(0, 0, 0, 1)';
     this.lines = this.createLines();
     /* ---------------------- */
@@ -70,7 +72,9 @@ export default class CpgFlexIcon extends HTMLElement {
       let lineAttr = this.getAttribute('line-' + (i+1))
       if (lineAttr) {
         let line = parseLineAttr(lineAttr, this.lineThickness);
-        line.rest = parseLineAttr(lineAttr, this.lineThickness);
+        line.thickness *= this._lineThicknessMod;
+        line.rest = parseLineAttr(lineAttr, this._defaultLineThickness);
+        line.rest.thickness *= this._lineThicknessMod;
         line.context = this.context;
         line.contextWidth = this.clientWidth;
         line.contextHeight = this.clientHeight;
@@ -81,6 +85,7 @@ export default class CpgFlexIcon extends HTMLElement {
         let hoverLineAttr = this.getAttribute('line-' + (i+1) + '-hover');
         if (hoverLineAttr) {
           line.target = parseLineAttr(hoverLineAttr, this.lineThickness);
+          line.target.thickness *= this._lineThicknessMod;
         }
 
         lines.push(new MovingLine(line));
