@@ -25,6 +25,7 @@ export default class MovingLine {
     this.rest = { };
     this.rest.p1 = config.p1;
     this.rest.p2 = config.p2;
+    this.rest.speed = config.speed;
     this.rest.thickness = config.thickness;
 
     // Targets to move towards on hover
@@ -66,12 +67,12 @@ export default class MovingLine {
       }
 
       this.thickness = approachValue(this.thickness, this.currentTarget.thickness, this.speed);
-      this.p1 = movePoint(this.p1, this.currentTarget.p1, this.speed);
-      this.p2 = movePoint(this.p2, this.currentTarget.p2, this.speed);
+      this.p1 = movePoint(this.p1, this.currentTarget.p1, this.currentTarget.speed);
+      this.p2 = movePoint(this.p2, this.currentTarget.p2, this.currentTarget.speed);
     } else {
       this.thickness = approachValue(this.thickness, this.rest.thickness, this.speed);
-      this.p1 = movePoint(this.p1, this.rest.p1, this.speed);
-      this.p2 = movePoint(this.p2, this.rest.p2, this.speed);
+      this.p1 = movePoint(this.p1, this.rest.p1, this.rest.speed);
+      this.p2 = movePoint(this.p2, this.rest.p2, this.rest.speed);
     }
   }
 
