@@ -1,4 +1,4 @@
-import { getMousePos } from '/js/utility.js';
+import { getMousePos, movePoint } from '/js/utility.js';
 
 export default class CpgExplodingImage extends HTMLElement {
   constructor() {
@@ -93,6 +93,11 @@ export default class CpgExplodingImage extends HTMLElement {
   }
 
   update() {
+    this.particles.forEach(particle => {
+      var newPosition = movePoint(particle, particle.target, 0.01);
+      particle.x = newPosition.x;
+      particle.y = newPosition.y;
+    });
   }
 
   draw() {
