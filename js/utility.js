@@ -94,34 +94,37 @@ export function approachValue(current, target, relativeMove) {
 }
 
 /** @function movePoint
- *  Returns a new point that is directly between p1 and p2
- *  and has moved the specified percentage between them.
- *  If the percentage move is ever less than the provided absoluteMin the point will
- *  move to the target.
+ *  Returns a new point moved from p1 towards p2 with an easing function applied
+ *  based upon the original starting point p0. The speed of the movement is scalled by speedScale.
  */
-export function movePoint(p1, p2, move, absoluteMin = 0) {
-  var xDiff = p1.x - p2.x;
-  var yDiff = p1.y - p2.y;
-  var xMove = -xDiff * move;
-  var yMove = -yDiff * move;
+export function movePoint(p0, p1, p2, speedScale) {
+  var xDiff = p2.x - p1.x;
+  var yDiff = p2.y - p1.y;
+  var xTotal = Math.abs(p2.x - p0.x);
+  var yTotal = Math.abs(p2.y - p0.y);
 
-  var newPoint = {
-    x: p1.x + xMove,
-    y: p1.y + yMove
+  var newX;
+  if (xTotal > 0) {
+    var xSpeedAdjust = Math.pow(Math.abs(Math.sin((Math.abs(xDiff) / xTotal) * Math.PI)), 1/3);
+    var xMove = xDiff * speedScale * xSpeedAdjust;
+    newX = p1.x + xMove;
+  } else {
+    newX = p2.x;
+  }
+
+  var newY;
+  if (yTotal > 0) {
+    var ySpeedAdjust = Math.pow(Math.abs(Math.sin((Math.abs(yDiff) / yTotal) * Math.PI)), 1/3);
+    var yMove = yDiff * speedScale * ySpeedAdjust;
+    newY = p1.y + yMove;
+  } else {
+    newY = p2.y;
+  }
+
+  return {
+    x: newX,
+    y: newY
   };
-
-  var newXDiff = newPoint.x - p2.x;
-  var newYDiff = newPoint.y - p2.y;
-
-  if (Math.abs(newXDiff) < absoluteMin) {
-    newPoint.x = p2.x;
-  }
-
-  if (Math.abs(newYDiff) < absoluteMin) {
-    newPoint.y = p2.y;
-  }
-
-  return newPoint;
 }
 
 export function distanceBetween(p1, p2) {

@@ -21,6 +21,7 @@ export default class MovingLine {
       thickness: this.thickness,
       color: this.color
     };
+    this.previousTarget = this.currentTarget;
 
     // Resting position
     this.rest = { };
@@ -74,8 +75,8 @@ export default class MovingLine {
 
   update() {
     this.thickness = approachValue(this.thickness, this.currentTarget.thickness, this.speed);
-    this.p1 = movePoint(this.p1, this.currentTarget.p1, this.currentTarget.speed);
-    this.p2 = movePoint(this.p2, this.currentTarget.p2, this.currentTarget.speed);
+    this.p1 = movePoint(this.previousTarget.p1, this.p1, this.currentTarget.p1, this.currentTarget.speed);
+    this.p2 = movePoint(this.previousTarget.p2, this.p2, this.currentTarget.p2, this.currentTarget.speed);
   }
 
   draw() {
