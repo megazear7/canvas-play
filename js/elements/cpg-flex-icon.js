@@ -93,9 +93,10 @@ export default class CpgFlexIcon extends HTMLElement {
         line.context = this.context;
         line.contextWidth = this.clientWidth;
         line.contextHeight = this.clientHeight;
-        line.color = this.color;
         line.speed *= this._speedMod;
         line.hoverTargets = [];
+        let lineColorAttr = this.getAttribute(`line-${i+1}-color`);
+        line.color = lineColorAttr ? lineColorAttr : this.color;
 
         for (var j = 0; j < this.maxHoverTargets; j++) {
           let hoverLineAttr = this.getAttribute(`line-${i+1}-hover-${j+1}`);
@@ -103,6 +104,9 @@ export default class CpgFlexIcon extends HTMLElement {
             var target = parseLineAttr(hoverLineAttr, this.lineThickness, this.speed);
             target.thickness *= this._lineThicknessMod;
             target.speed *= this._speedMod;
+
+            let targetColorAttr = this.getAttribute(`line-${i+1}-hover-${j+1}-color`);
+            target.color = targetColorAttr ? targetColorAttr : line.color;
             line.hoverTargets.push(target);
           }
         }
