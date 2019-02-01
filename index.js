@@ -5,6 +5,7 @@ export { default as CpgGraniteCrumble } from './js/elements/cpg-granite-crumble.
 export { default as CpgRain } from './js/elements/cpg-rain.js';
 export { default as CpgRainbowBubble } from './js/elements/cpg-rainbow-bubbles.js';
 export { default as CpgCrackOpening } from './js/elements/cpg-crack-opening.js';
+export { default as CpgExplodingImage } from './js/elements/cpg-exploding-image.js';
 
 // Canvas objects
 export { default as Crack } from './js/objects/crack.js';
