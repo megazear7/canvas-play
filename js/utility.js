@@ -133,7 +133,7 @@ export function drawLine(context, p1, p2, thickness, color) {
   context.stroke();
 }
 
-export function parseLineAttr(lineAttr, defaultThickness) {
+export function parseLineAttr(lineAttr, defaultThickness, defaultSpeed) {
   let points = lineAttr.split(/\s+/).map(stringNumber => parseFloat(stringNumber));
   return {
     p1: {
@@ -144,6 +144,7 @@ export function parseLineAttr(lineAttr, defaultThickness) {
       x: points[2],
       y: points[3]
     },
-    thickness: points.length > 4 ? points[4] : defaultThickness
+    thickness: points.length > 4 ? points[4] : defaultThickness,
+    speed: points.length > 5 ? points[5] : defaultSpeed
   };
 }

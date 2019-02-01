@@ -26,14 +26,18 @@ export default class CpgFlexIcon extends HTMLElement {
     this.hovering = false;
     this._lineThicknessMod = 2;
     this._defaultLineThickness = 1;
+    this._defaultSpeed = 1;
+    this._speedMod = 0.2;
+    this._defaultColor = 'rgba(0, 0, 0, 1)';
+    this._defaultMaxLineCount = 10;
 
     /* ---------------------- */
     /* Configuration Options */
     /* ---------------------- */
     this.lineThickness = parseFloat(this.getAttribute('line-thickness')) || this._defaultLineThickness;
-    this.maxLineCount = parseFloat(this.getAttribute('max-line-count')) || 10;
-    this.speed = parseFloat(this.getAttribute('speed')) / 5 || 0.2;
-    this.color = this.getAttribute('color') || 'rgba(0, 0, 0, 1)';
+    this.maxLineCount = parseFloat(this.getAttribute('max-line-count')) || this._defaultMaxLineCount;
+    this.speed = (parseFloat(this.getAttribute('speed')) * this._defaultSpeed) || this._defaultSpeed;
+    this.color = this.getAttribute('color') || this._defaultColor;
     this.lines = this.createLines();
     /* ---------------------- */
 
@@ -71,21 +75,22 @@ export default class CpgFlexIcon extends HTMLElement {
     for (var i = 0; i < this.maxLineCount; i++) {
       let lineAttr = this.getAttribute('line-' + (i+1))
       if (lineAttr) {
-        let line = parseLineAttr(lineAttr, this.lineThickness);
+        let line = parseLineAttr(lineAttr, this.lineThickness, this.speed);
         line.thickness *= this._lineThicknessMod;
-        line.rest = parseLineAttr(lineAttr, this._defaultLineThickness);
+        line.rest = parseLineAttr(lineAttr, this._defaultLineThickness, this.speed);
         line.rest.thickness *= this._lineThicknessMod;
+        line.rest.speed *= this._speedMod;
         line.context = this.context;
         line.contextWidth = this.clientWidth;
         line.contextHeight = this.clientHeight;
-        line.speed = this.speed;
         line.color = this.color;
-        line.speed = this.speed;
+        line.speed *= this._speedMod;
 
         let hoverLineAttr = this.getAttribute('line-' + (i+1) + '-hover');
         if (hoverLineAttr) {
-          line.target = parseLineAttr(hoverLineAttr, this.lineThickness);
+          line.target = parseLineAttr(hoverLineAttr, this.lineThickness, this.speed);
           line.target.thickness *= this._lineThicknessMod;
+          line.target.speed *= this._speedMod;
         }
 
         lines.push(new MovingLine(line));

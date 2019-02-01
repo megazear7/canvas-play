@@ -60,7 +60,10 @@
   <h1>Flex Icon</h1>
   <xmp>
     import { CpgFlexIcon } from 'canvas-play';
-    <cpg-flex-icon line-1="0.3 0.3 0.7 0.7" line-1-hover="0.1 0.1 0.9 0.9"></cpg-flex-icon>
+    <cpg-flex-icon
+      line-1="x1 y1 x2 y2 thickness speed"
+      line-1-hover="x1 y1 x2 y2 thickness speed">
+    </cpg-flex-icon>
   </xmp>
 
   <cpg-flex-icon
@@ -80,11 +83,10 @@
   <cpg-flex-icon
     class="medium"
     color="#e05915"
-    speed="1.5"
-    line-1="0.175 0.175 0.825 0.825"
-    line-2="0.1   0.5   0.9   0.5"
-    line-3="0.175 0.825 0.825 0.175"
-    line-4="0.5   0.1   0.5   0.9"
+    line-1="0.175 0.175 0.825 0.825 1 2"
+    line-2="0.1   0.5   0.9   0.5   1 1.8"
+    line-3="0.175 0.825 0.825 0.175 1 1.5"
+    line-4="0.5   0.1   0.5   0.9   1 1.1"
     line-4-hover="0.5 0.9  0.2 0.2"
     line-3-hover="0.4 0.65 0.4 0.1"
     line-2-hover="0.6 0.65 0.6 0.1"
