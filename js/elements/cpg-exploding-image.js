@@ -19,6 +19,8 @@ export default class CpgExplodingImage extends HTMLElement {
   connectedCallback() {
     this.canvas = this.shadow.querySelector('canvas');
     this.context = this.canvas.getContext('2d');
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
     this.mousePosition = {x: 0, y: 0};
     this.particles = [];
 
@@ -64,7 +66,8 @@ export default class CpgExplodingImage extends HTMLElement {
               x: x,
               y: y,
             },
-            speed: Math.random() * 4 + 2,
+            dx: Math.random() * 2 - 1,
+            dy: Math.random() * 2 - 1,
             color:
               "rgb(" +
               data.data[p] +
@@ -94,14 +97,21 @@ export default class CpgExplodingImage extends HTMLElement {
 
   update() {
     this.particles.forEach(particle => {
-      var newPosition = movePoint(particle, particle.target, 0.01);
-      particle.x = newPosition.x;
-      particle.y = newPosition.y;
+      var diffX = (particle.x - particle.target.x) / 300;
+      var diffY = (particle.y - particle.target.y) / 300;
+
+      particle.dx -= diffX;
+      particle.dy -= diffY;
+      particle.dx *= 0.97;
+      particle.dy *= 0.97;
+
+      particle.x += particle.dx;
+      particle.y += particle.dy;
     });
   }
 
   draw() {
-    this.context.clearRect(0, 0, this.width, this.height);
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.particles.forEach(particle => {
       this.context.fillStyle = particle.color;
       this.context.fillRect(particle.x * 3, particle.y * 3, 3, 3);
