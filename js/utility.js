@@ -84,11 +84,20 @@ export function fillPoints({
   context.stroke();
 }
 
+/** @function approachValue
+ *  Returns the current value a percentage distance towards the target as
+ *  specified by the move */
+export function approachValue(current, target, relativeMove) {
+  var diff = target - current;
+  var absoluteMove = diff * relativeMove;
+  return current + absoluteMove;
+}
+
 /** @function movePoint
- *  Returns a new point that is directly between point (x1, y1) and (x2, y2)
+ *  Returns a new point that is directly between p1 and p2
  *  and has moved the specified percentage between them.
- * If the percentage move is ever less than the provided absoluteMin the point will
- * move to the target.
+ *  If the percentage move is ever less than the provided absoluteMin the point will
+ *  move to the target.
  */
 export function movePoint(p1, p2, move, absoluteMin = 0) {
   var xDiff = p1.x - p2.x;
@@ -124,7 +133,7 @@ export function drawLine(context, p1, p2, thickness, color) {
   context.stroke();
 }
 
-export function parseLineAttr(lineAttr) {
+export function parseLineAttr(lineAttr, defaultThickness) {
   let points = lineAttr.split(/\s+/).map(stringNumber => parseFloat(stringNumber));
   return {
     p1: {
@@ -134,6 +143,7 @@ export function parseLineAttr(lineAttr) {
     p2: {
       x: points[2],
       y: points[3]
-    }
+    },
+    thickness: points.length > 4 ? points[4] : defaultThickness
   };
 }

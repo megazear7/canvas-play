@@ -69,19 +69,18 @@ export default class CpgFlexIcon extends HTMLElement {
     for (var i = 0; i < this.maxLineCount; i++) {
       let lineAttr = this.getAttribute('line-' + (i+1))
       if (lineAttr) {
-        let line = parseLineAttr(lineAttr);
-        line.rest = parseLineAttr(lineAttr);
+        let line = parseLineAttr(lineAttr, this.lineThickness);
+        line.rest = parseLineAttr(lineAttr, this.lineThickness);
         line.context = this.context;
         line.contextWidth = this.clientWidth;
         line.contextHeight = this.clientHeight;
         line.speed = this.speed;
-        line.thickness = this.lineThickness;
         line.color = this.color;
         line.speed = this.speed;
 
         let hoverLineAttr = this.getAttribute('line-' + (i+1) + '-hover');
         if (hoverLineAttr) {
-          line.target = parseLineAttr(hoverLineAttr);
+          line.target = parseLineAttr(hoverLineAttr, this.lineThickness);
         }
 
         lines.push(new MovingLine(line));

@@ -1,4 +1,4 @@
-import { movePoint, drawLine } from '../utility.js';
+import { movePoint, drawLine, approachValue } from '../utility.js';
 
 export default class MovingLine {
   constructor(config) {
@@ -20,12 +20,11 @@ export default class MovingLine {
     this.rest = { };
     this.rest.p1 = config.p1;
     this.rest.p2 = config.p2;
+    this.rest.thickness = config.thickness;
 
     // On hover target position
     if (config.target) {
-      this.target = { };
-      this.target.p1 = config.target.p1;
-      this.target.p2 = config.target.p2;
+      this.target = config.target;
     }
   }
 
@@ -43,10 +42,13 @@ export default class MovingLine {
   }
 
   update(active) {
-    if (active && this.target) {
+    this.active = active;
+    if (this.active && this.target) {
+      this.thickness = approachValue(this.thickness, this.target.thickness, this.speed);
       this.p1 = movePoint(this.p1, this.target.p1, this.speed);
       this.p2 = movePoint(this.p2, this.target.p2, this.speed);
     } else {
+      this.thickness = approachValue(this.thickness, this.rest.thickness, this.speed);
       this.p1 = movePoint(this.p1, this.rest.p1, this.speed);
       this.p2 = movePoint(this.p2, this.rest.p2, this.speed);
     }
