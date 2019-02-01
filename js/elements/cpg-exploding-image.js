@@ -22,7 +22,6 @@ export default class CpgExplodingImage extends HTMLElement {
     this.canvas = this.shadow.querySelector('canvas');
     this.context = this.canvas.getContext('2d');
     this.mousePosition = {x: 0, y: 0};
-    this.friction = 0.9;
     this.particles = [];
 
     /* ---------------------- */
@@ -31,9 +30,9 @@ export default class CpgExplodingImage extends HTMLElement {
     this.href = this.getAttribute('href');
     this.sizeMultiplier = this.getFloatAttr('size-multiplier', 1) * 2;
     this.opacity = this.getFloatAttr('opacity', 1);
+    this.friction = this.getFloatAttr('friction', 1) * 0.9;
+    this.speed = this.getFloatAttr('speed', 1) * 20;
     /* ---------------------- */
-
-    console.log(this.opacity);
 
     fetch(this.href)
     .then(response => response.blob())
@@ -78,8 +77,8 @@ export default class CpgExplodingImage extends HTMLElement {
           var distanceFromCenter = Math.sqrt(Math.pow(distanceX, 2) * Math.pow(distanceY, 2));
           var distanceToCorner = Math.sqrt(Math.pow(centerX, 2) * Math.pow(centerY , 2));
           var speedMultiplier = (distanceFromCenter / distanceToCorner) - 0.5
-          var dx = ((Math.random() * 2) - 1) * 4 * speedMultiplier * 20;
-          var dy = ((Math.random() * 2) - 1) * 4 * speedMultiplier * 20;
+          var dx = ((Math.random() * 2) - 1) * 4 * speedMultiplier * this.speed;
+          var dy = ((Math.random() * 2) - 1) * 4 * speedMultiplier * this.speed;
           var particle = {
             x: this.png.width / 2,
             y: this.png.height / 2,
