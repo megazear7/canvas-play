@@ -53,30 +53,29 @@ export default class MovingLine {
            distanceBetween(this.p2, this.currentTarget.p2) < sensitivity;
   }
 
+  returnToRest() {
+    this.previousTarget = this.currentTarget;
+    this.currentHoverTargetIndex = 0;
+    this.currentTarget = this.rest;
+  }
+
   updateHoverTarget() {
+    this.previousTarget = this.currentTarget;
     this.currentHoverTargetIndex++;
 
     if (this.currentHoverTargetIndex >= this.hoverTargets.length) {
       this.currentHoverTargetIndex = 0;
     }
+
+    if (this.hoverTargets.length > 0) {
+      this.currentTarget = this.hoverTargets[this.currentHoverTargetIndex];
+    }
   }
 
-  update(active) {
-    this.active = active;
-    if (this.active) {
-      if (this.hoverTargets.length > 0) {
-        this.currentTarget = this.hoverTargets[this.currentHoverTargetIndex];
-      }
-
-      this.thickness = approachValue(this.thickness, this.currentTarget.thickness, this.speed);
-      this.p1 = movePoint(this.p1, this.currentTarget.p1, this.currentTarget.speed);
-      this.p2 = movePoint(this.p2, this.currentTarget.p2, this.currentTarget.speed);
-    } else {
-      this.currentTarget = this.rest;
-      this.thickness = approachValue(this.thickness, this.rest.thickness, this.speed);
-      this.p1 = movePoint(this.p1, this.rest.p1, this.rest.speed);
-      this.p2 = movePoint(this.p2, this.rest.p2, this.rest.speed);
-    }
+  update() {
+    this.thickness = approachValue(this.thickness, this.currentTarget.thickness, this.speed);
+    this.p1 = movePoint(this.p1, this.currentTarget.p1, this.currentTarget.speed);
+    this.p2 = movePoint(this.p2, this.currentTarget.p2, this.currentTarget.speed);
   }
 
   draw() {
