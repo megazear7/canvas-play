@@ -35,11 +35,15 @@
   <meta property="og:site_name" content="canvas-play">
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
   <style>
+    .container {
+      position: relative;
+      padding-top: 50px;
+    }
+
     cpg-exploding-image {
       position: absolute;
-      top:50%;
       left:50%;
-      transform: translate(-50%,-50%);
+      transform: translate(-50%,0%);
     }
   </style>
 </head>
@@ -51,7 +55,9 @@
     <cpg-exploding-image href="/images/warrior-kitten.png"></cpg-exploding-image>
   </xmp>
 
-  <cpg-exploding-image href="/images/warrior-kitten.png"></cpg-exploding-image>
+  <div class="container">
+    <cpg-exploding-image href="/images/warrior-kitten.png"></cpg-exploding-image>
+  </div>
   <script type="module">
     import { CpgExplodingImage} from '../index.js';
   </script>

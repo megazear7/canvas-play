@@ -7,9 +7,11 @@ export default class CpgExplodingImage extends HTMLElement {
     this.shadow.innerHTML = `
       <style>
         :host {
+          position: relative;
         }
 
         canvas {
+          position: absolute;
         }
       </style>
       <canvas></canvas>
@@ -19,16 +21,15 @@ export default class CpgExplodingImage extends HTMLElement {
   connectedCallback() {
     this.canvas = this.shadow.querySelector('canvas');
     this.context = this.canvas.getContext('2d');
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
     this.mousePosition = {x: 0, y: 0};
-    this.friction = 0.05;
+    this.friction = 0.95;
     this.particles = [];
 
     /* ---------------------- */
     /* Configuration Options */
     /* ---------------------- */
     this.href = this.getAttribute('href');
+    this.sizeMultiplier = 2;
     /* ---------------------- */
 
     fetch(this.href)
@@ -49,9 +50,13 @@ export default class CpgExplodingImage extends HTMLElement {
     }, false);
   }
 
-  beginScene(pngData) {
+  beginScene() {
     this.canvas.width = this.png.width * 4;
     this.canvas.height = this.png.height * 4;
+    this.style.width = (this.png.width * this.sizeMultiplier) + 'px';
+    this.style.height = (this.png.height * this.sizeMultiplier) + 'px';
+    this.canvas.style.left = -((this.png.width * this.sizeMultiplier) / 2) + 'px';
+    this.canvas.style.top = -((this.png.height * this.sizeMultiplier) / 2) + 'px';
     this.context.drawImage(this.png, 0, 0);
 
     var data = this.context.getImageData(0, 0, this.png.width, this.png.height);
@@ -67,8 +72,10 @@ export default class CpgExplodingImage extends HTMLElement {
               x: x,
               y: y,
             },
-            dx: Math.random() * 2 - 1,
-            dy: Math.random() * 2 - 1,
+            //dx: Math.random() * 2 - 1,
+            //dy: Math.random() * 2 - 1,
+            dx: (x / this.png.width) * 2 - 1,
+            dy: -(y / this.png.height) * 2 - 1,
             color:
               "rgb(" +
               data.data[p] +
@@ -103,8 +110,8 @@ export default class CpgExplodingImage extends HTMLElement {
 
       particle.dx -= diffX;
       particle.dy -= diffY;
-      particle.dx *= 1 - this.friction;
-      particle.dy *= 1 - this.friction;
+      particle.dx *= this.friction;
+      particle.dy *= this.friction;
 
       particle.x += particle.dx;
       particle.y += particle.dy;
@@ -115,7 +122,7 @@ export default class CpgExplodingImage extends HTMLElement {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.particles.forEach(particle => {
       this.context.fillStyle = particle.color;
-      this.context.fillRect(particle.x*2 + this.png.width, particle.y*2 + this.png.height, 3, 3);
+      this.context.fillRect(particle.x*this.sizeMultiplier + this.png.width, particle.y*this.sizeMultiplier + this.png.height, 3, 3);
     });
   }
 }
