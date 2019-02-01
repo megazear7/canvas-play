@@ -29,8 +29,11 @@ export default class CpgExplodingImage extends HTMLElement {
     /* Configuration Options */
     /* ---------------------- */
     this.href = this.getAttribute('href');
-    this.sizeMultiplier = 2;
+    this.sizeMultiplier = this.getFloatAttr('size-multiplier', 1) * 2;
+    this.opacity = this.getFloatAttr('opacity', 1);
     /* ---------------------- */
+
+    console.log(this.opacity);
 
     fetch(this.href)
     .then(response => response.blob())
@@ -60,10 +63,6 @@ export default class CpgExplodingImage extends HTMLElement {
     this.moveTop = -(this.png.width * this.sizeMultiplier * 2);
     this.canvas.style.top = this.moveTop + 'px'
 
-    //this.canvas.width = this.png.width * 4;
-    //this.canvas.height = this.png.height * 4;
-    //this.canvas.style.left = -((this.png.width * this.sizeMultiplier) / 2) + 'px';
-    //this.canvas.style.top = -((this.png.height * this.sizeMultiplier) / 2) + 'px';
     this.context.drawImage(this.png, 0, 0);
 
     var data = this.context.getImageData(0, 0, this.png.width, this.png.height);
@@ -90,14 +89,7 @@ export default class CpgExplodingImage extends HTMLElement {
             },
             dx: dx,
             dy: dy,
-            color:
-              "rgb(" +
-              data.data[p] +
-              "," +
-              data.data[p + 1] +
-              "," +
-              data.data[p + 2] +
-              ")"
+            color: `rgba(${data.data[p]}, ${data.data[p + 1]}, ${data.data[p + 2]}, ${this.opacity})`
           };
           this.particles.push(particle);
         }
@@ -136,8 +128,20 @@ export default class CpgExplodingImage extends HTMLElement {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.particles.forEach(particle => {
       this.context.fillStyle = particle.color;
-      this.context.fillRect(particle.x*this.sizeMultiplier - this.moveLeft, particle.y*this.sizeMultiplier - this.moveTop, 3, 3);
+      this.context.fillRect(
+        particle.x*this.sizeMultiplier - this.moveLeft,
+        particle.y*this.sizeMultiplier - this.moveTop,
+        this.sizeMultiplier,
+        this.sizeMultiplier);
     });
+  }
+
+  getFloatAttr(name, defaultVal) {
+    if (this.hasAttribute(name)) {
+      return parseFloat(this.getAttribute(name));
+    } else {
+      return defaultVal;
+    }
   }
 }
 
