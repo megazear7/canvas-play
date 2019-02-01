@@ -15,6 +15,7 @@ export default class MovingLine {
     // Initial position and target
     this.p1 = config.p1;
     this.p2 = config.p2;
+    this.atRest = true;
     this.currentTarget = {
       p1: this.p1,
       p2: this.p2,
@@ -55,12 +56,14 @@ export default class MovingLine {
   }
 
   returnToRest() {
+    this.atRest = true;
     this.previousTarget = this.currentTarget;
     this.currentHoverTargetIndex = 0;
     this.currentTarget = this.rest;
   }
 
   updateHoverTarget() {
+    this.atRest = false;
     this.previousTarget = this.currentTarget;
     this.currentHoverTargetIndex++;
 

@@ -70,7 +70,7 @@ export default class CpgFlexIcon extends HTMLElement {
     this.lines.forEach(line => {
       if (this.hovering && allLinesHaveReachedTarget) {
         line.updateHoverTarget();
-      } else if (!this.hovering) {
+      } else if (!this.hovering && !line.atRest) {
         line.returnToRest();
       }
       line.update(this.hovering);
