@@ -45,19 +45,23 @@ export default class MovingLine {
     }
   }
 
+  hasReachedTarget(sensitivity) {
+    return distanceBetween(this.p1, this.currentTarget.p1) < sensitivity &&
+           distanceBetween(this.p2, this.currentTarget.p2) < sensitivity;
+  }
+
+  updateHoverTarget() {
+    this.currentHoverTargetIndex++;
+
+    if (this.currentHoverTargetIndex >= this.hoverTargets.length) {
+      this.currentHoverTargetIndex = 0;
+    }
+  }
+
   update(active) {
     this.active = active;
     if (this.active) {
       if (this.hoverTargets.length > 0) {
-        if (distanceBetween(this.p1, this.currentTarget.p1) < 0.01 &&
-            distanceBetween(this.p2, this.currentTarget.p2) < 0.01) {
-          this.currentHoverTargetIndex++;
-        }
-
-        if (this.currentHoverTargetIndex >= this.hoverTargets.length) {
-          this.currentHoverTargetIndex = 0;
-        }
-
         this.currentTarget = this.hoverTargets[this.currentHoverTargetIndex];
       }
 

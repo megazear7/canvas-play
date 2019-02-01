@@ -31,6 +31,7 @@ export default class CpgFlexIcon extends HTMLElement {
     this._defaultColor = 'rgba(0, 0, 0, 1)';
     this._defaultMaxLineCount = 10;
     this._defaultMaxHoverTargets = 4;
+    this._defaultSensitivity = 0.01;
 
     /* ---------------------- */
     /* Configuration Options */
@@ -39,6 +40,7 @@ export default class CpgFlexIcon extends HTMLElement {
     this.maxLineCount = parseFloat(this.getAttribute('max-line-count')) || this._defaultMaxLineCount;
     this.maxHoverTargets = parseFloat(this.getAttribute('max-hover-targets')) || this._defaultMaxHoverTargets
     this.speed = (parseFloat(this.getAttribute('speed')) * this._defaultSpeed) || this._defaultSpeed;
+    this.sensitivity = (parseFloat(this.getAttribute('sensitivity')) * this._defaultSensitivity) || this._defaultSensitivity;
     this.color = this.getAttribute('color') || this._defaultColor;
     this.lines = this.createLines();
     /* ---------------------- */
@@ -64,7 +66,13 @@ export default class CpgFlexIcon extends HTMLElement {
   }
 
   update() {
-    this.lines.forEach(line => line.update(this.hovering));
+    var allLinesHaveReachedTarget = this.lines.every(line => line.hasReachedTarget(this.sensitivity));
+    this.lines.forEach(line => {
+      if (this.hovering && allLinesHaveReachedTarget) {
+        line.updateHoverTarget();
+      }
+      line.update(this.hovering);
+    });
   }
 
   draw() {
