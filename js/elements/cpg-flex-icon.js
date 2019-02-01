@@ -68,7 +68,7 @@ export default class CpgFlexIcon extends HTMLElement {
   update() {
     var allLinesHaveReachedTarget = this.lines.every(line => line.hasReachedTarget(this.sensitivity));
     this.lines.forEach(line => {
-      if (this.hovering && allLinesHaveReachedTarget) {
+      if (this.hovering && allLinesHaveReachedTarget && ((line.hoverTargets.length === 1 && line.atRest) || line.hoverTargets.length > 1)) {
         line.updateHoverTarget();
       } else if (!this.hovering && !line.atRest) {
         line.returnToRest();
