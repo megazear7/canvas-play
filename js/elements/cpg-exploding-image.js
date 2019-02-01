@@ -43,7 +43,7 @@ export default class CpgExplodingImage extends HTMLElement {
         var base64data = reader.result;
         this.png = new Image();
         this.png.src = base64data;
-        this.beginScene();
+        this.png.onload = this.beginScene();
       }
     });
 
