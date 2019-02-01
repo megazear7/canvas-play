@@ -30,12 +30,14 @@ export default class CpgFlexIcon extends HTMLElement {
     this._speedMod = 0.2;
     this._defaultColor = 'rgba(0, 0, 0, 1)';
     this._defaultMaxLineCount = 10;
+    this._defaultMaxHoverTargets = 4;
 
     /* ---------------------- */
     /* Configuration Options */
     /* ---------------------- */
     this.lineThickness = parseFloat(this.getAttribute('line-thickness')) || this._defaultLineThickness;
     this.maxLineCount = parseFloat(this.getAttribute('max-line-count')) || this._defaultMaxLineCount;
+    this.maxHoverTargets = parseFloat(this.getAttribute('max-hover-targets')) || this._defaultMaxHoverTargets
     this.speed = (parseFloat(this.getAttribute('speed')) * this._defaultSpeed) || this._defaultSpeed;
     this.color = this.getAttribute('color') || this._defaultColor;
     this.lines = this.createLines();
@@ -85,12 +87,16 @@ export default class CpgFlexIcon extends HTMLElement {
         line.contextHeight = this.clientHeight;
         line.color = this.color;
         line.speed *= this._speedMod;
+        line.hoverTargets = [];
 
-        let hoverLineAttr = this.getAttribute('line-' + (i+1) + '-hover');
-        if (hoverLineAttr) {
-          line.target = parseLineAttr(hoverLineAttr, this.lineThickness, this.speed);
-          line.target.thickness *= this._lineThicknessMod;
-          line.target.speed *= this._speedMod;
+        for (var j = 0; j < this.maxHoverTargets; j++) {
+          let hoverLineAttr = this.getAttribute(`line-${i+1}-hover-${j+1}`);
+          if (hoverLineAttr) {
+            var target = parseLineAttr(hoverLineAttr, this.lineThickness, this.speed);
+            target.thickness *= this._lineThicknessMod;
+            target.speed *= this._speedMod;
+            line.hoverTargets.push(target);
+          }
         }
 
         lines.push(new MovingLine(line));

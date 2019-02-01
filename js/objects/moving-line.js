@@ -1,4 +1,4 @@
-import { movePoint, drawLine, approachValue } from '../utility.js';
+import { movePoint, drawLine, approachValue, distanceBetween } from '../utility.js';
 
 export default class MovingLine {
   constructor(config) {
@@ -12,9 +12,14 @@ export default class MovingLine {
     this.color = config.color;
     this.speed = config.speed;
 
-    // Current position
+    // Initial position and target
     this.p1 = config.p1;
     this.p2 = config.p2;
+    this.currentTarget = {
+      p1: this.p1,
+      p2: this.p2,
+      thickness: this.thickness
+    };
 
     // Resting position
     this.rest = { };
@@ -22,10 +27,9 @@ export default class MovingLine {
     this.rest.p2 = config.p2;
     this.rest.thickness = config.thickness;
 
-    // On hover target position
-    if (config.target) {
-      this.target = config.target;
-    }
+    // Targets to move towards on hover
+    this.hoverTargets = config.hoverTargets ? config.hoverTargets : [];
+    this.currentHoverTargetIndex = 0;
   }
 
   get pos() {
@@ -43,10 +47,22 @@ export default class MovingLine {
 
   update(active) {
     this.active = active;
-    if (this.active && this.target) {
-      this.thickness = approachValue(this.thickness, this.target.thickness, this.speed);
-      this.p1 = movePoint(this.p1, this.target.p1, this.speed);
-      this.p2 = movePoint(this.p2, this.target.p2, this.speed);
+    if (this.active) {
+      if (this.hoverTargets.length > 0) {
+        if (distanceBetween(this.p1, this.currentTarget.p1) < 0.01 &&
+            distanceBetween(this.p2, this.currentTarget.p2) < 0.01) {
+          this.currentHoverTargetIndex++;
+          if (this.currentHoverTargetIndex > this.hoverTargets.length-1) {
+            this.currentHoverTargetIndex = 0;
+          }
+        }
+
+        this.currentTarget = this.hoverTargets[this.currentHoverTargetIndex];
+      }
+
+      this.thickness = approachValue(this.thickness, this.currentTarget.thickness, this.speed);
+      this.p1 = movePoint(this.p1, this.currentTarget.p1, this.speed);
+      this.p2 = movePoint(this.p2, this.currentTarget.p2, this.speed);
     } else {
       this.thickness = approachValue(this.thickness, this.rest.thickness, this.speed);
       this.p1 = movePoint(this.p1, this.rest.p1, this.speed);
