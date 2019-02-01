@@ -22,6 +22,7 @@ export default class CpgExplodingImage extends HTMLElement {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.mousePosition = {x: 0, y: 0};
+    this.friction = 0.05;
     this.particles = [];
 
     /* ---------------------- */
@@ -49,8 +50,8 @@ export default class CpgExplodingImage extends HTMLElement {
   }
 
   beginScene(pngData) {
-    this.canvas.width = this.png.width * 3;
-    this.canvas.height = this.png.height * 3;
+    this.canvas.width = this.png.width * 4;
+    this.canvas.height = this.png.height * 4;
     this.context.drawImage(this.png, 0, 0);
 
     var data = this.context.getImageData(0, 0, this.png.width, this.png.height);
@@ -102,8 +103,8 @@ export default class CpgExplodingImage extends HTMLElement {
 
       particle.dx -= diffX;
       particle.dy -= diffY;
-      particle.dx *= 0.97;
-      particle.dy *= 0.97;
+      particle.dx *= 1 - this.friction;
+      particle.dy *= 1 - this.friction;
 
       particle.x += particle.dx;
       particle.y += particle.dy;
@@ -114,7 +115,7 @@ export default class CpgExplodingImage extends HTMLElement {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.particles.forEach(particle => {
       this.context.fillStyle = particle.color;
-      this.context.fillRect(particle.x * 3, particle.y * 3, 3, 3);
+      this.context.fillRect(particle.x*2 + this.png.width, particle.y*2 + this.png.height, 3, 3);
     });
   }
 }
