@@ -52,9 +52,10 @@ export default class MovingLine {
         if (distanceBetween(this.p1, this.currentTarget.p1) < 0.01 &&
             distanceBetween(this.p2, this.currentTarget.p2) < 0.01) {
           this.currentHoverTargetIndex++;
-          if (this.currentHoverTargetIndex > this.hoverTargets.length-1) {
-            this.currentHoverTargetIndex = 0;
-          }
+        }
+
+        if (this.currentHoverTargetIndex >= this.hoverTargets.length) {
+          this.currentHoverTargetIndex = 0;
         }
 
         this.currentTarget = this.hoverTargets[this.currentHoverTargetIndex];

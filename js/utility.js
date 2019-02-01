@@ -125,7 +125,7 @@ export function movePoint(p1, p2, move, absoluteMin = 0) {
 }
 
 export function distanceBetween(p1, p2) {
-  return Math.sqrt(Math.abs(p1.x - p2.x) * Math.abs(p1.y - p2.y));
+  return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 }
 
 export function drawLine(context, p1, p2, thickness, color) {
