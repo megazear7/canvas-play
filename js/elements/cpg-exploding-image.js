@@ -7,17 +7,9 @@ export default class CpgExplodingImage extends HTMLElement {
     this.shadow.innerHTML = `
       <style>
         :host {
-          position: absolute;
-          height: 100%;
-          width: 100%;
-          top: 0;
-          left: 0;
         }
 
         canvas {
-          position: absolute;
-          top: 0;
-          left: 0;
         }
       </style>
       <canvas></canvas>
@@ -28,10 +20,6 @@ export default class CpgExplodingImage extends HTMLElement {
     this.canvas = this.shadow.querySelector('canvas');
     this.context = this.canvas.getContext('2d');
     this.mousePosition = {x: 0, y: 0};
-    this.width = this.clientWidth;
-    this.height = this.clientHeight;
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
 
     /* ---------------------- */
     /* Configuration Options */
@@ -46,7 +34,9 @@ export default class CpgExplodingImage extends HTMLElement {
       reader.readAsDataURL(blob);
       reader.onloadend = () => {
         var base64data = reader.result;
-        this.beginScene(base64data);
+        this.png = new Image();
+        this.png.src = base64data;
+        this.beginScene();
       }
     });
 
@@ -56,7 +46,9 @@ export default class CpgExplodingImage extends HTMLElement {
   }
 
   beginScene(pngData) {
-    console.log(pngData);
+    this.canvas.width = this.png.width * 3;
+    this.canvas.height = this.png.height * 3;
+    this.context.drawImage(this.png, 0, 0);
 
     var animate;
     animate = () => {
@@ -75,7 +67,7 @@ export default class CpgExplodingImage extends HTMLElement {
   }
 
   draw() {
-    this.context.clearRect(0, 0, this.width, this.height);
+    //this.context.clearRect(0, 0, this.width, this.height);
   }
 }
 
