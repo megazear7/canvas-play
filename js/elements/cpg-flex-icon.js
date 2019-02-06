@@ -26,8 +26,8 @@ export default class CpgFlexIcon extends HTMLElement {
     this.hovering = false;
     this._lineThicknessMod = 2;
     this._defaultLineThickness = 1;
-    this._defaultSpeed = 1;
-    this._speedMod = 0.2;
+    this._defaultSpeed = 1.4;
+    this._speedMod = 0.3;
     this._defaultColor = 'rgba(0, 0, 0, 1)';
     this._defaultMaxLineCount = 10;
     this._defaultMaxHoverTargets = 4;
