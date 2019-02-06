@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Canvas Play</title>
-  <meta name="description" content="List of html canvas examples.">
-  <link rel="stylesheet" type="text/css" href="/css/home.css">
+  <title>Snake Run</title>
+  <meta name="description" content="A snake animation">
+  <link rel="stylesheet" type="text/css" href="/css/scenes.css">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/images/icons/favicon.ico">
@@ -36,19 +36,16 @@
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
 </head>
 <body>
-  <h1>Canvas Play</h1>
+  <a href="/">Back to menu</a>
+  <h1>Snake Run</h1>
   <xmp>
-    npm install canvas-play
+    import { CpgSnakeRun } from 'canvas-play';
+    <cpg-snake-run></cpg-snake-run>
   </xmp>
-  <ol>
-    <li><a href="/scenes/split-apart.html">Split Apart</a></li>
-    <li><a href="/scenes/flex-icon.html">Flex Icon</a></li>
-    <li><a href="/scenes/granite-crumble.html">Granite Crumble</a></li>
-    <li><a href="/scenes/falling-pebbles.html">Falling Pebbles</a></li>
-    <li><a href="/scenes/rainbow-bubbles.html">Rainbow Bubbles</a></li>
-    <li><a href="/scenes/rain.html">Rain</a></li>
-    <li><a href="/scenes/exploding-image.html">Exploding Image</a></li>
-    <li><a href="/scenes/snake-run.html">Snake Run</a></li>
-  </ol>
+
+  <cpg-snake-run></cpg-snake-run>
+  <script type="module">
+    import { CpgSnakeRun } from '../index.js';
+  </script>
 </body>
 </html>
