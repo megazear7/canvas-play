@@ -12,20 +12,44 @@ export default class StellarObject {
               red = randomColor(),
               green = randomColor(),
               blue = randomColor(),
-              pause = false
+              paused = false
             } = {}) {
     this.context = context;
     this.stellarObjects = stellarObjects;
+    const screenAdjustment = 1000 / Math.min(window.innerWidth, window.innerWidth)
+
     this.x = x;
     this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.mass = mass;
-    this.radius = Math.log2(Math.pow(mass + 1, 3)) * (1000 / window.innerWidth);
+    this.dx = dx * screenAdjustment;
+    this.dy = dy * screenAdjustment;
+    this.mass = mass * screenAdjustment;
+    this.radius = Math.log2(Math.pow(mass + 1, 3)) * screenAdjustment;
     this.red = red;
     this.green = green;
     this.blue = blue;
-    this.pause = pause;
+    this.paused = paused;
+    this.mouseCaptured = false;
+
+    document.body.addEventListener('mousedown', event => {
+      let distance = Math.sqrt(Math.pow(this.x - event.clientX, 2) + Math.pow(this.y - event.clientY, 2));
+      if (distance < this.radius) {
+        console.log('captured');
+        this.paused = true;
+        this.mouseCaptured = true;
+      }
+    });
+
+    document.body.addEventListener('mouseup', event => {
+      if (this.mouseCaptured) {
+        this.paused = false;
+        this.mouseCaptured = false;
+      }
+    });
+
+    document.body.addEventListener('mousemove', event => {
+      this.mouseX = event.clientX;
+      this.mouseY = event.clientY;
+    });
   }
 
   right() {
@@ -70,9 +94,16 @@ export default class StellarObject {
     this.y += this.dy;
   }
 
+  moveToCursor() {
+    this.x = this.mouseX;
+    this.y = this.mouseY;
+  }
+
   update() {
     this.draw();
-    if (! this.pause) {
+    if (this.mouseCaptured) {
+      this.moveToCursor();
+    } else if (! this.paused) {
       this.move();
     }
   }
