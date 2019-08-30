@@ -34,10 +34,47 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="canvas-play">
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
+  <style>
+    label {
+      z-index: 1;
+      position: absolute;
+      top: 5rem;
+      left: 1rem;
+    }
+
+    input {
+      z-index: 1;
+      position: absolute;
+      top: 10rem;
+      left: 1rem;
+      padding: 5px;
+      border-radius: 3px;
+      border-style: none;
+    }
+
+    button {
+      z-index: 1;
+      position: absolute;
+      top: 12rem;
+      left: 1rem;
+    }
+  </style>
 </head>
 <body>
   <a href="/">Back to menu</a>
   <h1>Solar System</h1>
+  <label>
+    Use the format: "x y dx dy m" and then click add.
+    <br>
+    X and Y are percentages of the screen width and height.
+    <br>
+    A DX or DY of greater than 5 would be very fast.
+    <br>
+    A mass of 1 is tiny and a mass of 1000 is huge.
+  </label>
+  <input type="text">
+  <button>Add</button>
+
   <xmp>
     import { CpgSolarSystem } from 'canvas-play';
     <cpg-solar-system
@@ -52,8 +89,26 @@
     object-4="40 50 0  4 35"
     object-5="50 20 2  0 10">
   </cpg-solar-system>
+
   <script type="module">
     import { CpgSolarSystem } from '../index.js';
+
+    const button = document.querySelector('button');
+    const input = document.querySelector('input');
+    const solarSystem = document.querySelector('cpg-solar-system');
+
+    button.addEventListener('click', () => {
+      let objectConfig = input.value.split(/\s+/);
+      if (objectConfig.length === 5) {
+        solarSystem.addStellarObject(
+          parseFloat(objectConfig[0]),
+          parseFloat(objectConfig[1]),
+          parseFloat(objectConfig[2]),
+          parseFloat(objectConfig[3]),
+          parseFloat(objectConfig[4])
+        );
+      }
+    });
   </script>
 </body>
 </html>

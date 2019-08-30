@@ -48,15 +48,13 @@ export default class CpgSolarSystem extends HTMLElement {
       let objectAttr = this.getAttribute('object-' + (i+1))
       if (objectAttr) {
         let objectConfig = objectAttr.split(/\s+/);
-        this.particles.push(new StellarObject({
-          context: this.context,
-          stellarObjects: this.particles,
-          x: this.canvas.width * (parseFloat(objectConfig[0]) / 100),
-          y: this.canvas.height * (parseFloat(objectConfig[1]) / 100),
-          dx: parseFloat(objectConfig[2]),
-          dy: parseFloat(objectConfig[3]),
-          mass: parseFloat(objectConfig[4])
-        }));
+        this.addStellarObject(
+          parseFloat(objectConfig[0]),
+          parseFloat(objectConfig[1]),
+          parseFloat(objectConfig[2]),
+          parseFloat(objectConfig[3]),
+          parseFloat(objectConfig[4])
+        );
       }
     }
 
@@ -71,6 +69,18 @@ export default class CpgSolarSystem extends HTMLElement {
     /* ---------------------- */
 
     this.beginScene();
+  }
+
+  addStellarObject(x, y, dx, dy, mass) {
+    this.particles.push(new StellarObject({
+      context: this.context,
+      stellarObjects: this.particles,
+      x: this.canvas.width * (x / 100),
+      y: this.canvas.height * (y / 100),
+      dx: dx,
+      dy: dy,
+      mass: mass
+    }));
   }
 
   beginScene() {
