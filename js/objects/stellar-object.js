@@ -16,7 +16,7 @@ export default class StellarObject {
             } = {}) {
     this.context = context;
     this.stellarObjects = stellarObjects;
-    const screenAdjustment = 1000 / Math.min(window.innerWidth, window.innerWidth)
+    const screenAdjustment = Math.min(window.innerWidth, window.innerWidth) / 1000;
 
     this.x = x;
     this.y = y;
