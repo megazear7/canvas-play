@@ -41,57 +41,24 @@ export default class CpgSolarSystem extends HTMLElement {
   }
 
   connectedCallback() {
+    this.maxObjectCount = 10;
     this.particles = [ ];
 
-    this.particles.push(new StellarObject({
-      context: this.context,
-      stellarObjects: this.particles,
-      x: this.canvas.width / 2,
-      y: this.canvas.height / 6,
-      dx: 2,
-      dy: 0,
-      mass: 10
-    }));
-
-    this.particles.push(new StellarObject({
-      context: this.context,
-      stellarObjects: this.particles,
-      x: this.canvas.width / 2,
-      y: this.canvas.height / 3,
-      dx: 1,
-      dy: 0,
-      mass: 3
-    }));
-
-    this.particles.push(new StellarObject({
-      context: this.context,
-      stellarObjects: this.particles,
-      x: this.canvas.width / 4,
-      y: this.canvas.height / 2,
-      dx: 0,
-      dy: -3,
-      mass: 2
-    }));
-
-    this.particles.push(new StellarObject({
-      context: this.context,
-      stellarObjects: this.particles,
-      x: this.canvas.width / 2,
-      y: this.canvas.height * ( 3 / 4),
-      dx: -1,
-      dy: 0,
-      mass: 20
-    }));
-
-    this.particles.push(new StellarObject({
-      context: this.context,
-      stellarObjects: this.particles,
-      x: this.canvas.width / 2,
-      y: this.canvas.height / 2,
-      dx: 0,
-      dy: 0,
-      mass: 1000
-    }));
+    for (var i = 0; i < this.maxObjectCount; i++) {
+      let objectAttr = this.getAttribute('object-' + (i+1))
+      if (objectAttr) {
+        let objectConfig = objectAttr.split(/\s+/);
+        this.particles.push(new StellarObject({
+          context: this.context,
+          stellarObjects: this.particles,
+          x: this.canvas.width * (parseFloat(objectConfig[0]) / 100),
+          y: this.canvas.height * (parseFloat(objectConfig[1]) / 100),
+          dx: parseFloat(objectConfig[2]),
+          dy: parseFloat(objectConfig[3]),
+          mass: parseFloat(objectConfig[4])
+        }));
+      }
+    }
 
     /* ---------------------- */
     /* Configuration Options */

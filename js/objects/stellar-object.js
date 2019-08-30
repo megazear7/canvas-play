@@ -21,7 +21,7 @@ export default class StellarObject {
     this.dx = dx;
     this.dy = dy;
     this.mass = mass;
-    this.radius = Math.log2(mass * mass * mass);
+    this.radius = Math.log2(Math.pow(mass + 1, 3)) * (1000 / window.innerWidth);
     this.red = red;
     this.green = green;
     this.blue = blue;

@@ -40,10 +40,18 @@
   <h1>Solar System</h1>
   <xmp>
     import { CpgSolarSystem } from 'canvas-play';
-    <cpg-solar-system></cpg-solar-system>
+    <cpg-solar-system
+      object-1="x y dx dy m"
+      object-2="x y dx dy m">
+    </cpg-solar-system>
   </xmp>
 
-  <cpg-solar-system></cpg-solar-system>
+  <cpg-solar-system
+    object-1="50 50 0  0 1000"
+    object-3="50 85 -4 0 1"
+    object-4="40 50 0  4 35"
+    object-5="50 20 2  0 10">
+  </cpg-solar-system>
   <script type="module">
     import { CpgSolarSystem } from '../index.js';
   </script>
