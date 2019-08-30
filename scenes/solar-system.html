@@ -55,8 +55,15 @@
     button {
       z-index: 1;
       position: absolute;
-      top: 12rem;
       left: 1rem;
+    }
+
+    #add {
+      top: 12rem;
+    }
+
+    #gravity {
+      top: 14rem;
     }
   </style>
 </head>
@@ -73,7 +80,8 @@
     A mass of 1 is tiny and a mass of 1000 is huge.
   </label>
   <input type="text">
-  <button>Add</button>
+  <button id="add">Add</button>
+  <button id="gravity">Toggle Drawing Gravity</button>
 
   <xmp>
     import { CpgSolarSystem } from 'canvas-play';
@@ -93,11 +101,13 @@
   <script type="module">
     import { CpgSolarSystem } from '../index.js';
 
-    const button = document.querySelector('button');
+    const addButton = document.getElementById('add');
+    const gravityButton = document.getElementById('gravity');
+    const button = document.getElementById('add');
     const input = document.querySelector('input');
     const solarSystem = document.querySelector('cpg-solar-system');
 
-    button.addEventListener('click', () => {
+    addButton.addEventListener('click', () => {
       let objectConfig = input.value.split(/\s+/);
       if (objectConfig.length === 5) {
         solarSystem.addStellarObject(
@@ -108,6 +118,10 @@
           parseFloat(objectConfig[4])
         );
       }
+    });
+
+    gravityButton.addEventListener('click', () => {
+      solarSystem.drawGravity = ! solarSystem.drawGravity;
     });
   </script>
 </body>

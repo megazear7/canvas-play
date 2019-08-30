@@ -26,6 +26,20 @@ export function getDistance(x1, y1, x2, y2) {
   return Math.sqrt( a*a + b*b );
 }
 
+export function drawRect({
+            context,
+            x = 0,
+            y = 0,
+            w = 1,
+            h = 1,
+            r = 0,
+            g = 0,
+            b = 0,
+            a = 1}) {
+  context.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+  context.fillRect(x, y, w, h);
+}
+
 export function drawCircle({
             context,
             x = 0,

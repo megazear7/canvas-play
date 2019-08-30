@@ -1,4 +1,4 @@
-import { getMousePos, movePoint } from '/js/utility.js';
+import { getMousePos, movePoint, drawRect, getDistance } from '/js/utility.js';
 import StellarObject from '/js/objects/stellar-object.js';
 
 export default class CpgSolarSystem extends HTMLElement {
@@ -62,10 +62,9 @@ export default class CpgSolarSystem extends HTMLElement {
     /* Configuration Options */
     /* ---------------------- */
     this.href = this.getAttribute('href');
-    this.sizeMultiplier = this.getFloatAttr('size-multiplier', 1) * 2;
-    this.opacity = this.getFloatAttr('opacity', 1);
-    this.friction = this.getFloatAttr('friction', 1) * 0.9;
-    this.speed = this.getFloatAttr('speed', 1) * 20;
+    this.gravitySensitivity = this.getFloatAttr('gravity-sensitivity', 1) * 0.5;
+    this.gravityDetail = this.getFloatAttr('gravity-detail', 1) * 10;
+    this.drawGravity = this.getBooleanAttr('draw-gravity', false);
     /* ---------------------- */
 
     this.beginScene();
@@ -107,14 +106,69 @@ export default class CpgSolarSystem extends HTMLElement {
   }
 
   draw() {
+    if (this.drawGravity) {
+      this.shadeGravity();
+    }
+
     this.particles.forEach(particle => {
       particle.update();
     });
   }
 
+  totalMass() {
+    return this.particles.reduce((totalMass, p) => totalMass + p.mass, 0);
+  }
+
+  largestMass() {
+    return Math.max(...this.particles.map(p => p.mass));
+  }
+
+  effectiveMass(x, y) {
+    return this.particles.reduce((effectiveMass, p) =>
+      effectiveMass + (p.mass / Math.max(Math.pow(getDistance(x, y, p.x, p.y), 2), this.gravityDetail / 2)),
+      0);
+  }
+
+  shadeGravity() {
+    let x = 0;
+    let y = 0;
+
+    while (x < this.canvas.width) {
+      while (y < this.canvas.height) {
+        let a = this.effectiveMass(x + (this.gravityDetail / 2), y + (this.gravityDetail / 2)) / this.gravitySensitivity;
+        if (a > 0.001) {
+          drawRect({
+            context: this.context,
+            x: x,
+            y: y,
+            w: this.gravityDetail,
+            h: this.gravityDetail,
+            r: 0,
+            g: 0,
+            b: 0,
+            a: a
+          });
+        }
+
+        y += this.gravityDetail;
+      }
+
+      y = 0;
+      x += this.gravityDetail;
+    }
+  }
+
   getFloatAttr(name, defaultVal) {
     if (this.hasAttribute(name)) {
       return parseFloat(this.getAttribute(name));
+    } else {
+      return defaultVal;
+    }
+  }
+
+  getBooleanAttr(name, defaultVal) {
+    if (this.hasAttribute(name)) {
+      return !! this.getAttribute(name);
     } else {
       return defaultVal;
     }
