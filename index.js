@@ -1,4 +1,5 @@
 // Web components
+export { default as CpgGameOfLife } from './js/elements/cpg-game-of-life.js';
 export { default as CpgFallingPebbles } from './js/elements/cpg-falling-pebbles.js';
 export { default as CpgFlexIcon } from './js/elements/cpg-flex-icon.js';
 export { default as CpgGraniteCrumble } from './js/elements/cpg-granite-crumble.js';
