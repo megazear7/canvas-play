@@ -54,13 +54,6 @@ export default class CpgGameOfLife extends HTMLElement {
     // The two dimensional grid is imaged as each row being concatenated to make a single dimensional array.
     this.liveCells = new Array(this.size * this.size);
 
-
-    this.fill(0, 0);
-    this.fill(0, 2);
-    this.fill(1, 1);
-    this.fill(1, 2);
-    this.fill(2, 1);
-
     this.grid = new Grid({
       context: this.context,
       cellSize: this.cellSize,
