@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Canvas Play</title>
-  <meta name="description" content="List of html canvas examples.">
-  <link rel="stylesheet" type="text/css" href="/css/home.css">
+  <title>Enmerkar</title>
+  <meta name="description" content="A top down view game">
+  <link rel="stylesheet" type="text/css" href="/css/scenes.css">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/images/icons/favicon.ico">
@@ -36,21 +36,18 @@
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
 </head>
 <body>
-  <h1>Canvas Play</h1>
-  <xmp>
-    npm install canvas-play
-  </xmp>
-  <ol>
-    <li><a href="/scenes/game-of-life.html">Game of Life</a></li>
-    <li><a href="/scenes/split-apart.html">Split Apart</a></li>
-    <li><a href="/scenes/flex-icon.html">Flex Icon</a></li>
-    <li><a href="/scenes/granite-crumble.html">Granite Crumble</a></li>
-    <li><a href="/scenes/falling-pebbles.html">Falling Pebbles</a></li>
-    <li><a href="/scenes/rainbow-bubbles.html">Rainbow Bubbles</a></li>
-    <li><a href="/scenes/rain.html">Rain</a></li>
-    <li><a href="/scenes/exploding-image.html">Exploding Image</a></li>
-    <li><a href="/scenes/solar-system.html">Solar System</a></li>
-    <li><a href="/scenes/enmerkar.html">Enmerkar</a></li>
-  </ol>
+  <div class="hider" style="display:none">
+    <a href="/">Back to menu</a>
+    <h1>Enmerkar</h1>
+    <xmp>
+      import { Enmerkar } from 'canvas-play';
+      <cpg-enmerkar></cpg-enmerkar>
+    </xmp>
+  </div>
+
+  <cpg-enmerkar></cpg-enmerkar>
+  <script type="module">
+    import { CpgEnmerkar } from '../index.js';
+  </script>
 </body>
 </html>

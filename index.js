@@ -8,6 +8,7 @@ export { default as CpgRainbowBubble } from './js/elements/cpg-rainbow-bubbles.j
 export { default as CpgCrackOpening } from './js/elements/cpg-crack-opening.js';
 export { default as CpgExplodingImage } from './js/elements/cpg-exploding-image.js';
 export { default as CpgSolarSystem } from './js/elements/cpg-solar-system.js';
+export { default as CpgEnmerkar } from './js/elements/cpg-enmerkar.js';
 
 // Canvas objects
 export { default as Crack } from './js/objects/crack.js';
