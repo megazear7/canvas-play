@@ -7,7 +7,7 @@ export default class TopCharacter {
               x = randomX(),
               y = randomY(),
               radius = (Math.random() * 40) + 10,
-              imageSwitchRate = 100,
+              imageSwitchRate = 250,
             } = {}) {
     this.context = context;
     this.x = x;
@@ -58,9 +58,8 @@ export default class TopCharacter {
     return {
       move: {
         up: [
-          "/images/enmerkar/move-up-1.png",
-          "/images/enmerkar/move-up-2.png",
-          "/images/enmerkar/move-up-3.png",
+          "/images/enmerkar/enmerkar-walk-1.png",
+          "/images/enmerkar/enmerkar-walk-2.png"
         ]
       }
     }
