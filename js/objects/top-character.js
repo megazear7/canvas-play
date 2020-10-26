@@ -16,8 +16,13 @@ export default class TopCharacter {
     this.imageSwitchRate = imageSwitchRate;
     this.lastImageSwitch = new Date();
     this.imageIndex = 0;
-    this.imageArray = this.images().move.up;
-    this.image = new StaticImage({ context: this.context, href: this.imageArray[this.imageIndex], x: this.x, y: this.y });
+    this.imageSet = 'walk';
+    this.images = {};
+
+    this.loadImages()
+    .then(() => {
+      this.imagesLoaded = true;
+    })
   }
 
   right() {
@@ -37,31 +42,67 @@ export default class TopCharacter {
   }
 
   draw() {
-    if ((new Date() - this.lastImageSwitch) > this.imageSwitchRate) {
-      if (this.imageIndex >= (this.imageArray.length - 1)) {
-        this.imageIndex = 0;
-      } else {
-        this.imageIndex += 1;
-      }
-      this.lastImageSwitch = new Date();
-      this.image.loadHref(this.imageArray[this.imageIndex]);
-    }
+    if (this.imagesLoaded) {
+      let imageArray = this.images[this.imageSet];
 
-    this.image.draw();
+      if ((new Date() - this.lastImageSwitch) > this.imageSwitchRate) {
+        if (this.imageIndex >= (imageArray.length - 1)) {
+          this.imageIndex = 0;
+        } else {
+          this.imageIndex += 1;
+        }
+        this.lastImageSwitch = new Date();
+      }
+
+      let image = new StaticImage({ context: this.context, png: imageArray[this.imageIndex], x: this.x, y: this.y });
+
+      image.draw();
+    }
   }
 
   update() {
     this.draw();
   }
 
-  images() {
+  imageUrls() {
     return {
-      move: {
-        up: [
-          "/images/enmerkar/enmerkar-walk-1.png",
-          "/images/enmerkar/enmerkar-walk-2.png"
-        ]
-      }
+      walk: [
+        "/images/enmerkar/enmerkar-walk-1.png",
+        "/images/enmerkar/enmerkar-walk-2.png"
+      ]
     }
+  }
+
+  loadImages() {
+    let promises = [];
+
+    Object.keys(this.imageUrls()).forEach(key => {
+      if (! this.images[key]) this.images[key] = [];
+      this.imageUrls()[key].forEach((imageUrl, index) => {
+        promises.push(
+          this.loadImage(imageUrl)
+          .then(png => this.images[key][index] = png)
+        );
+      });
+    });
+
+    return Promise.all(promises);
+  }
+
+  loadImage(url) {
+    return fetch(url)
+    .then(response => response.blob())
+    .then(blob => {
+      return new Promise(resolve => {
+        let reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          let base64data = reader.result;
+          let png = new Image();
+          png.src = base64data;
+          png.onload = () => resolve(png);
+        }
+      });
+    })
   }
 }
