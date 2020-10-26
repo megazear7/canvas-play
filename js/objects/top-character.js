@@ -20,6 +20,7 @@ export default class TopCharacter {
     this.imageIndex = 0;
     this.imageSet = 'walk';
     this.images = {};
+    this.direction = 0;
 
     this.listenForKeys();
 
@@ -72,7 +73,8 @@ export default class TopCharacter {
         this.lastImageSwitch = new Date();
       }
 
-      let image = new StaticImage({ context: this.context, png: imageArray[this.imageIndex], x: this.x, y: this.y, angle: this.direction() });
+      this.updateDirection();
+      let image = new StaticImage({ context: this.context, png: imageArray[this.imageIndex], x: this.x, y: this.y, angle: this.direction });
 
       image.draw();
     }
@@ -151,25 +153,23 @@ export default class TopCharacter {
     }
   }
 
-  direction() {
+  updateDirection() {
     if (this.keys.up && this.keys.left) {
-      return 315;
+      this.direction = 315;
     } else if (this.keys.up && this.keys.right) {
-      return 45;
+      this.direction = 45;
     } else if (this.keys.down && this.keys.left) {
-      return 225;
+      this.direction = 225;
     } else if (this.keys.down && this.keys.right) {
-      return 135;
+      this.direction = 135;
     } else if (this.keys.up) {
-      return 0;
+      this.direction = 0;
     } else if (this.keys.left) {
-      return 270;
+      this.direction = 270;
     } else if (this.keys.down) {
-      return 180;
+      this.direction = 180;
     } else if (this.keys.right) {
-      return 90;
-    } else {
-      return 0;
+      this.direction = 90;
     }
   }
 
