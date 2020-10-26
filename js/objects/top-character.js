@@ -7,17 +7,21 @@ export default class TopCharacter {
               x = randomX(),
               y = randomY(),
               radius = (Math.random() * 40) + 10,
+              movementRate = 2,
               imageSwitchRate = 250,
             } = {}) {
     this.context = context;
     this.x = x;
     this.y = y;
     this.radius = radius;
+    this.movementRate = movementRate;
     this.imageSwitchRate = imageSwitchRate;
     this.lastImageSwitch = new Date();
     this.imageIndex = 0;
     this.imageSet = 'walk';
     this.images = {};
+
+    this.listenForKeys();
 
     this.loadImages()
     .then(() => {
@@ -42,7 +46,21 @@ export default class TopCharacter {
   }
 
   draw() {
+    let oldImageSet = this.imageSet;
+
+    if (this.moving()) {
+      this.imageSet = "walk";
+      this.makeMove();
+    } else {
+      this.imageSet = "stand";
+    }
+
+    if (oldImageSet != this.imageSet) {
+      this.imageIndex = 0;
+    }
+
     if (this.imagesLoaded) {
+
       let imageArray = this.images[this.imageSet];
 
       if ((new Date() - this.lastImageSwitch) > this.imageSwitchRate) {
@@ -54,7 +72,7 @@ export default class TopCharacter {
         this.lastImageSwitch = new Date();
       }
 
-      let image = new StaticImage({ context: this.context, png: imageArray[this.imageIndex], x: this.x, y: this.y });
+      let image = new StaticImage({ context: this.context, png: imageArray[this.imageIndex], x: this.x, y: this.y, angle: this.direction() });
 
       image.draw();
     }
@@ -68,8 +86,11 @@ export default class TopCharacter {
     return {
       walk: [
         "/images/enmerkar/enmerkar-walk-1.png",
-        "/images/enmerkar/enmerkar-walk-2.png"
-      ]
+        "/images/enmerkar/enmerkar-walk-2.png",
+      ],
+      stand: [
+        "/images/enmerkar/enmerkar-walk-1.png",
+      ],
     }
   }
 
@@ -104,5 +125,87 @@ export default class TopCharacter {
         }
       });
     })
+  }
+
+  makeMove() {
+    if (this.keys.up && this.keys.left) {
+      this.y -= Math.cos(Math.PI/4) * this.movementRate;
+      this.x -= Math.cos(Math.PI/4) * this.movementRate;
+    } else if (this.keys.up && this.keys.right) {
+      this.y -= Math.cos(Math.PI/4) * this.movementRate;
+      this.x += Math.cos(Math.PI/4) * this.movementRate;
+    } else if (this.keys.down && this.keys.left) {
+      this.y += Math.cos(Math.PI/4) * this.movementRate;
+      this.x -= Math.cos(Math.PI/4) * this.movementRate;
+    } else if (this.keys.down && this.keys.right) {
+      this.y += Math.cos(Math.PI/4) * this.movementRate;
+      this.x += Math.cos(Math.PI/4) * this.movementRate;
+    } else if (this.keys.up) {
+      this.y -= this.movementRate;
+    } else if (this.keys.left) {
+      this.x -= this.movementRate;
+    } else if (this.keys.down) {
+      this.y += this.movementRate;
+    } else if (this.keys.right) {
+      this.x += this.movementRate;
+    }
+  }
+
+  direction() {
+    if (this.keys.up && this.keys.left) {
+      return 315;
+    } else if (this.keys.up && this.keys.right) {
+      return 45;
+    } else if (this.keys.down && this.keys.left) {
+      return 225;
+    } else if (this.keys.down && this.keys.right) {
+      return 135;
+    } else if (this.keys.up) {
+      return 0;
+    } else if (this.keys.left) {
+      return 270;
+    } else if (this.keys.down) {
+      return 180;
+    } else if (this.keys.right) {
+      return 90;
+    } else {
+      return 0;
+    }
+  }
+
+  moving() {
+    return this.keys.up || this.keys.left || this.keys.down || this.keys.right;
+  }
+
+  listenForKeys() {
+    this.keys = {
+      up: false,
+      left: false,
+      down: false,
+      right: false,
+    }
+
+    const keysToWatch = {
+      W: 'up',
+      A: 'left',
+      S: 'down',
+      D: 'right',
+    }
+
+    document.addEventListener("keydown", e => {
+      Object.keys(keysToWatch).forEach(objKey => {
+        if (String.fromCharCode(e.which) == objKey) {
+          this.keys[keysToWatch[objKey]] = true;
+        }
+      });
+    });
+
+    document.addEventListener("keyup", e => {
+      Object.keys(keysToWatch).forEach(objKey => {
+        if (String.fromCharCode(e.which) == objKey) {
+          this.keys[keysToWatch[objKey]] = false;
+        }
+      });
+    });
   }
 }

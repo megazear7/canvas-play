@@ -4,33 +4,41 @@ export default class StaticImage {
               png,
               x = (Math.random() * window.innerWidth * 2) - (window.innerWidth / 2),
               y = 0,
-              size = 10
+              angle = 90
             } = {}) {
     this.context = context;
     this.png = png;
     this.x = x;
     this.y = y;
-    this.size = size;
+    this.angle = angle;
   }
 
   right() {
-    return this.x + (this.size / 2);
+    return this.x + this.png.width;
   }
 
   left() {
-    return this.x - (this.size / 2);
+    return this.x;
   }
 
   bottom() {
-    return this.y;
+    return this.y + this.png.height;
   }
 
   top() {
-    return this.y - this.size;
+    return this.y;
   }
 
   draw() {
-    this.context.drawImage(this.png, this.x, this.y);
+    const offscreenCanvas = document.createElement('canvas');
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+    offscreenCanvas.width = this.png.width;
+    offscreenCanvas.height = this.png.height;
+    offscreenCtx.translate(this.png.width/2, this.png.height/2);
+    //offscreenCtx.rotate(this.angle / (Math.PI * 180));
+    offscreenCtx.rotate((this.angle * Math.PI) / 180);
+    offscreenCtx.drawImage(this.png, -(this.png.width/2), -(this.png.height/2));
+    this.context.drawImage(offscreenCanvas, this.x, this.y);
   }
 
   update() {

@@ -45,7 +45,7 @@ export default class CpgEnmerkar extends HTMLElement {
     this.example = parseFloat(this.getAttribute('example')) || 5;
     /* --------------------- */
 
-    this.character = new TopCharacter({ context: this.context, radius: 50 });
+    this.character = new TopCharacter({ context: this.context, radius: 50, x: this.canvas.width / 2, y: this.canvas.height / 2 });
 
     var self = this;
     function animate() {
