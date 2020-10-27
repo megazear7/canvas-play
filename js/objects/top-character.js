@@ -49,7 +49,9 @@ export default class TopCharacter {
   draw() {
     let oldImageSet = this.imageSet;
 
-    if (this.moving()) {
+    if (this.attacking()) {
+      this.imageSet = "attack";
+    } else if (this.moving()) {
       this.imageSet = "walk";
       this.makeMove();
     } else {
@@ -94,6 +96,10 @@ export default class TopCharacter {
 
   imageUrls() {
     return {
+      attack: [
+        "/images/enmerkar/enmerkar-stab-1.png",
+        "/images/enmerkar/enmerkar-stab-2.png",
+      ],
       walk: [
         "/images/enmerkar/enmerkar-walk-1.png",
         "/images/enmerkar/enmerkar-walk-2.png",
@@ -191,6 +197,10 @@ export default class TopCharacter {
     }
   }
 
+  attacking() {
+    return this.keys.space;
+  }
+
   moving() {
     return this.keys.up || this.keys.left || this.keys.down || this.keys.right;
   }
@@ -208,6 +218,7 @@ export default class TopCharacter {
       A: 'left',
       S: 'down',
       D: 'right',
+      ' ': 'space',
     }
 
     document.addEventListener("keydown", e => {
