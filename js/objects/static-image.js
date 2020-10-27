@@ -35,7 +35,6 @@ export default class StaticImage {
     offscreenCanvas.width = this.png.width;
     offscreenCanvas.height = this.png.height;
     offscreenCtx.translate(this.png.width/2, this.png.height/2);
-    //offscreenCtx.rotate(this.angle / (Math.PI * 180));
     offscreenCtx.rotate((this.angle * Math.PI) / 180);
     offscreenCtx.drawImage(this.png, -(this.png.width/2), -(this.png.height/2));
     this.context.drawImage(offscreenCanvas, this.x, this.y);

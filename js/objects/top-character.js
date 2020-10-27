@@ -6,9 +6,9 @@ export default class TopCharacter {
               context,
               x = randomX(),
               y = randomY(),
-              radius = (Math.random() * 40) + 10,
+              radius = 100,
               movementRate = 2,
-              imageSwitchRate = 250,
+              imageSwitchRate = 75,
             } = {}) {
     this.context = context;
     this.x = x;
@@ -74,7 +74,15 @@ export default class TopCharacter {
       }
 
       this.updateDirection();
-      let image = new StaticImage({ context: this.context, png: imageArray[this.imageIndex], x: this.x, y: this.y, angle: this.direction });
+      let image = new StaticImage({
+        context: this.context,
+        png: imageArray[this.imageIndex],
+        x: this.x,
+        y: this.y,
+        width: this.radius,
+        height: this.radius,
+        angle: this.direction
+      });
 
       image.draw();
     }
@@ -89,6 +97,16 @@ export default class TopCharacter {
       walk: [
         "/images/enmerkar/enmerkar-walk-1.png",
         "/images/enmerkar/enmerkar-walk-2.png",
+        "/images/enmerkar/enmerkar-walk-3.png",
+        "/images/enmerkar/enmerkar-walk-4.png",
+        "/images/enmerkar/enmerkar-walk-5.png",
+        "/images/enmerkar/enmerkar-walk-6.png",
+        "/images/enmerkar/enmerkar-walk-7.png",
+        "/images/enmerkar/enmerkar-walk-8.png",
+        "/images/enmerkar/enmerkar-walk-9.png",
+        "/images/enmerkar/enmerkar-walk-10.png",
+        "/images/enmerkar/enmerkar-walk-11.png",
+        "/images/enmerkar/enmerkar-walk-12.png",
       ],
       stand: [
         "/images/enmerkar/enmerkar-walk-1.png",
