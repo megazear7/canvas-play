@@ -52,6 +52,7 @@ export default class CpgSmartTicTacToe extends HTMLElement {
       size: this.size,
     });
 
+    this.playerIsActive = true;
     this.listenForClicks();
 
     var self = this;
@@ -70,7 +71,11 @@ export default class CpgSmartTicTacToe extends HTMLElement {
 
   listenForClicks() {
     document.addEventListener('click', e => {
-      console.log(this.ticTacToeBoard.findPosFromCoord(e.clientX, e.clientY));
+      const clickPos = this.ticTacToeBoard.findPosFromCoord(e.clientX, e.clientY);
+      
+      if (clickPos && this.playerIsActive) {
+        this.ticTacToeBoard.setX(clickPos);
+      }
     });
   }
 }

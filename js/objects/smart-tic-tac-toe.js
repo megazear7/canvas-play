@@ -66,7 +66,7 @@ export default class StaticImage {
   }
 
   getPointForPos(pos) {
-    const gridX = (pos % 3);
+    const gridX = ((pos - 1) % 3);
     const gridY = Math.ceil(pos/3) - 1;
 
     return { x: this.x + (this.size * (gridX/3)), y: this.y + (this.size * (gridY/3)) };
@@ -90,6 +90,7 @@ export default class StaticImage {
 
   setX(pos) {
     this.cells[pos-1] = 1;
+    console.log(pos-1, this.cells);
   }
 
   setY(pos) {
