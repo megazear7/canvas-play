@@ -22,8 +22,8 @@ export default class StaticImage {
     this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.lines = this.makeLines();
     this.players = [
-      //new HumanTicTacToePlayer({ cells: this.cells }),
-      new ComputerTicTacToePlayer({ cells: this.cells }),
+      new HumanTicTacToePlayer({ cells: this.cells, ticTacToeBoard: this }),
+      //new ComputerTicTacToePlayer({ cells: this.cells }),
       new ComputerTicTacToePlayer({ cells: this.cells }),
     ];
     this.activePlayer = 0;
@@ -32,6 +32,7 @@ export default class StaticImage {
 
   askForMove() {
     if (this.gameOver()) {
+      // TODO Determine who won
       alert("Game over");
       console.log(this.cells);
     } else {
@@ -67,6 +68,7 @@ export default class StaticImage {
   }
 
   gameOver() {
+    // TODO Check for win conditions
     return this.cells.filter(cell => cell === 0).length === 0;
   }
 
