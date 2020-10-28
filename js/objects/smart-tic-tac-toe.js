@@ -1,4 +1,4 @@
-import { movePoint, drawLine, approachValue, distanceBetween } from '../utility.js';
+import { drawCircle, drawLine } from '../utility.js';
 
 export default class StaticImage {
   constructor({
@@ -17,7 +17,7 @@ export default class StaticImage {
     this.lineThickness = lineThickness;
 
     // Set starting point
-    this.cells = [ 1, 2, 0, 0, 0, 0, 0, 0, 0 ];
+    this.cells = [ 1, 2, 1, 2, 1, 2, 2, 1, 2 ];
     this.lines = this.makeLines();
   }
 
@@ -26,9 +26,9 @@ export default class StaticImage {
 
     this.cells.forEach((cell, index) => {
       if (cell === 1) {
-        this.drawX(index);
+        this.drawX(index + 1);
       } else if (cell === 2) {
-        this.drawY(index);
+        this.drawY(index + 1);
       }
     });
   }
@@ -53,11 +53,21 @@ export default class StaticImage {
 
   drawY(pos) {
     const topLeft = this.getPointForPos(pos);
+
+    drawCircle({
+      context: this.context,
+      x: topLeft.x + ((this.size * (1/3))/2),
+      y: topLeft.y + ((this.size * (1/3))/2),
+      radius: ((this.size * (1/3))/2) - (this.lineThickness*2),
+      lineWidth: this.lineThickness,
+      lineStyle: this.color,
+      opacity: 0,
+    });
   }
 
   getPointForPos(pos) {
-    const gridX = (pos % 3) + 1;
-    const gridY = Math.ceil(pos/3);
+    const gridX = (pos % 3);
+    const gridY = Math.ceil(pos/3) - 1;
 
     return { x: this.x + (this.size * (gridX/3)), y: this.y + (this.size * (gridY/3)) };
   }

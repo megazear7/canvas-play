@@ -42,7 +42,7 @@ export default class Ball {
   }
 
   draw() {
-    drawCircle({context: this.context, x: this.x, y: this.y, radius: this.radius, width: 5, lineWidth: 0, red: this.red, green: this.green, blue: this.blue});
+    drawCircle({context: this.context, x: this.x, y: this.y, radius: this.radius, lineWidth: 0, red: this.red, green: this.green, blue: this.blue});
   }
 
   impactedWall() {
