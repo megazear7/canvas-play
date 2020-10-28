@@ -9,22 +9,29 @@ export default class StaticImage {
               y,
               size,
               color = "rgba(100,123,212,1)",
+              winColor = "rgba(190,90,112,1)",
               lineThickness = 10,
+              playable = true,
+              computerDelay = 600,
             } = {}) {
     this.context = context;
     this.x = x;
     this.y = y;
     this.size = size;
     this.color = color;
+    this.winColor = winColor;
     this.lineThickness = lineThickness;
+    this.playable = playable;
+    this.computerDelay = computerDelay;
 
     // Set starting point
     this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.lines = this.makeLines();
     this.players = [
-      new HumanTicTacToePlayer({ cells: this.cells, ticTacToeBoard: this }),
-      //new ComputerTicTacToePlayer({ cells: this.cells }),
-      new ComputerTicTacToePlayer({ cells: this.cells }),
+      this.playable
+        ? new HumanTicTacToePlayer({ cells: this.cells, ticTacToeBoard: this })
+        : new ComputerTicTacToePlayer({ cells: this.cells, delay: this.computerDelay }),
+      new ComputerTicTacToePlayer({ cells: this.cells, delay: this.computerDelay }),
     ];
     this.activePlayer = 0;
     this.askForMove();
@@ -32,10 +39,13 @@ export default class StaticImage {
 
   askForMove() {
     if (this.gameOver()) {
-      // TODO This ends before showing the final state
-      // TODO Determine who won
-      alert("Game over");
-      console.log(this.cells);
+      if (this.playerWon(1)) {
+        console.log('Player 1 won.');
+      } else if (this.playerWon(2)) {
+        console.log('Player 2 won.');
+      } else {
+        console.log('tie');
+      }
     } else {
       this.players[this.activePlayer].makeMove()
       .then((move) => {
@@ -62,6 +72,30 @@ export default class StaticImage {
         this.drawY(index + 1);
       }
     });
+
+    const player1Won = this.playerWon(1);
+    const player2Won = this.playerWon(2);
+
+    if (player1Won || player2Won) {
+      const winner = player1Won ? 1 : 2;
+      const winCondition = this.winConditions().find(condition =>
+        condition.filter(space => this.cells[space-1] === winner).length === 3);
+      const startPoint = this.getPointForPos(winCondition[0]);
+      const endPoint = this.getPointForPos(winCondition[2]);
+
+      const winStrike = {
+        p1: {
+          x: startPoint.x + (this.size / 6),
+          y: startPoint.y + (this.size / 6),
+        },
+        p2: {
+          x: endPoint.x + (this.size / 6),
+          y: endPoint.y + (this.size / 6),
+        }
+      }
+
+      drawLine(this.context, winStrike.p1, winStrike.p2, this.lineThickness, this.winColor);
+    }
   }
 
   update() {
@@ -69,8 +103,29 @@ export default class StaticImage {
   }
 
   gameOver() {
-    // TODO Check for win conditions
+    return this.noSpacesLeft() || this.playerWon(1) || this.playerWon(2);
+  }
+
+  playerWon(playerIndex) {
+    return this.winConditions().filter(condition =>
+      condition.filter(space => this.cells[space-1] === playerIndex).length === 3).length > 0;
+  }
+
+  noSpacesLeft() {
     return this.cells.filter(cell => cell === 0).length === 0;
+  }
+
+  winConditions() {
+    return [
+      [1,2,3],
+      [4,5,6],
+      [7,8,9],
+      [1,4,7],
+      [2,5,8],
+      [3,6,9],
+      [1,5,9],
+      [3,5,7],
+    ]
   }
 
   isValidMove(move) {

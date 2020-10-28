@@ -1,15 +1,17 @@
 export default class ComputerTicTacToePlayer {
   constructor({
             cells,
+            delay,
             } = {}) {
     this.cells = cells;
+    this.delay = delay;
   }
 
   makeMove() {
     return new Promise(resolve => {
       setTimeout(() => {
         return resolve(this.findRandomOpenCell());
-      }, 1000);
+      }, this.delay);
     });
   }
 
