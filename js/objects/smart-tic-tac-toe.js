@@ -1,4 +1,6 @@
 import { drawCircle, drawLine } from '../utility.js';
+import HumanTicTacToePlayer from '../other/human-tic-tac-toe-player.js';
+import ComputerTicTacToePlayer from '../other/computer-tic-tac-toe-player.js';
 
 export default class StaticImage {
   constructor({
@@ -19,6 +21,33 @@ export default class StaticImage {
     // Set starting point
     this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.lines = this.makeLines();
+    this.players = [
+      //new HumanTicTacToePlayer({ cells: this.cells }),
+      new ComputerTicTacToePlayer({ cells: this.cells }),
+      new ComputerTicTacToePlayer({ cells: this.cells }),
+    ];
+    this.activePlayer = 0;
+    this.askForMove();
+  }
+
+  askForMove() {
+    if (this.gameOver()) {
+      alert("Game over");
+      console.log(this.cells);
+    } else {
+      this.players[this.activePlayer].makeMove()
+      .then((move) => {
+        if (this.isValidMove(move)) {
+          this.activePlayer === 0 ? this.setX(move) : this.setY(move);
+          this.players.forEach(player => player.updateCells(this.cells));
+          this.activePlayer = this.activePlayer === 0 ? 1 : 0;
+          this.askForMove();
+        } else {
+          console.error(`invalid move of ${move} recieved by player ${this.activePlayer + 1}`)
+          this.askForMove();
+        }
+      });
+    }
   }
 
   draw() {
@@ -35,6 +64,14 @@ export default class StaticImage {
 
   update() {
     this.draw();
+  }
+
+  gameOver() {
+    return this.cells.filter(cell => cell === 0).length === 0;
+  }
+
+  isValidMove(move) {
+    return move >= 1 && move <= 9 && this.cells[move-1] === 0;
   }
 
   drawX(pos) {
@@ -90,7 +127,6 @@ export default class StaticImage {
 
   setX(pos) {
     this.cells[pos-1] = 1;
-    console.log(pos-1, this.cells);
   }
 
   setY(pos) {

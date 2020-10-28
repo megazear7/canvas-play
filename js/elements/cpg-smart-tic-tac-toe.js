@@ -75,6 +75,7 @@ export default class CpgSmartTicTacToe extends HTMLElement {
       
       if (clickPos && this.playerIsActive) {
         this.ticTacToeBoard.setX(clickPos);
+        this.playerIsActive = false;
       }
     });
   }
