@@ -43,6 +43,9 @@ export default class CpgSmartTicTacToe extends HTMLElement {
     /* Configuration options */
     /* --------------------- */
     this.size = parseInt(this.getAttribute('size')) || 300;
+    this.aiSpeed = parseInt(this.getAttribute('ai-speed')) || 700;
+    this.player1Type = this.getAttribute('player1-type') || 'human';
+    this.player2Type = this.getAttribute('player2-type') || 'ai';
     /* --------------------- */
 
     this.ticTacToeBoard = new SmartTicTacToe({
@@ -50,6 +53,9 @@ export default class CpgSmartTicTacToe extends HTMLElement {
       x: (this.canvas.width  / 2) - (this.size / 2),
       y: (this.canvas.height / 2) - (this.size / 2),
       size: this.size,
+      player1Type: this.player1Type,
+      player2Type: this.player2Type,
+      computerDelay: this.aiSpeed,
     });
 
     this.playerIsActive = true;

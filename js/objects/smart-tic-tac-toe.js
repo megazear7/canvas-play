@@ -12,8 +12,9 @@ export default class StaticImage {
               color = "rgba(100,123,212,1)",
               winColor = "rgba(190,90,112,1)",
               lineThickness = 10,
-              playable = false,
-              computerDelay = 100,
+              player1Type = 'human', // 'human', 'ai', or 'random
+              player2Type = 'ai',    // 'human', 'ai', or 'random
+              computerDelay = 700,
             } = {}) {
     this.context = context;
     this.x = x;
@@ -22,18 +23,16 @@ export default class StaticImage {
     this.color = color;
     this.winColor = winColor;
     this.lineThickness = lineThickness;
-    this.playable = playable;
+    this.player1Type = player1Type;
+    this.player2Type = player2Type;
     this.computerDelay = computerDelay;
 
     // Set starting point
     this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.lines = this.makeLines();
-    this.players = [
-      this.playable
-        ? new HumanTicTacToePlayer({ cells: this.cells, ticTacToeBoard: this })
-        : new ComputerTicTacToePlayer({ cells: this.cells, delay: this.computerDelay }),
-      new AiTicTacToePlayer({ cells: this.cells, delay: this.computerDelay, playerNumber: 2 }),
-    ];
+    this.player1 = this.generatePlayerOfType(this.player1Type);
+    this.player2 = this.generatePlayerOfType(this.player2Type);
+    this.players = [ this.player1, this.player2 ];
     this.activePlayer = 0;
     this.askForMove();
   }
@@ -209,6 +208,16 @@ export default class StaticImage {
       return (pos.y - 1) * 3 + pos.x;
     } else {
       return null;
+    }
+  }
+  
+  generatePlayerOfType(type) {
+    if (type === 'human') {
+      return new HumanTicTacToePlayer({ cells: this.cells, ticTacToeBoard: this });
+    } else if (type === 'ai') {
+      return new AiTicTacToePlayer({ cells: this.cells, delay: this.computerDelay, playerNumber: 2 });
+    } else {
+      return new ComputerTicTacToePlayer({ cells: this.cells, delay: this.computerDelay });
     }
   }
 }
