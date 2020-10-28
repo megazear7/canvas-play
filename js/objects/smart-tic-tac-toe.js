@@ -1,6 +1,7 @@
 import { drawCircle, drawLine } from '../utility.js';
-import HumanTicTacToePlayer from '../other/human-tic-tac-toe-player.js';
-import ComputerTicTacToePlayer from '../other/computer-tic-tac-toe-player.js';
+import HumanTicTacToePlayer from '../players/tic-tac-toe/human-player.js';
+import ComputerTicTacToePlayer from '../players/tic-tac-toe/random-player.js';
+import AiTicTacToePlayer from '../players/tic-tac-toe/ai-player.js';
 
 export default class StaticImage {
   constructor({
@@ -12,7 +13,7 @@ export default class StaticImage {
               winColor = "rgba(190,90,112,1)",
               lineThickness = 10,
               playable = true,
-              computerDelay = 600,
+              computerDelay = 700,
             } = {}) {
     this.context = context;
     this.x = x;
@@ -31,7 +32,7 @@ export default class StaticImage {
       this.playable
         ? new HumanTicTacToePlayer({ cells: this.cells, ticTacToeBoard: this })
         : new ComputerTicTacToePlayer({ cells: this.cells, delay: this.computerDelay }),
-      new ComputerTicTacToePlayer({ cells: this.cells, delay: this.computerDelay }),
+      new AiTicTacToePlayer({ cells: this.cells, delay: this.computerDelay, playerNumber: 2 }),
     ];
     this.activePlayer = 0;
     this.askForMove();
