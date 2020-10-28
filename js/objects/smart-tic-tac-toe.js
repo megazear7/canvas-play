@@ -12,8 +12,8 @@ export default class StaticImage {
               color = "rgba(100,123,212,1)",
               winColor = "rgba(190,90,112,1)",
               lineThickness = 10,
-              playable = true,
-              computerDelay = 700,
+              playable = false,
+              computerDelay = 100,
             } = {}) {
     this.context = context;
     this.x = x;
