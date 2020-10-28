@@ -52,6 +52,8 @@ export default class CpgSmartTicTacToe extends HTMLElement {
       size: this.size,
     });
 
+    this.listenForClicks();
+
     var self = this;
     function animate() {
       requestAnimationFrame(animate);
@@ -64,6 +66,12 @@ export default class CpgSmartTicTacToe extends HTMLElement {
 
   doAnimate() {
     this.ticTacToeBoard.update();
+  }
+
+  listenForClicks() {
+    document.addEventListener('click', e => {
+      console.log(this.ticTacToeBoard.findPosFromCoord(e.clientX, e.clientY));
+    });
   }
 }
 

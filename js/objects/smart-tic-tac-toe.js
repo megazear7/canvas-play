@@ -17,7 +17,7 @@ export default class StaticImage {
     this.lineThickness = lineThickness;
 
     // Set starting point
-    this.cells = [ 1, 2, 1, 2, 1, 2, 2, 1, 2 ];
+    this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.lines = this.makeLines();
   }
 
@@ -86,5 +86,33 @@ export default class StaticImage {
         p1: { x: this.x,             y: this.y + (this.size * (2/3)) },
         p2: { x: this.x + this.size, y: this.y + (this.size * (2/3)) },
     }];
+  }
+
+  setX(pos) {
+    this.cells[pos-1] = 1;
+  }
+
+  setY(pos) {
+    this.cells[pos-1] = 2;
+  }
+
+  // xOrY should be 'x' or 'y'
+  set(pos, xOrY) {
+    this.cells[pos-1] = xOrY === 'x' ? 1 : 2;
+  }
+
+  findPosFromCoord(x, y) {
+    const relativeX = x - this.x;
+    const relativeY = y - this.y;
+    const pos = {
+      x: Math.ceil(relativeX / (this.size * (1/3))),
+      y: Math.ceil(relativeY / (this.size * (1/3))),
+    };
+
+    if (pos.x >= 1 && pos.x <= 3 && pos.y >= 1 && pos.y <= 3) {
+      return (pos.y - 1) * 3 + pos.x;
+    } else {
+      return null;
+    }
   }
 }
