@@ -18,7 +18,7 @@ export default class HumanTicTacToePlayer {
     return e => {
       const clickPos = self.ticTacToeBoard.findPosFromCoord(e.clientX, e.clientY);
       
-      if (clickPos && self.cells[clickPos] === 0) {
+      if (clickPos && self.cells[clickPos-1] === 0) {
         document.removeEventListener('click', listener);
         resolve(clickPos);
       }

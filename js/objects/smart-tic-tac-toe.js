@@ -32,6 +32,7 @@ export default class StaticImage {
 
   askForMove() {
     if (this.gameOver()) {
+      // TODO This ends before showing the final state
       // TODO Determine who won
       alert("Game over");
       console.log(this.cells);
