@@ -25,6 +25,15 @@ export default class HumanTicTacToePlayer {
     };
   }
 
+  notifyWin() {
+  }
+
+  notifyLoss() {
+  }
+
+  notifyTie() {
+  }
+
   updateCells(cells) {
     this.cells = cells;
   }

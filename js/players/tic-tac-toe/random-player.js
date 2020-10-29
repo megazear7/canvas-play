@@ -29,6 +29,15 @@ export default class ComputerTicTacToePlayer {
     return Math.floor(Math.random() * 9) + 1;
   }
 
+  notifyWin() {
+  }
+
+  notifyLoss() {
+  }
+
+  notifyTie() {
+  }
+
   updateCells(cells) {
     this.cells = cells;
   }
