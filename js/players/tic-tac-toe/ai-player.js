@@ -29,8 +29,6 @@ export default class ComputerTicTacToePlayer {
       .filter(guess => this.cells[guess.cell-1] === 0)
       .sort((g1, g2) => g2.preference - g1.preference);
     
-    console.log(filteredGuesses[0]);
-    
     if (filteredGuesses.length > 0) {
       return filteredGuesses[0].cell;
     } else {

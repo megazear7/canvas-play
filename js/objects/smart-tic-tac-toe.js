@@ -15,6 +15,7 @@ export default class StaticImage {
               player1Type = 'human', // 'human', 'ai', or 'random
               player2Type = 'ai',    // 'human', 'ai', or 'random
               computerDelay = 700,
+              resetDelay = 3000,
             } = {}) {
     this.context = context;
     this.x = x;
@@ -26,15 +27,15 @@ export default class StaticImage {
     this.player1Type = player1Type;
     this.player2Type = player2Type;
     this.computerDelay = computerDelay;
+    this.resetDelay = resetDelay;
 
     // Set starting point
-    this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.lines = this.makeLines();
+    this.setupGame();
     this.player1 = this.generatePlayerOfType(this.player1Type);
     this.player2 = this.generatePlayerOfType(this.player2Type);
     this.players = [ this.player1, this.player2 ];
-    this.activePlayer = 0;
-    this.askForMove();
+    this.lines = this.makeLines();
+    this.startGame();
   }
 
   askForMove() {
@@ -46,6 +47,11 @@ export default class StaticImage {
       } else {
         console.log('tie');
       }
+
+      setTimeout(() => {
+        this.setupGame();
+        this.startGame();
+      }, this.resetDelay);
     } else {
       this.players[this.activePlayer].makeMove()
       .then((move) => {
@@ -60,6 +66,16 @@ export default class StaticImage {
         }
       });
     }
+  }
+
+  setupGame() {
+    this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    this.activePlayer = 0;
+  }
+
+  startGame() {
+    this.players.forEach(player => player.updateCells(this.cells));
+    this.askForMove();
   }
 
   draw() {
