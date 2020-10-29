@@ -69,11 +69,12 @@ export default class ComputerTicTacToePlayer {
 
   calculateNode(net, nodeLayerIndex, nodeIndex) {
     console.assert(nodeLayerIndex >= 1, "calculateNode should never be called on the 'input' / observation' layer, that is, layer 1");
-    const previousLayer = net[nodeLayerIndex-1][nodeIndex];
+    const previousLayer = net[nodeLayerIndex-1];
     const edges = this.netParams.weights[nodeLayerIndex-1][nodeIndex];
     const bias = this.netParams.biases[nodeLayerIndex-1][nodeIndex];
 
-    console.assert(previousLayer.length == edges.length);
+    console.assert(previousLayer.length == edges.length, 'The amount of nodes in the previous layer should be equal to the amount of edges.');
+
     let val = bias;
     for (var i; i < previousLayer.length; i++) {
       val += previousLayer[i] * edges[i];
@@ -184,14 +185,19 @@ export default class ComputerTicTacToePlayer {
 
     console.assert(wL._data.length === aL1._data.length, 'wL and aL1 should be of the same length');
 
+    // TODO after a while of playing one of the params to this method has a null value:
     const zL = math.multiply(wL, aL1) + bL;
     const dzdw = aL1;
     const dadz = this.sigmoidDerivitive(zL);
-    const dcda = math.multiply(2, math.subtract(aL, y));
+    const dcda = 2 * (aL - y);
     const dcdw = math.multiply(dzdw, dadz, dcda);
     const dcdb = math.multiply(dadz, dcda);
     //const dzda1 = wl;
     //const dcda1 = math.multiply(dzda1, dadz, dcda);
+
+    // Uncomment to see what is changing
+    //console.log('dcdw', dcdw);
+    //console.log('dcdb', dcdb);
 
     // Update the weights and biases
     for (var i = 0; i < weights[previousNodeLayerIndex][currentNodeIndex].length; i++) {
@@ -202,11 +208,24 @@ export default class ComputerTicTacToePlayer {
         newNetParams.weights[previousNodeLayerIndex][currentNodeIndex] = [];
       }
 
-      newNetParams.weights[previousNodeLayerIndex][currentNodeIndex][i] = weights[previousNodeLayerIndex][currentNodeIndex][i] + dcdw._data[i];
+      const oldWeight = weights[previousNodeLayerIndex][currentNodeIndex][i];
+      const newWeight = oldWeight + dcdw._data[i];
+      if (this.isValidChange(dcdw._data[i]) && this.isValidNumber(newWeight)) {
+        newNetParams.weights[previousNodeLayerIndex][currentNodeIndex][i] = newWeight;
+      } else {
+        newNetParams.weights[previousNodeLayerIndex][currentNodeIndex][i] = oldWeight; 
+      }
     }
-    if (typeof newNetParams.biases[biasLayerIndex] === 'undefined') newNetParams.biases[biasLayerIndex] = [];
-    console.assert(dcdb !== null, "dcdb is not null");
-    newNetParams.biases[biasLayerIndex][currentNodeIndex] = biases[biasLayerIndex][currentNodeIndex] + dcdb;
+    if (typeof newNetParams.biases[biasLayerIndex] === 'undefined') {
+      newNetParams.biases[biasLayerIndex] = [];
+    } 
+    const oldBias = biases[biasLayerIndex][currentNodeIndex];
+    const newBias = oldBias + dcdb;
+    if (this.isValidChange(dcdb) && this.isValidNumber(newBias)) {
+      newNetParams.biases[biasLayerIndex][currentNodeIndex] = newBias;
+    } else {
+      newNetParams.biases[biasLayerIndex][currentNodeIndex] = oldBias;
+    }
 
     // Back propogate to previous layers
     if (nodeLayerIndex > 1) {
@@ -214,6 +233,23 @@ export default class ComputerTicTacToePlayer {
         this.backPropogate(newNetParams, i, reverseNodeLayerIndex+1, cost);
       }
     }
+  }
+
+  isValidNumber(val) {
+    return typeof val === "number" 
+      && val !== Infinity
+      && val !== null
+      && val !== undefined
+      && (val > Number.MIN_VALUE || val < Number.MAX_VALUE);
+  }
+
+  isValidChange(change) {
+    const sensitivity = 0.00001;
+    return typeof change === "number" 
+      && change !== Infinity
+      && change !== null
+      && change !== undefined
+      && (change > sensitivity || change < -sensitivity);
   }
 
   saveNetParams() {
