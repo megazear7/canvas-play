@@ -67,17 +67,18 @@ export default class ComputerTicTacToePlayer {
     return net;
   }
 
-  calculateNode(net, layerIndex, nodeIndex) {
-    // assert layerIndex >= 1 ... this should never be called on the 'input' / 'observation' layer, that is, layer 1.
-    const previousLayer = net[layerIndex-1];
-    const edges = this.netParams.weights[layerIndex-1];
-    const bias = this.netParams.biases[layerIndex-1][nodeIndex];
+  calculateNode(net, nodeLayerIndex, nodeIndex) {
+    console.assert(nodeLayerIndex >= 1, "calculateNode should never be called on the 'input' / observation' layer, that is, layer 1");
+    const previousLayer = net[nodeLayerIndex-1][nodeIndex];
+    const edges = this.netParams.weights[nodeLayerIndex-1][nodeIndex];
+    const bias = this.netParams.biases[nodeLayerIndex-1][nodeIndex];
 
-    // assert previousLayer.length == edges.length
+    console.assert(previousLayer.length == edges.length);
     let val = bias;
     for (var i; i < previousLayer.length; i++) {
       val += previousLayer[i] * edges[i];
     }
+
     return this.sigmoid(val);
   }
 
@@ -158,7 +159,6 @@ export default class ComputerTicTacToePlayer {
       this.backPropogate(newNetParams, i, 0, cost[i]);
     }
 
-    // TODO uncomment this once the back propogation is actually working
     this.netParams = newNetParams;
     //console.log(this.netParams);
     //console.log(newNetParams);
