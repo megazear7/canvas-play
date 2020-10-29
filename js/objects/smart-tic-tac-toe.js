@@ -43,15 +43,15 @@ export default class StaticImage {
       if (this.playerWon(1)) {
         console.log('Player 1 won.');
         this.player1.notifyWin();
-        this.player1.notifyLoss();
+        this.player2.notifyLoss();
       } else if (this.playerWon(2)) {
         console.log('Player 2 won.');
-        this.player1.notifyWin();
+        this.player2.notifyWin();
         this.player1.notifyLoss();
       } else {
         console.log('tie');
         this.player1.notifyTie();
-        this.player1.notifyTie();
+        this.player2.notifyTie();
       }
 
 
