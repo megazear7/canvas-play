@@ -1,4 +1,4 @@
-export default class ComputerTicTacToePlayer {
+export default class RandomTicTacToePlayer {
   constructor({
             cells,
             delay,

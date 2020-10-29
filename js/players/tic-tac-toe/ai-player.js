@@ -204,7 +204,6 @@ export default class ComputerTicTacToePlayer {
     newNetParams.biases[biasLayerIndex][currentNodeIndex] = dcdb;
 
     // Back propogate to previous layers
-
     if (nodeLayerIndex > 1) {
       for (var i = 0; i < nodes[previousNodeLayerIndex].length; i++) {
         this.backPropogate(newNetParams, i, reverseNodeLayerIndex+1, cost);
@@ -213,7 +212,7 @@ export default class ComputerTicTacToePlayer {
   }
 
   saveNetParams() {
-    //window.localStorage.setItem("TIC_TAC_TOE_AI", JSON.stringify(this.netParams));
+    window.localStorage.setItem("TIC_TAC_TOE_AI", JSON.stringify(this.netParams));
   }
 
   notifyWin() {

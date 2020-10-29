@@ -1,6 +1,6 @@
 import { drawCircle, drawLine } from '../utility.js';
 import HumanTicTacToePlayer from '../players/tic-tac-toe/human-player.js';
-import ComputerTicTacToePlayer from '../players/tic-tac-toe/random-player.js';
+import RandomTicTacToePlayer from '../players/tic-tac-toe/random-player.js';
 import AiTicTacToePlayer from '../players/tic-tac-toe/ai-player.js';
 
 export default class StaticImage {
@@ -240,7 +240,7 @@ export default class StaticImage {
     } else if (type === 'ai') {
       return new AiTicTacToePlayer({ cells: this.cells, delay: this.computerDelay, playerNumber: 2 });
     } else {
-      return new ComputerTicTacToePlayer({ cells: this.cells, delay: this.computerDelay });
+      return new RandomTicTacToePlayer({ cells: this.cells, delay: this.computerDelay });
     }
   }
 }
