@@ -198,10 +198,12 @@ export default class ComputerTicTacToePlayer {
       if (typeof newNetParams.weights[previousNodeLayerIndex][currentNodeIndex] === 'undefined') {
         newNetParams.weights[previousNodeLayerIndex][currentNodeIndex] = [];
       }
-      newNetParams.weights[previousNodeLayerIndex][currentNodeIndex][i] = dcdw._data[i];
+
+      newNetParams.weights[previousNodeLayerIndex][currentNodeIndex][i] = weights[previousNodeLayerIndex][currentNodeIndex][i] + dcdw._data[i];
     }
     if (typeof newNetParams.biases[biasLayerIndex] === 'undefined') newNetParams.biases[biasLayerIndex] = [];
-    newNetParams.biases[biasLayerIndex][currentNodeIndex] = dcdb;
+    console.assert(dcdb !== null, "dcdb is not null");
+    newNetParams.biases[biasLayerIndex][currentNodeIndex] = biases[biasLayerIndex][currentNodeIndex] + dcdb;
 
     // Back propogate to previous layers
     if (nodeLayerIndex > 1) {
