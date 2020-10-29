@@ -46,11 +46,16 @@ export default class ComputerTicTacToePlayer {
 
   buildNet() {
     const net = [];
+
+    // The first layer of the net is the 'observation'
     net.push(this.observe());
+
+    // Each additional layer is connected by a set of weights
     for (var i = 0; i < this.netParams.weights.length; i++) {
       const layer = [];
       for (var j = 0; j < this.netParams.weights[i].length; j++) {
-        layer.push(this.calculateNode(net, i, j));
+        // The value of each node depends on the previous layer of the net, the current layer (i), and it's position in that layer(j)
+        layer.push(this.calculateNode(net, i+1, j));
       }
       net.push(layer);
     }
@@ -58,18 +63,13 @@ export default class ComputerTicTacToePlayer {
   }
 
   calculateNode(net, layerIndex, nodeIndex) {
-    // An array of length X
-    const previousLayer = net[layerIndex];
-
-    // An array of length X
-    const edges = this.netParams.weights[layerIndex];
-
-    // A scalar
-    const bias = this.netParams.biases[layerIndex][nodeIndex];
+    // assert layerIndex >= 1 ... this should never be called on the 'input' / 'observation' layer, that is, layer 1.
+    const previousLayer = net[layerIndex-1];
+    const edges = this.netParams.weights[layerIndex-1];
+    const bias = this.netParams.biases[layerIndex-1][nodeIndex];
 
     // assert previousLayer.length == edges.length
-
-    let val = -bias;
+    let val = bias;
     for (var i; i < previousLayer.length; i++) {
       val += previousLayer[i] * edges[i];
     }
@@ -99,6 +99,11 @@ export default class ComputerTicTacToePlayer {
         observation.push(cell === state ? 1 : 0);
       });
     });
+
+    // Use this to generate noise inputs
+    //for (var i = 0; i < 27; i++) {
+    //  observation.push(Math.random());
+    //}
 
     return observation;
   }
