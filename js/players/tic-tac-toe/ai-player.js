@@ -159,6 +159,9 @@ export default class ComputerTicTacToePlayer {
       this.backPropogate(newNetParams, i, 0, cost[i]);
     }
 
+    // TODO Somethng is wrong. If you let it play for long enough all the values in
+    // the newNetParams object are null.
+
     this.netParams = newNetParams;
     //console.log(this.netParams);
     //console.log(newNetParams);
