@@ -30,6 +30,7 @@ export default class ComputerTicTacToePlayer {
       .sort((g1, g2) => g2.preference - g1.preference);
     
     if (filteredGuesses.length > 0) {
+      this.savedChoice = filteredGuesses[0]; // This is needed by back propogation later on.
       return filteredGuesses[0].cell;
     } else {
       console.error("No space available");
@@ -38,7 +39,9 @@ export default class ComputerTicTacToePlayer {
   }
 
   findPreferences() {
+    // The savedNet is needed for backpropogation later on.
     const net = this.buildNet();
+    this.savedNet = net;
     return net[net.length-1];
   }
 
@@ -114,10 +117,69 @@ export default class ComputerTicTacToePlayer {
     this.cells = cells;
   }
 
-  updateNetParams() {
-    // TODO implement the back propogation
-    // What data do we need?
-    // What math do we need to do?
+  calculateCost(result) {
+    const preferences = this.savedNet[this.savedNet.length-1];
+    const cost = [];
+
+    for (var w = 0; w < preferences.length; w++) {
+      if (w === this.savedChoice.cell) {
+        if (result === 'won') {
+          // If we won, then this result should have been a 1
+          cost.push(1 - this.savedChoice.cell);
+        } else {
+          // If we won, then this result should have been a 0
+          cost.push(-this.savedChoice.cell);
+        }
+      } else {
+        // If this wasn't our pick, we can leave this output node alone.
+        cost.push(preferences[w]);
+      }
+    }
+
+    return cost;
+  }
+
+  learn(result) {
+    const cost = this.calculateCost(result);
+    const newNetParams = {
+      weights: [],
+      biases: [],
+    }
+
+    // Calculate derivitive of cost with respect to each weight
+    for (var i = 0; i < this.netParams.weights.length; i++) {
+      newNetParams.weights.push([]);
+      for (var j = 0; j < this.netParams.weights[i].length; j++) {
+        newNetParams.weights[i].push([]);
+        for (var k = 0; k < this.netParams.weights[i][j].length; k++) {
+          newNetParams.weights[i][j].push(this.calculateWeightAdjustment(cost, i, j, k));
+        }
+      }
+    }
+
+    // Calculate derivitive of cost with respect to each bias
+    for (var m = 0; m < this.netParams.biases.length; m++) {
+      newNetParams.biases.push([]);
+      for (var n = 0; n < this.netParams.biases[m].length; n++) {
+        newNetParams.biases[m].push(this.calculateBiasAdjustment(cost, m, n));
+      }
+    }
+
+    this.netParams = newNetParams;
+    this.saveNetParams();
+  }
+
+  calculateWeightAdjustment(cost, layer, lMinus1Node, lNode) {
+    // TODO
+
+    // For now, just return the original result:
+    return this.netParams.weights[layer][lMinus1Node][lNode];
+  }
+
+  calculateBiasAdjustment(cost, layer, bias) {
+    // TODO
+
+    return this.netParams.biases[layer][bias];
   }
 
   saveNetParams() {
@@ -125,18 +187,15 @@ export default class ComputerTicTacToePlayer {
   }
 
   notifyWin() {
-    this.updateNetParams();
-    this.saveNetParams();
+    this.learn('won');
   }
 
   notifyLoss() {
-    this.updateNetParams();
-    this.saveNetParams();
+    this.learn('loss');
   }
 
   notifyTie() {
-    this.updateNetParams();
-    this.saveNetParams();
+    this.learn('tie');
   }
 
   printNet() {
@@ -145,7 +204,13 @@ export default class ComputerTicTacToePlayer {
 }
 
 function getSavedNetParams() {
-  const savedAi = JSON.parse(window.localStorage.getItem("TIC_TAC_TOE_AI"));
+  let savedAi;
+
+  try {
+    savedAi = JSON.parse(window.localStorage.getItem("TIC_TAC_TOE_AI"));
+  } catch {
+    window.localStorage.removeItem("TIC_TAC_TOE_AI") 
+  }
 
   if (savedAi) {
     return savedAi;
