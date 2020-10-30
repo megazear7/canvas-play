@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tic Tac Toe AI Vs Random</title>
-  <meta name="description" content="Tic tac toe ai vs random.">
+  <title>Tic Tac Toe History</title>
+  <meta name="description" content="Chart of tic tac toe wins and losses">
   <link rel="stylesheet" type="text/css" href="/css/scenes.css">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -40,21 +40,50 @@
 <body>
   <div class="hider" style="display:none">
     <a href="/">Back to menu</a>
-    <h1>Tic Tac Toe AI vs Random</h1>
-    <xmp>
-      import { SmartTicTacToe } from 'canvas-play';
-      <cpg-smart-tic-tac-toe player1-type="ai" player2-type="random" ai-speed="250"></cpg-smart-tic-tac-toe>
-    </xmp>
   </div>
 
-  <cpg-smart-tic-tac-toe
-    player1-type="ai"
-    player2-type="random"
-    ai-speed="1"
-    reset-delay="1"
-    ></cpg-smart-tic-tac-toe>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <div id="chart"></div>
+
   <script type="module">
-    import { CpgSmartTicTacToe } from '../index.js';
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      var history = JSON.parse(window.localStorage.getItem("TIC_TAC_TOE_HISTORY"));
+      var data = google.visualization.arrayToDataTable([
+        ['Count', 'Ties', 'Player 1 Wins', 'Player 2 Wins', 'Player 1 Win Percentage', 'Player 2 Win Percentage'],
+        ...history.map((obj, index) => [ index, obj.ties, obj.player1Wins, obj.player2Wins, obj.player1Wins/(obj.player2Wins+obj.player1Wins+obj.ties), obj.player2Wins/(obj.player2Wins+obj.player1Wins+obj.ties) ])
+      ]);
+
+      var options = {
+        title: 'Tic Tac Toe History',
+        curveType: 'function',
+        legend: {
+          position: 'bottom',
+        },
+        height: 500,
+        animation: {
+          duration: 1000,
+          startUp: true,
+          easing: 'inAndOut',
+        },
+        series: {
+          0: {targetAxisIndex: 0},
+          1: {targetAxisIndex: 0},
+          2: {targetAxisIndex: 0},
+          3: {targetAxisIndex: 1},
+          4: {targetAxisIndex: 1},
+        },
+        vAxes: {
+          0: { title: 'Count'},
+          1: { title: 'Win Percentage'},
+        }
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById('chart'));
+      chart.draw(data, options);
+    }
   </script>
 </body>
 </html>

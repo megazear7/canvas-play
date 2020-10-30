@@ -12,10 +12,14 @@ export default class ComputerTicTacToePlayer {
 
     this.netParams = this.getSavedNetParams();
     this.saveNetParams();
-    this.descentSpeed = 0.01;
+    this.descentSpeed = 0.001;
     this.previousMoves = [];
     this.batch = [];
     this.batchSize = 10;
+
+    // TODO: Now the problem is that the weights all get driven to 0 over time.
+    // It is 'learning' to not make any move essentially, or to make the output as small as possible.
+    // The cost function needs to be updated.
 
     //console.log(this);
   }
@@ -149,21 +153,24 @@ export default class ComputerTicTacToePlayer {
 
     //console.log('preferences', preferences);
     for (var w = 0; w < preferences.length; w++) {
+      var desiredOutput;
       if (this.cells[w] > 0) {
         // Cell was full: disincentivize
-        cost.push(-preferences[w]);
+        desiredOutput = 1;
       } else if (w === savedChoice.cell) {
         if (result === 'won') {
           // You won: incentivize
-          cost.push(1 - preferences[w]);
+          desiredOutput = 1;
         } else {
           // You lost or tied, try something else next time: disincentivize
-          cost.push(-preferences[w]);
+          desiredOutput = 1;
         }
       } else {
-        // This cell was as good as any other: no cost
-        cost.push(0);
+        // This cell was as good as any other
+        desiredOutput = 1;
       }
+
+      cost.push(desiredOutput - preferences[w]);
     }
     //console.log('cost', cost);
 

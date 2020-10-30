@@ -16,6 +16,7 @@ export default class StaticImage {
               player2Type = 'ai',    // 'human', 'ai', or 'random
               computerDelay = 700,
               resetDelay = 3000,
+              randomStartPlayer = true,
             } = {}) {
     this.context = context;
     this.x = x;
@@ -28,6 +29,7 @@ export default class StaticImage {
     this.player2Type = player2Type;
     this.computerDelay = computerDelay;
     this.resetDelay = resetDelay;
+    this.randomStartPlayer = randomStartPlayer;
 
     // Set starting point
     this.setupGame();
@@ -35,25 +37,45 @@ export default class StaticImage {
     this.player2 = this.generatePlayerOfType(this.player2Type);
     this.players = [ this.player1, this.player2 ];
     this.lines = this.makeLines();
+    this.player1Wins = 0;
+    this.player2Wins = 0;
+    this.ties = 0;
+    this.history = [];
     this.startGame();
+
+
+    // TODO Human vs Human random start player is not working.
   }
 
   askForMove() {
     if (this.gameOver()) {
       if (this.playerWon(1)) {
-        console.log('Player 1 won.');
+        this.player1Wins += 1;
         this.player1.notifyWin();
         this.player2.notifyLoss();
       } else if (this.playerWon(2)) {
-        console.log('Player 2 won.');
+        this.player2Wins += 1;
         this.player2.notifyWin();
         this.player1.notifyLoss();
       } else {
-        console.log('tie');
+        this.ties += 1;
         this.player1.notifyTie();
         this.player2.notifyTie();
       }
 
+      this.history.push({
+        player1Wins: this.player1Wins,
+        player2Wins: this.player2Wins,
+        ties: this.ties,
+      });
+
+      // Remove every other element if the history grows to large.
+      // This way we can still graph the whole history, just with less precision.
+      if (this.history.length > 1000) {
+        this.history = this.history.filter((e, i) =>  i % 2 == 0);
+      }
+
+      window.localStorage.setItem("TIC_TAC_TOE_HISTORY", JSON.stringify(this.history));
 
       setTimeout(() => {
         this.setupGame();
@@ -63,7 +85,7 @@ export default class StaticImage {
       this.players[this.activePlayer].makeMove()
       .then((move) => {
         if (this.isValidMove(move)) {
-          this.activePlayer === 0 ? this.setX(move) : this.setY(move);
+          this.activePlayer === 0 ? this.setX(move) : this.setO(move);
           this.players.forEach(player => player.updateCells(this.cells));
           this.activePlayer = this.activePlayer === 0 ? 1 : 0;
           this.askForMove();
@@ -77,7 +99,11 @@ export default class StaticImage {
 
   setupGame() {
     this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.activePlayer = 0;
+    if (this.randomStartPlayer) {
+      this.activePlayer = Math.random() > 0.5 ? 1 : 0;
+    } else {
+      this.activePlayer = 0;
+    }
   }
 
   startGame() {
@@ -210,13 +236,8 @@ export default class StaticImage {
     this.cells[pos-1] = 1;
   }
 
-  setY(pos) {
+  setO(pos) {
     this.cells[pos-1] = 2;
-  }
-
-  // xOrY should be 'x' or 'y'
-  set(pos, xOrY) {
-    this.cells[pos-1] = xOrY === 'x' ? 1 : 2;
   }
 
   findPosFromCoord(x, y) {
