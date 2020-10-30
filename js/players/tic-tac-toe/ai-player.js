@@ -13,11 +13,9 @@ export default class ComputerTicTacToePlayer {
     this.netParams = this.getSavedNetParams();
     this.saveNetParams();
     this.descentSpeed = 0.01;
-
-    // TODO
-    // 1. Learn based on last 3 moves
-    // 2. Batch the changes, only apply at the end of a 'batch'
-    // 3. Try a deep net
+    this.previousMoves = [];
+    this.batch = [];
+    this.batchSize = 10;
 
     //console.log(this);
   }
@@ -31,7 +29,8 @@ export default class ComputerTicTacToePlayer {
   }
 
   chooseCell() {
-    const preferences = this.findPreferences();
+    const net = this.buildNet();
+    const preferences = net[net.length-1];
     //console.log(preferences);
     const guesses = [];
     for (var k = 0; k < preferences.length; k++) {
@@ -42,7 +41,7 @@ export default class ComputerTicTacToePlayer {
       .sort((g1, g2) => g2.preference - g1.preference);
     
     if (filteredGuesses.length > 0) {
-      this.savedChoice = filteredGuesses[0]; // This is needed by back propogation later on.
+      this.saveMove(net, filteredGuesses[0]);
       return filteredGuesses[0].cell;
     } else {
       console.error("No space available");
@@ -50,11 +49,11 @@ export default class ComputerTicTacToePlayer {
     }
   }
 
-  findPreferences() {
-    // The savedNet is needed for backpropogation later on.
-    const net = this.buildNet();
-    this.savedNet = net;
-    return net[net.length-1];
+  saveMove(net, guess) {
+    this.previousMoves.unshift({ net, guess });
+    if (this.previousMoves.length > 3) {
+      this.previousMoves.length = 3;
+    }
   }
 
   buildNet() {
@@ -144,8 +143,8 @@ export default class ComputerTicTacToePlayer {
     this.cells = cells;
   }
 
-  calculateCost(result) {
-    const preferences = this.savedNet[this.savedNet.length-1];
+  calculateCost(savedNet, savedChoice, result) {
+    const preferences = savedNet[savedNet.length-1];
     const cost = [];
 
     //console.log('preferences', preferences);
@@ -153,7 +152,7 @@ export default class ComputerTicTacToePlayer {
       if (this.cells[w] > 0) {
         // Cell was full: disincentivize
         cost.push(-preferences[w]);
-      } else if (w === this.savedChoice.cell) {
+      } else if (w === savedChoice.cell) {
         if (result === 'won') {
           // You won: incentivize
           cost.push(1 - preferences[w]);
@@ -172,27 +171,58 @@ export default class ComputerTicTacToePlayer {
   }
 
   learn(result) {
-    const cost = this.calculateCost(result);
-    const newNetParams = {
+    const deltaCost = {
       weights: [],
       biases: [],
     }
 
-    for (var i = 0; i < cost.length; i++) {
-      this.backPropogate(newNetParams, i, 0, cost[i]);
-    }
+    this.previousMoves.forEach(savedState => {
+      const cost = this.calculateCost(savedState.net, savedState.guess, result);
+      for (var i = 0; i < cost.length; i++) {
+        this.backPropogate(savedState.net, deltaCost, i, 0, cost[i]);
+      }
+    });
 
-    // TODO Batch the changes before updating this.netParams;
-    this.netParams = newNetParams;
-    //console.log(this.netParams);
-    //console.log(newNetParams);
-    this.saveNetParams();
+    this.batch.push(deltaCost);
+    this.previousMoves = [];
+
+    if (this.batch.length > this.batchSize) {
+      this.batch.forEach(deltaCost => {
+        this.applyDeltaCost(deltaCost);
+      });
+      this.batch = [];
+      this.saveNetParams();
+    }
   }
 
-  backPropogate(newNetParams, currentNodeIndex, reverseNodeLayerIndex, cost) {
+  applyDeltaCost(deltaCost) {
+    for (var i = 0; i < this.netParams.weights.length; i++) {
+      for (var j = 0; j < this.netParams.weights[i].length; j++) {
+        for (var k = 0; k < this.netParams.weights[i][j].length; k++) {
+          const oldVal = this.netParams.weights[i][j][k];
+          const newVal = oldVal + deltaCost.weights[i][j][k];
+          if (this.isValidNumber(newVal)) {
+            this.netParams.weights[i][j][k] = newVal;
+          }
+        }
+      }
+    }
+
+    for (var i = 0; i < this.netParams.biases.length; i++) {
+      for (var j = 0; j < this.netParams.biases[i].length; j++) {
+        const oldVal = this.netParams.biases[i][j];
+        const newVal = oldVal + deltaCost.biases[i][j];
+        if (this.isValidNumber(newVal)) {
+          this.netParams.biases[i][j] = newVal;
+        }
+      }
+    }
+  }
+
+  backPropogate(savedNet, deltaCost, currentNodeIndex, reverseNodeLayerIndex, cost) {
     const weights = this.netParams.weights;
     const biases = this.netParams.biases;
-    const nodes = this.savedNet;
+    const nodes = savedNet;
     const nodeLayerIndex = nodes.length - reverseNodeLayerIndex - 1;
     const biasLayerIndex = nodeLayerIndex - 1; // There is one less bias layer than node layer.
     const previousNodeLayerIndex = nodeLayerIndex - 1;
@@ -220,40 +250,27 @@ export default class ComputerTicTacToePlayer {
 
     // Update the weights and biases
     for (var i = 0; i < weights[previousNodeLayerIndex][currentNodeIndex].length; i++) {
-      if (typeof newNetParams.weights[previousNodeLayerIndex] === 'undefined') {
-        newNetParams.weights[previousNodeLayerIndex] = [];
+      if (typeof deltaCost.weights[previousNodeLayerIndex] === 'undefined') {
+        deltaCost.weights[previousNodeLayerIndex] = [];
       }
-      if (typeof newNetParams.weights[previousNodeLayerIndex][currentNodeIndex] === 'undefined') {
-        newNetParams.weights[previousNodeLayerIndex][currentNodeIndex] = [];
+      if (typeof deltaCost.weights[previousNodeLayerIndex][currentNodeIndex] === 'undefined') {
+        deltaCost.weights[previousNodeLayerIndex][currentNodeIndex] = [];
       }
 
       const weightChange = dcdw._data[i] * this.descentSpeed;
-      const oldWeight = weights[previousNodeLayerIndex][currentNodeIndex][i];
-      const newWeight = oldWeight + weightChange;
-      if (this.isValidChange(weightChange) && this.isValidNumber(newWeight)) {
-        //console.log(newWeight);
-        newNetParams.weights[previousNodeLayerIndex][currentNodeIndex][i] = newWeight;
-      } else {
-        newNetParams.weights[previousNodeLayerIndex][currentNodeIndex][i] = oldWeight; 
-      }
+      deltaCost.weights[previousNodeLayerIndex][currentNodeIndex][i] = this.isValidChange(weightChange) ? weightChange : 0;
     }
-    if (typeof newNetParams.biases[biasLayerIndex] === 'undefined') {
-      newNetParams.biases[biasLayerIndex] = [];
+
+    if (typeof deltaCost.biases[biasLayerIndex] === 'undefined') {
+      deltaCost.biases[biasLayerIndex] = [];
     } 
     const biasChange = dcdb * this.descentSpeed;
-    const oldBias = biases[biasLayerIndex][currentNodeIndex];
-    const newBias = oldBias + biasChange;
-    if (this.isValidChange(biasChange) && this.isValidNumber(newBias)) {
-      //console.log(newBias);
-      newNetParams.biases[biasLayerIndex][currentNodeIndex] = newBias;
-    } else {
-      newNetParams.biases[biasLayerIndex][currentNodeIndex] = oldBias;
-    }
+    deltaCost.biases[biasLayerIndex][currentNodeIndex] = this.isValidChange(biasChange) ? biasChange : 0;
 
     // Back propogate to previous layers
     if (nodeLayerIndex > 1) {
       for (var i = 0; i < nodes[previousNodeLayerIndex].length; i++) {
-        this.backPropogate(newNetParams, i, reverseNodeLayerIndex+1, cost);
+        this.backPropogate(savedNet, deltaCost, i, reverseNodeLayerIndex+1, cost);
       }
     }
   }
@@ -300,7 +317,7 @@ export default class ComputerTicTacToePlayer {
   netConfig() {
     return {
       inputs: 27,
-      hiddenLayers: 1,
+      hiddenLayers: 2,
       hiddenLayerSize: 16,
       outputs: 9,
     };
