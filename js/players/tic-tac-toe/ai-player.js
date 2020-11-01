@@ -164,11 +164,11 @@ export default class ComputerTicTacToePlayer {
           desiredOutput = 1;
         } else {
           // You lost or tied, try something else next time: disincentivize
-          desiredOutput = 1;
+          desiredOutput = 0;
         }
       } else {
         // This cell was as good as any other
-        desiredOutput = 1;
+        desiredOutput = 0.5;
       }
 
       cost.push(desiredOutput - preferences[w]);

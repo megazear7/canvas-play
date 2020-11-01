@@ -94,10 +94,12 @@
     }
 
     document.getElementById('delete-history').addEventListener('click', () => {
-      window.localStorage.removeItem("TIC_TAC_TOE_AI") 
+      window.localStorage.removeItem("TIC_TAC_TOE_AI_1");
+      window.localStorage.removeItem("TIC_TAC_TOE_AI_2");
     });
 
     document.getElementById('delete-ai').addEventListener('click', () => {
+      window.localStorage.removeItem("TIC_TAC_TOE_HISTORY") 
       window.localStorage.removeItem("TIC_TAC_TOE_HISTORY") 
     });
   </script>

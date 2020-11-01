@@ -33,8 +33,8 @@ export default class StaticImage {
 
     // Set starting point
     this.setupGame();
-    this.player1 = this.generatePlayerOfType(this.player1Type);
-    this.player2 = this.generatePlayerOfType(this.player2Type);
+    this.player1 = this.generatePlayerOfType(this.player1Type, 1);
+    this.player2 = this.generatePlayerOfType(this.player2Type, 2);
     this.players = [ this.player1, this.player2 ];
     this.lines = this.makeLines();
     this.startGame();
@@ -266,11 +266,11 @@ export default class StaticImage {
     }
   }
   
-  generatePlayerOfType(type) {
+  generatePlayerOfType(type, number) {
     if (type === 'human') {
       return new HumanTicTacToePlayer({ cells: this.cells, ticTacToeBoard: this });
     } else if (type === 'ai') {
-      return new AiTicTacToePlayer({ cells: this.cells, delay: this.computerDelay, playerNumber: 2 });
+      return new AiTicTacToePlayer({ cells: this.cells, delay: this.computerDelay, playerNumber: number });
     } else {
       return new RandomTicTacToePlayer({ cells: this.cells, delay: this.computerDelay });
     }
