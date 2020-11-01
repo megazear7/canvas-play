@@ -44,6 +44,8 @@
 
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <div id="chart"></div>
+  <button id="delete-history">Delete History</button>
+  <button id="delete-ai">Delete AI</button>
 
   <script type="module">
     google.charts.load('current', {'packages':['corechart']});
@@ -52,8 +54,15 @@
     function drawChart() {
       var history = JSON.parse(window.localStorage.getItem("TIC_TAC_TOE_HISTORY"));
       var data = google.visualization.arrayToDataTable([
-        ['Count', 'Ties', 'Player 1 Wins', 'Player 2 Wins', 'Player 1 Win Percentage', 'Player 2 Win Percentage'],
-        ...history.map((obj, index) => [ index, obj.ties, obj.player1Wins, obj.player2Wins, obj.player1Wins/(obj.player2Wins+obj.player1Wins+obj.ties), obj.player2Wins/(obj.player2Wins+obj.player1Wins+obj.ties) ])
+        ['Count', 'Player 1 Start Percentage', 'Player 2 Start Percentage', 'Player 1 Win Percentage', 'Player 2 Win Percentage', 'Tie Percentage'],
+        ...history.map((obj, index) => {
+          const total = obj.player1Wins + obj.player2Wins + obj.ties;
+          const player1WinPercentage = obj.player1Wins / total;
+          const player2WinPercentage = obj.player2Wins / total;
+          const tiePercentage = obj.ties / total;
+          console.log(obj.player1Starts);
+          return [ index, obj.player1Starts/(obj.player1Starts+obj.player2Starts), obj.player2Starts/(obj.player1Starts+obj.player2Starts), player1WinPercentage, player2WinPercentage, tiePercentage ];
+        })
       ]);
 
       var options = {
@@ -72,18 +81,25 @@
           0: {targetAxisIndex: 0},
           1: {targetAxisIndex: 0},
           2: {targetAxisIndex: 0},
-          3: {targetAxisIndex: 1},
-          4: {targetAxisIndex: 1},
+          3: {targetAxisIndex: 0},
+          4: {targetAxisIndex: 0},
         },
         vAxes: {
-          0: { title: 'Count'},
-          1: { title: 'Win Percentage'},
+          0: { title: 'Percentage'}
         }
       };
 
       var chart = new google.visualization.LineChart(document.getElementById('chart'));
       chart.draw(data, options);
     }
+
+    document.getElementById('delete-history').addEventListener('click', () => {
+      window.localStorage.removeItem("TIC_TAC_TOE_AI") 
+    });
+
+    document.getElementById('delete-ai').addEventListener('click', () => {
+      window.localStorage.removeItem("TIC_TAC_TOE_HISTORY") 
+    });
   </script>
 </body>
 </html>

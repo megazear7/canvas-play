@@ -37,12 +37,13 @@ export default class StaticImage {
     this.player2 = this.generatePlayerOfType(this.player2Type);
     this.players = [ this.player1, this.player2 ];
     this.lines = this.makeLines();
-    this.player1Wins = 0;
-    this.player2Wins = 0;
-    this.ties = 0;
-    this.history = [];
     this.startGame();
-
+    this.history = JSON.parse(window.localStorage.getItem("TIC_TAC_TOE_HISTORY")) || [];
+    this.player1Wins = this.history.length === 0 ? 0 : this.history[this.history.length-1].player1Wins;
+    this.player2Wins = this.history.length === 0 ? 0 : this.history[this.history.length-1].player2Wins;
+    this.ties = this.history.length === 0 ? 0 : this.history[this.history.length-1].ties;
+    this.player1Starts = this.history.length === 0 ? 0 : this.history[this.history.length-1].player1Starts;
+    this.player2Starts = this.history.length === 0 ? 0 : this.history[this.history.length-1].player2Starts;
 
     // TODO Human vs Human random start player is not working.
   }
@@ -55,15 +56,23 @@ export default class StaticImage {
         this.player2.notifyLoss();
       } else if (this.playerWon(2)) {
         this.player2Wins += 1;
-        this.player2.notifyWin();
         this.player1.notifyLoss();
+        this.player2.notifyWin();
       } else {
         this.ties += 1;
         this.player1.notifyTie();
         this.player2.notifyTie();
       }
 
+      if (this.startPlayer === 0) {
+        this.player1Starts++;
+      } else {
+        this.player2Starts++;
+      }
+
       this.history.push({
+        player1Starts: this.player1Starts,
+        player2Starts: this.player2Starts,
         player1Wins: this.player1Wins,
         player2Wins: this.player2Wins,
         ties: this.ties,
@@ -100,10 +109,12 @@ export default class StaticImage {
   setupGame() {
     this.cells = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     if (this.randomStartPlayer) {
-      this.activePlayer = Math.random() > 0.5 ? 1 : 0;
+      this.activePlayer = Math.random() < 0.5 ? 1 : 0;
     } else {
       this.activePlayer = 0;
     }
+
+    this.startPlayer = this.activePlayer;
   }
 
   startGame() {

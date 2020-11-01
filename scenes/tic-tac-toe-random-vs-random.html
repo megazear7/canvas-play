@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Canvas Play</title>
-  <meta name="description" content="List of html canvas examples.">
-  <link rel="stylesheet" type="text/css" href="/css/home.css">
+  <title>Tic Tac Toe Random Vs Random</title>
+  <meta name="description" content="Tic tac toe random vs random.">
+  <link rel="stylesheet" type="text/css" href="/css/scenes.css">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/images/icons/favicon.ico">
@@ -34,29 +34,27 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="canvas-play">
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
+
+  <script src="/js/vendor/math.min.js"></script>
 </head>
 <body>
-  <h1>Canvas Play</h1>
-  <xmp>
-    npm install canvas-play
-  </xmp>
-  <ol>
-    <li><a href="/scenes/game-of-life.html">Game of Life</a></li>
-    <li><a href="/scenes/split-apart.html">Split Apart</a></li>
-    <li><a href="/scenes/flex-icon.html">Flex Icon</a></li>
-    <li><a href="/scenes/granite-crumble.html">Granite Crumble</a></li>
-    <li><a href="/scenes/falling-pebbles.html">Falling Pebbles</a></li>
-    <li><a href="/scenes/rainbow-bubbles.html">Rainbow Bubbles</a></li>
-    <li><a href="/scenes/rain.html">Rain</a></li>
-    <li><a href="/scenes/exploding-image.html">Exploding Image</a></li>
-    <li><a href="/scenes/solar-system.html">Solar System</a></li>
-    <li><a href="/scenes/enmerkar.html">Enmerkar</a></li>
-    <li><a href="/scenes/tic-tac-toe-ai-vs-ai.html">Tic Tac Toe AI vs AI</a></li>
-    <li><a href="/scenes/tic-tac-toe-ai-vs-random.html">Tic Tac Toe AI vs Random</a></li>
-    <li><a href="/scenes/tic-tac-toe-random-vs-random.html">Tic Tac Toe Random vs Random</a></li>
-    <li><a href="/scenes/tic-tac-toe-human-vs-ai.html">Tic Tac Toe Human vs AI</a></li>
-    <li><a href="/scenes/tic-tac-toe-human-vs-human.html">Tic Tac Toe Human vs Human</a></li>
-    <li><a href="/scenes/tic-tac-toe-history.html">Tic Tac Toe History</a></li>
-  </ol>
+  <div class="hider" style="display:none">
+    <a href="/">Back to menu</a>
+    <h1>Tic Tac Toe Random vs Random</h1>
+    <xmp>
+      import { SmartTicTacToe } from 'canvas-play';
+      <cpg-smart-tic-tac-toe player1-type="random" player2-type="random" ai-speed="250"></cpg-smart-tic-tac-toe>
+    </xmp>
+  </div>
+
+  <cpg-smart-tic-tac-toe
+    player1-type="random"
+    player2-type="random"
+    ai-speed="1"
+    reset-delay="1"
+    ></cpg-smart-tic-tac-toe>
+  <script type="module">
+    import { CpgSmartTicTacToe } from '../index.js';
+  </script>
 </body>
 </html>

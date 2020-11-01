@@ -9,6 +9,7 @@ export default class ComputerTicTacToePlayer {
     this.cells = cells;
     this.delay = delay;
     this.playerNumber = playerNumber;
+    this.aiId = 'TIC_TAC_TOE_AI_' + this.playerNumber;
 
     this.netParams = this.getSavedNetParams();
     this.saveNetParams();
@@ -302,7 +303,7 @@ export default class ComputerTicTacToePlayer {
   }
 
   saveNetParams() {
-    window.localStorage.setItem("TIC_TAC_TOE_AI", JSON.stringify(this.netParams));
+    window.localStorage.setItem(this.aiId, JSON.stringify(this.netParams));
   }
 
   notifyWin() {
@@ -339,15 +340,15 @@ export default class ComputerTicTacToePlayer {
     let savedAi;
 
     try {
-      savedAi = JSON.parse(window.localStorage.getItem("TIC_TAC_TOE_AI"));
+      savedAi = JSON.parse(window.localStorage.getItem(this.aiId));
     } catch {
-      window.localStorage.removeItem("TIC_TAC_TOE_AI") 
+      window.localStorage.removeItem(this.aiId) 
     }
 
     if (savedAi) {
       return savedAi;
     } else {
-      return staticAiNet;
+      return staticAiNet[this.playerNumber-1];
     }
   }
 
