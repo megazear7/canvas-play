@@ -50,3 +50,30 @@ xmp {
   color: #777;
   white-space: pre-line;
 }
+
+footer {
+  margin-top: 20px;
+  background-color: #777;
+}
+
+footer ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+
+footer ul li {
+  padding: 0;
+  list-style-type: none;
+  border-bottom: none;
+}
+
+footer ul li a {
+  padding: 30px 20px;
+  line-height: 1rem;
+  font-size: 1rem;
+  height: auto;
+}
