@@ -12,3 +12,9 @@
 * `npm run build`
 * `git commit -m "my commit message"`
 * https://canvas.alexlockhart.me/
+
+## Support
+
+[Buy me a coffee](https://www.buymeacoffee.com/alexlockhart)
+
+[Patreon](https://www.patreon.com/alexlockhart)
