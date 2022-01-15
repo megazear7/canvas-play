@@ -46,7 +46,6 @@ export function drawCircle({
             y = 0,
             radius = 30,
             lineWidth = 1,
-            width = 5,
             lineStyle = `rgba(0, 0, 0, 1)`,
             red = 0,
             green = 0,

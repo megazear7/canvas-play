@@ -10,6 +10,7 @@ export { default as CpgExplodingImage } from './js/elements/cpg-exploding-image.
 export { default as CpgSolarSystem } from './js/elements/cpg-solar-system.js';
 export { default as CpgEnmerkar } from './js/elements/cpg-enmerkar.js';
 export { default as CpgSmartTicTacToe } from './js/elements/cpg-smart-tic-tac-toe.js';
+export { default as CpgRealTimeStrategy } from './js/elements/cpg-real-time-strategy.js';
 
 // Canvas objects
 export { default as Crack } from './js/objects/crack.js';
