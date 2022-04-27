@@ -1,4 +1,4 @@
-import { drawCircle } from '../utility.js';
+import { drawCircle, drawLine } from '../utility.js';
 
 export default class HexGrid {
   constructor({
@@ -15,10 +15,6 @@ export default class HexGrid {
     this.blue = blue;
     this.sideLength = sideLength;
     this.gridSize = gridSize;
-    console.log(
-      this.context.canvas.width / 2,
-      hexShiftX(0, this.sideLength, -9),
-    )
     this.origin = {
       x: hexShiftX(this.context.canvas.width / 2, this.sideLength, -(this.gridSize)),
       y: this.context.canvas.height / 2,
@@ -43,20 +39,36 @@ export default class HexGrid {
             y: this.origin.y + ((3/2) * this.sideLength * -x)
         };
 
-        this.points[(x      ).toFixed(1) + '_' + (y      ).toFixed(1)] = hexPosA(point, this.sideLength);
-        this.points[(x + 0.5).toFixed(1) + '_' + (y + 0.5).toFixed(1)] = hexPosB(point, this.sideLength);
-        this.points[(x      ).toFixed(1) + '_' + (y +   1).toFixed(1)] = hexPosC(point, this.sideLength);
-        this.points[(x - 0.5).toFixed(1) + '_' + (y + 0.5).toFixed(1)] = hexPosD(point, this.sideLength);
-        this.points[(x -   1).toFixed(1) + '_' + (y      ).toFixed(1)] = hexPosE(point, this.sideLength);
-        this.points[(x - 0.5).toFixed(1) + '_' + (y - 0.5).toFixed(1)] = hexPosF(point, this.sideLength);
+        this.points[[x      , y      ]] = hexPosA(point, this.sideLength);
+        this.points[[x + 0.5, y + 0.5]] = hexPosB(point, this.sideLength);
+        this.points[[x      , y +   1]] = hexPosC(point, this.sideLength);
+        this.points[[x - 0.5, y + 0.5]] = hexPosD(point, this.sideLength);
+        this.points[[x -   1, y      ]] = hexPosE(point, this.sideLength);
+        this.points[[x - 0.5, y - 0.5]] = hexPosF(point, this.sideLength);
       }
     }
   }
 
   draw() {
     Object.keys(this.points).forEach(key => {
-      const point = this.points[key];
-      drawCircle({context: this.context, x: point.x, y: point.y, radius: 2, lineWidth: 0, red: this.red, green: this.green, blue: this.blue});
+      const p1 = this.points[key];
+      const numberingX = parseFloat(key.split(',')[0]);
+      const numberingY = parseFloat(key.split(',')[1]);
+      if (Number.isInteger(numberingX) && Number.isInteger(numberingY)) {
+        const p2a = this.points[[numberingX + 0.5, numberingY + 0.5]];
+        const p2b = this.points[[numberingX - 0.5, numberingY - 0.5]];
+        const p2c = this.points[[numberingX + 0.5, numberingY - 0.5]];
+        if (p2a) {
+          drawLine(this.context, p1, p2a, 1, `rgb(${this.red},${this.green},${this.blue})`);
+        }
+        if (p2b) {
+          drawLine(this.context, p1, p2b, 1, `rgb(${this.red},${this.green},${this.blue})`);
+        }
+        if (p2c) {
+          drawLine(this.context, p1, p2c, 1, `rgb(${this.red},${this.green},${this.blue})`);
+        }
+      }
+      drawCircle({context: this.context, x: p1.x, y: p1.y, radius: 2, lineWidth: 0, red: this.red, green: this.green, blue: this.blue});
     });
   }
 
