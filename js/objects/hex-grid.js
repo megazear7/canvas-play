@@ -40,25 +40,6 @@ export default class HexGrid {
             y: this.origin.y + ((3/2) * this.sideLength * -x)
         };
 
-        const pointsToAdd = [
-          { x: x       , y: y       },
-          //{ x: x + 0.5 , y: y + 0.5 },
-          //{ x: x       , y: y + 1   },
-          //{ x: x - 0.5 , y: y + 0.5 },
-          //{ x: x - 1   , y: y       },
-          { x: x - 0.5 , y: y - 0.5 },
-        ];
-
-        // The LONG TERM goal of this is to have a mapping from the hexagonal mapping
-        // to x,y coordinates that is well defined for all real numbers
-        // pointsToAdd.forEach(pointsToAdd => {
-        //   const delta = findCoordinates3(pointsToAdd, this.sideLength);
-        //   this.points2[[pointsToAdd.x, pointsToAdd.y]] = {
-        //     x: point.x + delta.x,
-        //     y: point.y + delta.y,
-        //   };
-        // });
-
         // This method works but it does not give us a well defined mapping
         // From any hexagonal numbering to any x,y coordinate
         this.points[[x      , y      ]] = hexPosA(point, this.sideLength);
@@ -72,8 +53,9 @@ export default class HexGrid {
   }
 
   draw() {
-    Object.keys(this.points).forEach(key => this.drawPoint(this.points, key, 0, 0, 0, 3, 2));
-    //Object.keys(this.points2).forEach(key => this.drawPoint(this.points2, key, 0, 0, 0, 5, 5));
+    drawCircle({context: this.context, x: this.origin.x, y: this.origin.y, radius: 10, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: 150, green: 150, blue: 255});
+    Object.keys(this.points).forEach(key => this.drawPoint(this.points, key, 0, 0, 0, 5, 4));
+    Object.keys(this.points2).forEach(key => this.drawPoint(this.points2, key, 0, 200, 0, 3, 2));
   }
 
   drawPoint(points, key, red, green, blue, size, thickness) {
@@ -94,7 +76,7 @@ export default class HexGrid {
         drawLine(this.context, p1, p2c, thickness, `rgb(${red},${green},${blue})`);
       }
     }
-    drawCircle({context: this.context, x: p1.x, y: p1.y, radius: size, lineWidth: 0, red: red, green: green, blue: blue});
+    drawCircle({context: this.context, x: p1.x, y: p1.y, radius: size, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: red, green: green, blue: blue});
   }
 
   update() {
@@ -153,6 +135,25 @@ function hexShiftShortY(y, sideLength, direction) {
 }
 
 /*
+const pointsToAdd = [
+  { x: x       , y: y       },
+  { x: x + 0.5 , y: y + 0.5 },
+  { x: x       , y: y + 1   },
+  //{ x: x - 0.5 , y: y + 0.5 },
+  { x: x - 1   , y: y       },
+  //{ x: x - 0.5 , y: y - 0.5 },
+];
+
+// The LONG TERM goal of this is to have a mapping from the hexagonal mapping
+// to x,y coordinates that is well defined for all real numbers
+pointsToAdd.forEach(pointsToAdd => {
+  const delta = findCoordinates2(pointsToAdd, this.sideLength);
+  this.points2[[pointsToAdd.x, pointsToAdd.y]] = {
+    x: point.x + delta.x,
+    y: point.y + delta.y,
+  };
+});
+
 function isRight(x) {
   if (x >= 0) {
     return Math.abs(x) % 1 <= 0.5 && Math.abs(x) % 1 !== 0;

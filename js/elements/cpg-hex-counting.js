@@ -36,8 +36,8 @@ export default class CpgHexCounting extends HTMLElement {
       red: 0,
       green: 0,
       blue: 0,
-      sideLength: 50,
-      gridSize: 20,
+      sideLength: 70,
+      gridSize: 30,
     });
 
     var resizeTimer;
