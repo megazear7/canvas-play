@@ -51,32 +51,52 @@ export default class HexGrid {
       }
     }
 
+
+    document.addEventListener('mousedown', e => {
+      console.log(e.clientX, e.clientY);
+
+      Object.keys(this.points).forEach(key => {
+        if (!this.grabbing && this.mouse && distanceBetween(this.points[key], this.mouse) < this.sideLength / 4) {
+          this.grabbing = key;
+        }
+      });
+    });
+
+    document.addEventListener('mouseup', e => {
+      this.grabbing = undefined;
+    });
+
     document.addEventListener('mousemove', e => {
       this.mouse = {
         x: e.clientX,
         y: e.clientY,
       };
 
-      let hovering = false;
-      Object.keys(this.points).forEach(key => {
-        if (this.mouse && distanceBetween(this.points[key], this.mouse) < this.sideLength / 4) {
-          document.querySelectorAll('*').forEach(elem => elem.style.cursor = "pointer");
-          hovering = true;
-          this.points[key].color = {
-            red: 0,
-            green: 200,
-            blue: 0,
-          };
-        } else {
-          this.points[key].color = {
-            red: 0,
-            green: 0,
-            blue: 0,
-          };
+      if (this.grabbing) {
+        this.points[this.grabbing].x = this.mouse.x;
+        this.points[this.grabbing].y = this.mouse.y;
+      } else {
+        let hovering = false;
+        Object.keys(this.points).forEach(key => {
+          if (this.mouse && distanceBetween(this.points[key], this.mouse) < this.sideLength / 4) {
+            document.querySelectorAll('*').forEach(elem => elem.style.cursor = "pointer");
+            hovering = true;
+            this.points[key].color = {
+              red: 0,
+              green: 200,
+              blue: 0,
+            };
+          } else {
+            this.points[key].color = {
+              red: 0,
+              green: 0,
+              blue: 0,
+            };
+          }
+        });
+        if (!hovering) {
+          document.querySelectorAll('*').forEach(elem => elem.style.cursor = "auto");
         }
-      });
-      if (!hovering) {
-        document.querySelectorAll('*').forEach(elem => elem.style.cursor = "auto");
       }
     });
   }
