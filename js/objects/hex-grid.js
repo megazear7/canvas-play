@@ -15,8 +15,9 @@ export default class HexGrid {
     this.blue = blue;
     this.sideLength = sideLength;
     this.gridSize = gridSize;
+    var halfGridSize = Math.round(this.gridSize / 2);
     this.origin = {
-      x: hexShiftX(this.context.canvas.width / 2, this.sideLength, -(this.gridSize)),
+      x: this.context.canvas.width / 2,
       y: this.context.canvas.height / 2,
     }
     this.points = {};
@@ -28,15 +29,15 @@ export default class HexGrid {
       var ystart;
       var yend;
       if (x >= 0) {
-        ystart = x;
-        yend = (2 * this.gridSize) - 2;
+        ystart = x - this.gridSize + 1;
+        yend = (2 * this.gridSize) - 1 - this.gridSize;
       } else {
-        ystart = 0;
-        yend = (2 * this.gridSize) + x - 2;
+        ystart = -this.gridSize + 1;
+        yend = (2 * this.gridSize) + x - 1 - this.gridSize;
       }
       for (var y = ystart; y <= yend; y++) {
         const point = {
-            x: this.origin.x + (Math.sqrt(3) * this.sideLength * y) - ((x - xstart) * this.sideLength * (Math.sqrt(3)/2)),
+            x: this.origin.x + (Math.sqrt(3) * this.sideLength * y) - (x * this.sideLength * (Math.sqrt(3)/2)),
             y: this.origin.y + ((3/2) * this.sideLength * -x)
         };
 
