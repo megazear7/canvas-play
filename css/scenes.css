@@ -61,3 +61,10 @@ xmp {
   color: #777;
   white-space: pre-line;
 }
+
+code {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: #777;
+}

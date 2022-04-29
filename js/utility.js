@@ -60,6 +60,23 @@ export function drawCircle({
   context.fill();
 }
 
+export function drawDot({
+            context,
+            x = 0,
+            y = 0,
+            radius = 30,
+            lineWidth = 1,
+            lineStyle = `rgba(0, 0, 0, 1)`,
+            color = `rgba(0, 0, 0, 1)`}) {
+  context.beginPath();
+  context.arc(x, y, radius, 0, Math.PI * 2, false);
+  context.lineWidth = lineWidth;
+  context.strokeStyle = lineStyle;
+  context.stroke();
+  context.fillStyle = color;
+  context.fill();
+}
+
 export function randomSpeed(multiplier = 3) {
   return (Math.random() - 0.5) * multiplier;
 }

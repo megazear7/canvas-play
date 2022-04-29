@@ -34,20 +34,50 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="canvas-play">
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
+  <style>
+    pre {
+      padding-left: 20px;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
-  <div class="hider" style="display:none">
-    <a href="/">Back to menu</a>
-    <h1>Hex Counting</h1>
-    <xmp>
-      import { CpgHexCounting } from 'canvas-play';
-      <cpg-hex-counting></cpg-hex-counting>
-    </xmp>
-  </div>
-
-  <cpg-hex-counting></cpg-hex-counting>
+  <cpg-map-maker
+    side-length="50"
+    grid-size="3"
+    dot-size="5"
+    hover-dot-size="5"
+    drag-dot-size="5"
+    line-thickness="4"
+    corner-rgba="rgba(0,0,0,1)"
+    side-rgba="rgba(0,0,0,1)"
+    hover-rgba="rgba(0,150,0,1)"
+    drag-rgba="rgba(0,200,0,1)"
+    show-origin="false"></cpg-map-maker>
   <script type="module">
-    import { CpgHexCounting } from '../index.js';
+    import { CpgMapMaker } from '../index.js';
   </script>
+
+    <a href="/" style="z-index: 9999; cursor: pointer;">Back to menu</a>
+    <h1 style="padding: 60px 0 0 20px; text-align: left; font-size: 40px;">Map Maker</h1>
+    <pre>
+      <code>
+import { CpgMapMaker } from 'canvas-play';
+
+&lt;cpg-map-maker
+  side-length="50"
+  grid-size="3"
+  dot-size="5"
+  hover-dot-size="5"
+  drag-dot-size="5"
+  line-thickness="4"
+  corner-rgba="rgba(0,0,0,1)"
+  side-rgba="rgba(0,0,0,1)"
+  hover-rgba="rgba(0,150,0,1)"
+  drag-rgba="rgba(0,200,0,1)"
+  show-origin="false">
+&lt;/cpg-map-maker>
+      </code>
+    </pre>
 </body>
 </html>

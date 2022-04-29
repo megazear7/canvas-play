@@ -1,26 +1,37 @@
-import { drawCircle, drawLine, distanceBetween } from '../utility.js';
+import { drawDot, drawLine, distanceBetween } from '../utility.js';
 
 export default class HexGrid {
   constructor({
               context,
-              red = 0,
-              green = 0,
-              blue = 0,
-              sideLength = 20,
-              gridSize = 10,
+              sideLength = 50,
+              gridSize = 3,
+              dotSize = 5,
+              hoverDotSize = 7,
+              dragDotSize = 9,
+              lineThickness = 4,
+              cornerRgba = 'rgba(0,0,0,1)',
+              sideRgba = 'rgba(0,0,0,1)',
+              hoverRgba = 'rgba(0,200,0,1)',
+              dragRgba = 'rgba(0,0,200,1)',
+              showOrigin = false,
             } = {}) {
     this.context = context;
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
     this.sideLength = sideLength;
     this.gridSize = gridSize;
+    this.dotSize = dotSize;
+    this.hoverDotSize = hoverDotSize;
+    this.dragDotSize = dragDotSize;
+    this.lineThickness = lineThickness;
+    this.cornerRgba = cornerRgba;
+    this.sideRgba = sideRgba;
+    this.hoverRgba = hoverRgba;
+    this.dragRgba = dragRgba;
+    this.showOrigin = showOrigin;
     this.origin = {
       x: this.context.canvas.width / 2,
       y: this.context.canvas.height / 2,
     }
     this.points = {};
-    this.points2 = {};
 
     var xstart = -(this.gridSize - 1);
     var xend = this.gridSize - 1;
@@ -51,13 +62,17 @@ export default class HexGrid {
       }
     }
 
-
     document.addEventListener('mousedown', e => {
-      console.log(e.clientX, e.clientY);
+      this.mouse = {
+        x: e.clientX,
+        y: e.clientY,
+      };
 
       Object.keys(this.points).forEach(key => {
         if (!this.grabbing && this.mouse && distanceBetween(this.points[key], this.mouse) < this.sideLength / 4) {
           this.grabbing = key;
+          this.points[key].color = this.dragRgba;
+          this.points[key].size = this.dragDotSize;
         }
       });
     });
@@ -81,17 +96,11 @@ export default class HexGrid {
           if (this.mouse && distanceBetween(this.points[key], this.mouse) < this.sideLength / 4) {
             document.querySelectorAll('*').forEach(elem => elem.style.cursor = "pointer");
             hovering = true;
-            this.points[key].color = {
-              red: 0,
-              green: 200,
-              blue: 0,
-            };
+            this.points[key].color = this.hoverRgba;
+            this.points[key].size = this.hoverDotSize;
           } else {
-            this.points[key].color = {
-              red: 0,
-              green: 0,
-              blue: 0,
-            };
+            this.points[key].color = undefined;
+            this.points[key].size = undefined;
           }
         });
         if (!hovering) {
@@ -102,12 +111,14 @@ export default class HexGrid {
   }
 
   draw() {
-    drawCircle({context: this.context, x: this.origin.x, y: this.origin.y, radius: 10, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: 150, green: 150, blue: 255});
-    Object.keys(this.points).forEach(key => this.drawLines(this.points, key, 0, 0, 0, 4));
-    Object.keys(this.points).forEach(key => this.drawPoint(this.points, key, 4));
+    if (this.showOrigin) {
+      drawDot({context: this.context, x: this.origin.x, y: this.origin.y, radius: 10, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', color: 'rgba(150, 150, 255)'});
+    }
+    Object.keys(this.points).forEach(key => this.drawLines(this.points, key));
+    Object.keys(this.points).forEach(key => this.drawPoint(this.points, key, this.dotSize));
   }
 
-  drawLines(points, key, red, green, blue, thickness) {
+  drawLines(points, key) {
     const p1 = points[key];
     const numberingX = parseFloat(key.split(',')[0]);
     const numberingY = parseFloat(key.split(',')[1]);
@@ -116,23 +127,21 @@ export default class HexGrid {
       const p2b = points[[numberingX - 0.5, numberingY - 0.5]];
       const p2c = points[[numberingX + 0.5, numberingY - 0.5]];
       if (p2a) {
-        drawLine(this.context, p1, p2a, thickness, `rgb(${red},${green},${blue})`);
+        drawLine(this.context, p1, p2a, this.lineThickness, this.sideRgba);
       }
       if (p2b) {
-        drawLine(this.context, p1, p2b, thickness, `rgb(${red},${green},${blue})`);
+        drawLine(this.context, p1, p2b, this.lineThickness, this.sideRgba);
       }
       if (p2c) {
-        drawLine(this.context, p1, p2c, thickness, `rgb(${red},${green},${blue})`);
+        drawLine(this.context, p1, p2c, this.lineThickness, this.sideRgba);
       }
     }
   }
 
-  drawPoint(points, key, size) {
+  drawPoint(points, key) {
     const p1 = points[key];
-    const red = p1.color ? p1.color.red : 0;
-    const green = p1.color ? p1.color.green : 0;
-    const blue = p1.color ? p1.color.blue : 0;
-    drawCircle({context: this.context, x: p1.x, y: p1.y, radius: size, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: red, green: green, blue: blue});
+    const size = p1.size || this.dotSize;
+    drawDot({context: this.context, x: p1.x, y: p1.y, radius: size, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', color: p1.color || 'rgba(0,0,0,1)'});
   }
 
   update() {
