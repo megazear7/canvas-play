@@ -35,9 +35,21 @@
   <meta property="og:site_name" content="canvas-play">
   <meta property="og:image" content="/images/icons/icon-640x640.png" />
   <style>
-    pre {
+    h1 {
+      margin-top: 70px;
+      text-align: left;
+      font-size: 40px;
+    }
+
+    .map-maker-info {
       padding-left: 20px;
       text-align: left;
+      z-index: 9999;
+    }
+
+    input, button {
+      position: relative;
+      z-index: 99909;
     }
   </style>
 </head>
@@ -58,8 +70,11 @@
     import { CpgMapMaker } from '../index.js';
   </script>
 
-    <a href="/" style="z-index: 9999; cursor: pointer;">Back to menu</a>
-    <h1 style="padding: 60px 0 0 20px; text-align: left; font-size: 40px;">Map Maker</h1>
+  <div class="map-maker-info">
+    <a href="/" style="z-index: 9999">Back to menu</a>
+    <h1>Map Maker</h1>
+    <input id="gridSize" placeholder="Grid Size" name="gridSize" type="text"></input>
+    <button id="download">Download</button>
     <pre>
       <code>
 import { CpgMapMaker } from 'canvas-play';
@@ -79,5 +94,22 @@ import { CpgMapMaker } from 'canvas-play';
 &lt;/cpg-map-maker>
       </code>
     </pre>
+  </div>
+
+  <script>
+    const input = document.getElementById('gridSize');
+    const downloadButton = document.getElementById('download');
+    const mapMaker = document.querySelector('cpg-map-maker');
+    
+    input.addEventListener('input', () => {
+      mapMaker.gridSize = input.value;
+      mapMaker.refreshGridSettings();
+    });
+
+    downloadButton.addEventListener('click', () => {
+      alert('TODO: Download json. For now, check the console.');
+      console.log(JSON.stringify(mapMaker.data(), undefined, 4));
+    });
+  </script>
 </body>
 </html>

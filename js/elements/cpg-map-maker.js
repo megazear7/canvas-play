@@ -92,6 +92,10 @@ export default class CpgMapMaker extends HTMLElement {
     });
   }
 
+  data() {
+    return this.hexGrid.data();
+  }
+
   doAnimate() {
     if (this.hexGrid) {
       this.hexGrid.update();

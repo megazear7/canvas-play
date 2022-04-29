@@ -110,6 +110,10 @@ export default class HexGrid {
     });
   }
 
+  data() {
+    return this.points;
+  }
+
   draw() {
     if (this.showOrigin) {
       drawDot({context: this.context, x: this.origin.x, y: this.origin.y, radius: 10, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', color: 'rgba(150, 150, 255)'});
