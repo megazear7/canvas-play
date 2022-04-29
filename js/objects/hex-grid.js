@@ -56,6 +56,28 @@ export default class HexGrid {
         x: e.clientX,
         y: e.clientY,
       };
+
+      let hovering = false;
+      Object.keys(this.points).forEach(key => {
+        if (this.mouse && distanceBetween(this.points[key], this.mouse) < this.sideLength / 4) {
+          document.querySelectorAll('*').forEach(elem => elem.style.cursor = "pointer");
+          hovering = true;
+          this.points[key].color = {
+            red: 0,
+            green: 200,
+            blue: 0,
+          };
+        } else {
+          this.points[key].color = {
+            red: 0,
+            green: 0,
+            blue: 0,
+          };
+        }
+      });
+      if (!hovering) {
+        document.querySelectorAll('*').forEach(elem => elem.style.cursor = "auto");
+      }
     });
   }
 
@@ -87,31 +109,13 @@ export default class HexGrid {
 
   drawPoint(points, key, size) {
     const p1 = points[key];
-    drawCircle({context: this.context, x: p1.x, y: p1.y, radius: size, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: p1.color.red, green: p1.color.green, blue: p1.color.blue});
+    const red = p1.color ? p1.color.red : 0;
+    const green = p1.color ? p1.color.green : 0;
+    const blue = p1.color ? p1.color.blue : 0;
+    drawCircle({context: this.context, x: p1.x, y: p1.y, radius: size, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: red, green: green, blue: blue});
   }
 
   update() {
-    let hovering = false;
-    Object.keys(this.points).forEach(key => {
-      if (this.mouse && distanceBetween(this.points[key], this.mouse) < this.sideLength / 4) {
-        document.querySelectorAll('*').forEach(elem => elem.style.cursor = "pointer");
-        hovering = true;
-        this.points[key].color = {
-          red: 0,
-          green: 200,
-          blue: 0,
-        };
-      } else {
-        this.points[key].color = {
-          red: 0,
-          green: 0,
-          blue: 0,
-        };
-      }
-    });
-    if (!hovering) {
-      document.querySelectorAll('*').forEach(elem => elem.style.cursor = "auto");
-    }
     this.draw();
   }
 }
