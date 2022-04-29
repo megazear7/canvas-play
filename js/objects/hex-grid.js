@@ -1,4 +1,4 @@
-import { drawCircle, drawLine } from '../utility.js';
+import { drawCircle, drawLine, distanceBetween } from '../utility.js';
 
 export default class HexGrid {
   constructor({
@@ -15,7 +15,6 @@ export default class HexGrid {
     this.blue = blue;
     this.sideLength = sideLength;
     this.gridSize = gridSize;
-    var halfGridSize = Math.round(this.gridSize / 2);
     this.origin = {
       x: this.context.canvas.width / 2,
       y: this.context.canvas.height / 2,
@@ -51,15 +50,22 @@ export default class HexGrid {
         this.points[[x - 0.5, y - 0.5]] = hexPosF(point, this.sideLength);
       }
     }
+
+    document.addEventListener('mousemove', e => {
+      this.mouse = {
+        x: e.clientX,
+        y: e.clientY,
+      };
+    });
   }
 
   draw() {
     drawCircle({context: this.context, x: this.origin.x, y: this.origin.y, radius: 10, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: 150, green: 150, blue: 255});
-    Object.keys(this.points).forEach(key => this.drawPoint(this.points, key, 0, 0, 0, 5, 4));
-    Object.keys(this.points2).forEach(key => this.drawPoint(this.points2, key, 0, 200, 0, 3, 2));
+    Object.keys(this.points).forEach(key => this.drawLines(this.points, key, 0, 0, 0, 4));
+    Object.keys(this.points).forEach(key => this.drawPoint(this.points, key, 4));
   }
 
-  drawPoint(points, key, red, green, blue, size, thickness) {
+  drawLines(points, key, red, green, blue, thickness) {
     const p1 = points[key];
     const numberingX = parseFloat(key.split(',')[0]);
     const numberingY = parseFloat(key.split(',')[1]);
@@ -77,10 +83,35 @@ export default class HexGrid {
         drawLine(this.context, p1, p2c, thickness, `rgb(${red},${green},${blue})`);
       }
     }
-    drawCircle({context: this.context, x: p1.x, y: p1.y, radius: size, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: red, green: green, blue: blue});
+  }
+
+  drawPoint(points, key, size) {
+    const p1 = points[key];
+    drawCircle({context: this.context, x: p1.x, y: p1.y, radius: size, lineWidth: 0, lineStyle: 'rgba(0, 0, 0, 0)', red: p1.color.red, green: p1.color.green, blue: p1.color.blue});
   }
 
   update() {
+    let hovering = false;
+    Object.keys(this.points).forEach(key => {
+      if (this.mouse && distanceBetween(this.points[key], this.mouse) < this.sideLength / 4) {
+        document.querySelectorAll('*').forEach(elem => elem.style.cursor = "pointer");
+        hovering = true;
+        this.points[key].color = {
+          red: 0,
+          green: 200,
+          blue: 0,
+        };
+      } else {
+        this.points[key].color = {
+          red: 0,
+          green: 0,
+          blue: 0,
+        };
+      }
+    });
+    if (!hovering) {
+      document.querySelectorAll('*').forEach(elem => elem.style.cursor = "auto");
+    }
     this.draw();
   }
 }

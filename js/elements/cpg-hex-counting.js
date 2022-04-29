@@ -36,12 +36,12 @@ export default class CpgHexCounting extends HTMLElement {
       red: 0,
       green: 0,
       blue: 0,
-      sideLength: 30,
-      gridSize: 5,
+      sideLength: 50,
+      gridSize: 3,
     });
 
     var resizeTimer;
-    window.onresize = event => {
+    window.onresize = () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         this.canvas.width = window.innerWidth;
