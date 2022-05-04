@@ -111,7 +111,26 @@ export default class HexGrid {
   }
 
   data() {
-    return this.points;
+    let minX = undefined;
+    let minY = undefined;
+    Object.keys(this.points).forEach(key => {
+      if (typeof minX === 'undefined' || this.points[key].x < minX) {
+        minX = this.points[key].x;
+      }
+      if (typeof minY === 'undefined' || this.points[key].y < minY) {
+        minY = this.points[key].y;
+      }
+    });
+
+    const data = {};
+    Object.keys(this.points).forEach(key => {
+      data[key] = {
+        x: this.points[key].x - minX,
+        y: this.points[key].y - minY,
+      }
+    });
+
+    return data;
   }
 
   draw() {
