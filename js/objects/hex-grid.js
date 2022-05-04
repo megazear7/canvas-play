@@ -62,6 +62,25 @@ export default class HexGrid {
       }
     }
 
+    this.minX = undefined;
+    this.minY = undefined;
+    this.maxX = undefined;
+    this.maxY = undefined;
+    Object.keys(this.points).forEach(key => {
+      if (typeof this.minX === 'undefined' || this.points[key].x < this.minX) {
+        this.minX = this.points[key].x;
+      }
+      if (typeof this.maxX === 'undefined' || this.points[key].x > this.maxX) {
+        this.maxX = this.points[key].x;
+      }
+      if (typeof this.minY === 'undefined' || this.points[key].y < this.minY) {
+        this.minY = this.points[key].y;
+      }
+      if (typeof this.maxY === 'undefined' || this.points[key].y > this.maxY) {
+        this.maxY = this.points[key].y;
+      }
+    });
+
     document.addEventListener('mousedown', e => {
       this.mouse = {
         x: e.clientX,
@@ -88,8 +107,20 @@ export default class HexGrid {
       };
 
       if (this.grabbing) {
-        this.points[this.grabbing].x = this.mouse.x;
-        this.points[this.grabbing].y = this.mouse.y;
+        let xPos = this.mouse.x;
+        if (this.mouse.x > this.maxX) {
+          xPos = this.maxX;
+        } else if (this.mouse.x < this.minX) {
+          xPos = this.minX;
+        }
+        let yPos = this.mouse.y;
+        if (this.mouse.y > this.maxY) {
+          yPos = this.maxY;
+        } else if (this.mouse.y < this.minY) {
+          yPos = this.minY;
+        }
+        this.points[this.grabbing].x = xPos;
+        this.points[this.grabbing].y = yPos;
       } else {
         let hovering = false;
         Object.keys(this.points).forEach(key => {
@@ -111,22 +142,11 @@ export default class HexGrid {
   }
 
   data() {
-    let minX = undefined;
-    let minY = undefined;
-    Object.keys(this.points).forEach(key => {
-      if (typeof minX === 'undefined' || this.points[key].x < minX) {
-        minX = this.points[key].x;
-      }
-      if (typeof minY === 'undefined' || this.points[key].y < minY) {
-        minY = this.points[key].y;
-      }
-    });
-
     const data = {};
     Object.keys(this.points).forEach(key => {
       data[key] = {
-        x: this.points[key].x - minX,
-        y: this.points[key].y - minY,
+        x: this.points[key].x - this.minX,
+        y: this.points[key].y - this.minY,
       }
     });
 
