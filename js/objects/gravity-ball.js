@@ -51,8 +51,7 @@ export default class GravityBall extends Ball2 {
                 this._nextDx = 0;
                 this._nextDy = 0;
                 this.speed = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
-                if (this.speed > toughness) {
-                    console.log("BOOM");
+                if (this.speed > toughness && this.name === 'rocket') {
                     this.fillStyle = 'rgba(255, 0, 0, 1)';
                 }
             }

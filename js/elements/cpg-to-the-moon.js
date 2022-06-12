@@ -13,6 +13,7 @@ export default class CpgToTheMoon extends BaseElement {
     this.centerY = this.canvas.height / 2;
     this.earthRadius = 20;
     this.earthMass = 60;
+    this.fuel = 100;
     this.earth = new GravityBall({
       context: this.context,
       name: 'earth',
@@ -41,11 +42,12 @@ export default class CpgToTheMoon extends BaseElement {
       dx: 0,
       dy: 0,
       mass: this.earthMass / 100,
-      radius: this.earthRadius / 100,
+      radius: this.earthRadius / 25,
+      fillStyle: 'rgba(0, 255, 0, 1)',
     });
     this.objs = [ this.earth, this.moon, this.rocket ];
     this.origin = this.rocket;
-    this.scale(5);
+    this.scale(10);
     this.startAnimation();
 
     document.addEventListener('keydown', e => {
@@ -59,16 +61,29 @@ export default class CpgToTheMoon extends BaseElement {
         this.origin = this.moon;
       } else if (e.key === 'r') {
         this.origin = this.rocket;
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === 'ArrowUp' && this.fuel > 0) {
         this.rocket.dy -= thrust;
-      } else if (e.key === 'ArrowDown') {
+        this.useFuel();
+      } else if (e.key === 'ArrowDown' && this.fuel > 0) {
         this.rocket.dy += thrust;
-      } else if (e.key === 'ArrowLeft') {
+        this.useFuel();
+      } else if (e.key === 'ArrowLeft' && this.fuel > 0) {
         this.rocket.dx -= thrust;
-      } else if (e.key === 'ArrowRight') {
+        this.useFuel();
+      } else if (e.key === 'ArrowRight' && this.fuel > 0) {
         this.rocket.dx += thrust;
+        this.useFuel();
       }
     })
+  }
+
+  useFuel() {
+    this.fuel -= 1;
+    this.dispatchEvent(new CustomEvent('use-fuel', { detail: { fuel: this.fuel }}));
+
+    if (this.fuel <= 0) {
+      this.rocket.fillStyle = 'rgba(0,0,255,1)';
+    }
   }
 
   update() {

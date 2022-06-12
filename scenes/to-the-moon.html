@@ -68,8 +68,22 @@ Press '-': Zoom out
 Press 'e': Follow earth
 Press 'm': Follow moon
 Press 'r': Follow rocket
+Use arrow keys to to use thrusters
+Red means you crashed
+Blue means you ran out of fuel 
       </code>
     </pre>
+
+    <div><span>Fuel:</span><span id="current-fuel"></span> / <span id="start-fuel"></span></div>
   </div>
+
+  <script type="module">
+    const toTheMoon = document.querySelector('cpg-to-the-moon');
+    const currentFuel = document.getElementById('current-fuel');
+    const startFuel = document.getElementById('start-fuel');
+    currentFuel.innerText = toTheMoon.fuel;
+    startFuel.innerText = toTheMoon.fuel;
+    toTheMoon.addEventListener('use-fuel', e => currentFuel.innerText = e.detail.fuel);
+  </script>
 </body>
 </html>
