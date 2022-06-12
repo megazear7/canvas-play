@@ -2,7 +2,7 @@ import Ball2 from "./ball2.js";
 import { getDistance } from '../utility.js';
 
 const GRAVITY = 100;
-const BOUNCYNESS = 0.9;
+const BOUNCYNESS = 1;
 
 export default class GravityBall extends Ball2 {
     constructor(params) {
@@ -20,7 +20,7 @@ export default class GravityBall extends Ball2 {
         }
     }
 
-    update(objects) {
+    updateDelta(objects, name) {
         objects.forEach(object => {
             const distance = getDistance(this.x, this.y, object.x, object.y);
             const angle = Math.atan2(object.y - this.y, object.x - this.x);
@@ -36,15 +36,14 @@ export default class GravityBall extends Ball2 {
         objects.forEach(object => {
             const distance = getDistance(this.x, this.y, object.x, object.y);
             if (distance < this.radius + object.radius) {
-                console.log("impact");
-                this.dx = (object.dx * object.mass * BOUNCYNESS) / this.mass;
-                this.dy = (object.dy * object.mass * BOUNCYNESS) / this.mass;
+                const massRatio = object.mass / this.mass;
+                this.dx = object.dx * BOUNCYNESS * massRatio;
+                this.dy = object.dy * BOUNCYNESS * massRatio;
+                if (name == 'moon') {
+                    // THE IMPACT LOGIC IS NOT WORKING
+                    console.log(this.dy);
+                }
             }
         });
-
-        if (objects.length > 0) {
-            this.x = this.x + this.dx;
-            this.y = this.y + this.dy;
-        }
     }
 }
