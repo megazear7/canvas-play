@@ -1,5 +1,6 @@
 import GravityBall from '../objects/gravity-ball.js';
 import BaseElement from './base-element.js';
+import { getDistance } from '../utility.js';
 
 const SCALE = 100;
 
@@ -21,7 +22,7 @@ export default class CpgToTheMoon extends BaseElement {
       context: this.context,
       x: this.canvas.width / 2,
       y: 50,
-      dx: 0,
+      dx: 1,
       dy: 0,
       mass: 1,
       radius: SCALE / 6,
@@ -38,6 +39,20 @@ export default class CpgToTheMoon extends BaseElement {
 
     this.earth.update([this.moon]);
     this.moon.update([this.earth]);
+
+    this.resetOrigin();
+  }
+
+  resetOrigin() {
+    const distance = getDistance(this.earth.x, this.earth.y, this.canvas.width / 2, this.canvas.height);  
+    const angle = Math.atan2(this.earth.y - this.canvas.height, this.earth.x - this.canvas.width / 2);
+    const xDistance = Math.cos(angle) * distance;
+    const yDistance = Math.sin(angle) * distance;
+
+    this.earth.x -= xDistance;
+    this.earth.y -= yDistance;
+    this.moon.x -= xDistance;
+    this.moon.y -= yDistance;
   }
 
   animate() {

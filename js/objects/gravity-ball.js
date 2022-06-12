@@ -34,7 +34,7 @@ export default class GravityBall extends Ball2 {
         });
     }
 
-    updateImpact(objects, name) {
+    updateImpact(objects) {
         objects.forEach(object => {
             const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x + object.dx, object.y + object.dy);
             if (nextDistance < this.radius + object.radius) {
