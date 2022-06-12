@@ -2,17 +2,19 @@ import GravityBall from '../objects/gravity-ball.js';
 import BaseElement from './base-element.js';
 import { getDistance } from '../utility.js';
 
-const SCALE = 100;
+const SCALE = 200;
 
 export default class CpgToTheMoon extends BaseElement {
   constructor() {
     super();
     this.createProps(CpgToTheMoon.observedAttributes);
     this.configure({ fullScreen: true });
+    this.centerX = this.canvas.width / 2;
+    this.centerY = this.canvas.height / 2;
     this.earth = new GravityBall({
       context: this.context,
-      x: this.canvas.width / 2,
-      y: this.canvas.height,
+      x: this.centerX,
+      y: this.centerY,
       dx: 0,
       dy: 0,
       mass: 6,
@@ -20,13 +22,14 @@ export default class CpgToTheMoon extends BaseElement {
     });
     this.moon = new GravityBall({
       context: this.context,
-      x: this.canvas.width / 2,
-      y: 50,
-      dx: 1,
+      x: this.centerX,
+      y: this.centerY / 5,
+      dx: 1.5,
       dy: 0,
       mass: 1,
       radius: SCALE / 6,
     });
+    this.origin = this.earth;
     this.startAnimation();
   }
 
@@ -44,8 +47,8 @@ export default class CpgToTheMoon extends BaseElement {
   }
 
   resetOrigin() {
-    const distance = getDistance(this.earth.x, this.earth.y, this.canvas.width / 2, this.canvas.height);  
-    const angle = Math.atan2(this.earth.y - this.canvas.height, this.earth.x - this.canvas.width / 2);
+    const distance = getDistance(this.origin.x, this.origin.y, this.centerX, this.centerY);  
+    const angle = Math.atan2(this.origin.y - this.centerY, this.origin.x - this.centerX);
     const xDistance = Math.cos(angle) * distance;
     const yDistance = Math.sin(angle) * distance;
 
