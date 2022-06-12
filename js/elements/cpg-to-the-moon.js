@@ -11,37 +11,54 @@ export default class CpgToTheMoon extends BaseElement {
     this.configure({ fullScreen: true });
     this.centerX = this.canvas.width / 2;
     this.centerY = this.canvas.height / 2;
+    this.earthRadius = 20;
+    this.earthMass = 60;
     this.earth = new GravityBall({
       context: this.context,
-      x: this.centerX,
-      y: this.centerY,
+      name: 'earth',
+      x: 0,
+      y: 0,
       dx: 0,
       dy: 0,
-      mass: 6,
-      radius: SCALE,
+      mass: this.earthMass,
+      radius: this.earthRadius,
     });
     this.moon = new GravityBall({
       context: this.context,
-      x: this.centerX,
-      y: this.centerY / 5,
+      name: 'moon',
+      x: 0,
+      y: this.earthRadius * -2,
       dx: 1.5,
       dy: 0,
-      mass: 1,
-      radius: SCALE / 6,
+      mass: this.earthMass / 6,
+      radius: this.earthRadius / 6,
     });
+    this.objs = [ this.earth, this.moon ];
     this.origin = this.earth;
     this.startAnimation();
+
+    document.addEventListener('keydown', e => {
+      if (e.key === '=' || e.key === '+') {
+        this.scale(1.05);
+      } else if (e.key === '-') {
+        this.scale(0.95);
+      } else if (e.key === 'e') {
+        this.origin = this.earth;
+      } else if (e.key === 'm') {
+        this.origin = this.moon;
+      }
+    })
   }
 
   update() {
-    this.earth.updateDelta([this.moon]);
-    this.moon.updateDelta([this.earth]);
+    this.earth.updateDelta(this.objs);
+    this.moon.updateDelta(this.objs);
 
-    this.earth.updateImpact([this.moon]);
-    this.moon.updateImpact([this.earth]);
+    this.earth.updateImpact(this.objs);
+    this.moon.updateImpact(this.objs);
 
-    this.earth.update([this.moon]);
-    this.moon.update([this.earth]);
+    this.earth.update(this.objs);
+    this.moon.update(this.objs);
 
     this.resetOrigin();
   }
@@ -56,6 +73,12 @@ export default class CpgToTheMoon extends BaseElement {
     this.earth.y -= yDistance;
     this.moon.x -= xDistance;
     this.moon.y -= yDistance;
+  }
+
+  scale(factor) {
+    const attrsToScale = [ 'x', 'y', 'radius', 'mass' ];
+    const objs = [ this.earth, this.moon ];
+    attrsToScale.forEach(attr => objs.forEach(obj => obj[attr] *= factor));
   }
 
   animate() {
