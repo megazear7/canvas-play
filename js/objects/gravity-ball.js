@@ -2,7 +2,7 @@ import Ball2 from "./ball2.js";
 import { getDistance } from '../utility.js';
 
 const GRAVITY = 100;
-const BOUNCYNESS = 1;
+const BOUNCYNESS = 0.7;
 
 export default class GravityBall extends Ball2 {
     constructor(params) {
@@ -34,18 +34,26 @@ export default class GravityBall extends Ball2 {
         });
     }
 
-    updateImpact(objects) {
+    updateImpact(objects, name) {
         objects.forEach(object => {
-            const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x, object.y);
+            const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x + object.dx, object.y + object.dy);
             if (nextDistance < this.radius + object.radius) {
                 const massRatio = object.mass / this.mass;
-                this.dx = object.dx * BOUNCYNESS * massRatio;
-                this.dy = object.dy * BOUNCYNESS * massRatio;
+                this._nextDx = object.dx * BOUNCYNESS * massRatio;
+                this._nextDy = object.dy * BOUNCYNESS * massRatio;
             }
         });
     }
 
     update(objects) {
+        if (this._nextDx !== undefined) {
+            this.dx = this._nextDx;
+            this._nextDx = undefined;
+        }
+        if (this._nextDy !== undefined) {
+            this.dy = this._nextDy;
+            this._nextDy = undefined;
+        }
         let xToMove = this.dx;
         let yToMove = this.dy;
 
