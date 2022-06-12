@@ -30,11 +30,14 @@ export default class CpgToTheMoon extends BaseElement {
   }
 
   update() {
-    this.earth.updateDelta([this.moon], 'earth');
-    this.moon.updateDelta([this.earth], 'moon');
+    this.earth.updateDelta([this.moon]);
+    this.moon.updateDelta([this.earth]);
 
-    this.earth.update();
-    this.moon.update();
+    this.earth.updateImpact([this.moon]);
+    this.moon.updateImpact([this.earth]);
+
+    this.earth.update([this.moon]);
+    this.moon.update([this.earth]);
   }
 
   animate() {

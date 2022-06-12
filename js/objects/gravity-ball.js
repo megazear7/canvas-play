@@ -20,7 +20,7 @@ export default class GravityBall extends Ball2 {
         }
     }
 
-    updateDelta(objects, name) {
+    updateDelta(objects) {
         objects.forEach(object => {
             const distance = getDistance(this.x, this.y, object.x, object.y);
             const angle = Math.atan2(object.y - this.y, object.x - this.x);
@@ -32,18 +32,34 @@ export default class GravityBall extends Ball2 {
             this.dx = this.dx + xAcc;
             this.dy = this.dy + yAcc;
         });
+    }
 
+    updateImpact(objects) {
         objects.forEach(object => {
-            const distance = getDistance(this.x, this.y, object.x, object.y);
-            if (distance < this.radius + object.radius) {
+            const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x, object.y);
+            if (nextDistance < this.radius + object.radius) {
                 const massRatio = object.mass / this.mass;
                 this.dx = object.dx * BOUNCYNESS * massRatio;
                 this.dy = object.dy * BOUNCYNESS * massRatio;
-                if (name == 'moon') {
-                    // THE IMPACT LOGIC IS NOT WORKING
-                    console.log(this.dy);
-                }
             }
         });
+    }
+
+    update(objects) {
+        let xToMove = this.dx;
+        let yToMove = this.dy;
+
+        objects.forEach(object => {
+            const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x, object.y);
+            if (nextDistance < this.radius + object.radius) {
+                const distance = getDistance(this.x, this.y, object.x, object.y) - this.radius - object.radius;
+                const angle = Math.atan2(object.y - this.y, object.x - this.x);
+                xToMove = Math.cos(angle) * distance;
+                yToMove = Math.sin(angle) * distance;
+            }
+        });
+
+        this.x += xToMove;
+        this.y += yToMove;
     }
 }
