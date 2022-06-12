@@ -1,7 +1,7 @@
 import Ball2 from "./ball2.js";
 import { getDistance } from '../utility.js';
 
-const BOUNCYNESS = 0.7;
+const toughness = 1;
 
 export default class GravityBall extends Ball2 {
     constructor(params) {
@@ -47,10 +47,14 @@ export default class GravityBall extends Ball2 {
         objects.forEach(object => {
             const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x + object.dx, object.y + object.dy);
             if (nextDistance < this.radius + object.radius) {
-                const massRatio = object.mass / this.mass;
-                // This only works when all the movement is in one of the two dimensions.
-                this._nextDx = object.dx * BOUNCYNESS * massRatio;
-                this._nextDy = object.dy * BOUNCYNESS * massRatio;
+                // TODO: collisions are hard :(
+                this._nextDx = 0;
+                this._nextDy = 0;
+                this.speed = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
+                if (this.speed > toughness) {
+                    console.log("BOOM");
+                    this.fillStyle = 'rgba(255, 0, 0, 1)';
+                }
             }
         });
     }

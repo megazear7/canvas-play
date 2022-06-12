@@ -2,7 +2,7 @@ import GravityBall from '../objects/gravity-ball.js';
 import BaseElement from './base-element.js';
 import { getDistance } from '../utility.js';
 
-const SCALE = 200;
+const thrust = 0.2;
 
 export default class CpgToTheMoon extends BaseElement {
   constructor() {
@@ -26,15 +26,26 @@ export default class CpgToTheMoon extends BaseElement {
     this.moon = new GravityBall({
       context: this.context,
       name: 'moon',
-      x: 0,
-      y: this.earthRadius * -2,
-      dx: 1.5,
-      dy: 0,
+      x: this.earthRadius * -2,
+      y: 0,
+      dx: 0,
+      dy: -1.5,
       mass: this.earthMass / 6,
       radius: this.earthRadius / 6,
     });
-    this.objs = [ this.earth, this.moon ];
-    this.origin = this.earth;
+    this.rocket = new GravityBall({
+      context: this.context,
+      name: 'rocket',
+      x: 0,
+      y: this.earthRadius * -1,
+      dx: 0,
+      dy: 0,
+      mass: this.earthMass / 100,
+      radius: this.earthRadius / 100,
+    });
+    this.objs = [ this.earth, this.moon, this.rocket ];
+    this.origin = this.rocket;
+    this.scale(5);
     this.startAnimation();
 
     document.addEventListener('keydown', e => {
@@ -46,20 +57,24 @@ export default class CpgToTheMoon extends BaseElement {
         this.origin = this.earth;
       } else if (e.key === 'm') {
         this.origin = this.moon;
+      } else if (e.key === 'r') {
+        this.origin = this.rocket;
+      } else if (e.key === 'ArrowUp') {
+        this.rocket.dy -= thrust;
+      } else if (e.key === 'ArrowDown') {
+        this.rocket.dy += thrust;
+      } else if (e.key === 'ArrowLeft') {
+        this.rocket.dx -= thrust;
+      } else if (e.key === 'ArrowRight') {
+        this.rocket.dx += thrust;
       }
     })
   }
 
   update() {
-    this.earth.updateDelta(this.objs);
-    this.moon.updateDelta(this.objs);
-
-    this.earth.updateImpact(this.objs);
-    this.moon.updateImpact(this.objs);
-
-    this.earth.update(this.objs);
-    this.moon.update(this.objs);
-
+    this.objs.forEach(obj => obj.updateDelta(this.objs));
+    this.objs.forEach(obj => obj.updateImpact(this.objs));
+    this.objs.forEach(obj => obj.update(this.objs));
     this.resetOrigin();
   }
 
@@ -69,21 +84,19 @@ export default class CpgToTheMoon extends BaseElement {
     const xDistance = Math.cos(angle) * distance;
     const yDistance = Math.sin(angle) * distance;
 
-    this.earth.x -= xDistance;
-    this.earth.y -= yDistance;
-    this.moon.x -= xDistance;
-    this.moon.y -= yDistance;
+    this.objs.forEach(obj => {
+      obj.x -= xDistance;
+      obj.y -= yDistance;
+    });
   }
 
   scale(factor) {
     const attrsToScale = [ 'x', 'y', 'radius', 'mass' ];
-    const objs = [ this.earth, this.moon ];
-    attrsToScale.forEach(attr => objs.forEach(obj => obj[attr] *= factor));
+    attrsToScale.forEach(attr => this.objs.forEach(obj => obj[attr] *= factor));
   }
 
   animate() {
-    this.earth.draw();
-    this.moon.draw();
+    this.objs.forEach(obj => obj.draw());
   }
 }
 
