@@ -26,17 +26,17 @@ export default class CpgToTheMoon extends BaseElement {
       radius: this.earthRadius,
       fillStyle: 'rgba(52, 190, 90, 1)',
     });
-    // this.moon = new GravityBall({
-    //   context: this.context,
-    //   name: 'moon',
-    //   x: this.centerX + (this.earthRadius * -2),
-    //   y: this.centerY,
-    //   dx: 0,
-    //   dy: -1.3,
-    //   mass: this.earthMass / 6,
-    //   radius: this.earthRadius / 6,
-    //   fillStyle: 'rgba(200, 200, 210, 1)',
-    // });
+    this.moon = new GravityBall({
+      context: this.context,
+      name: 'moon',
+      x: this.centerX + (this.earthRadius * -2),
+      y: this.centerY,
+      dx: 0,
+      dy: -1.3,
+      mass: this.earthMass / 6,
+      radius: this.earthRadius / 6,
+      fillStyle: 'rgba(200, 200, 210, 1)',
+    });
     this.rocket = new GravityBall({
       context: this.context,
       name: 'rocket',
