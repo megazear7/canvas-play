@@ -1,8 +1,8 @@
 import Ball2 from "./ball2.js";
 import { getDistance } from '../utility.js';
 
-const toughness = 2;
 const loss = 1;
+const TOUGHNESS_ADJ = 3800;
 
 export default class GravityBall extends Ball2 {
     constructor(params) {
@@ -16,9 +16,11 @@ export default class GravityBall extends Ball2 {
         if (initialize) {
             this.name = typeof name !== 'undefined' ? name : '';
             this.mass = typeof mass !== 'undefined' ? mass : 1;
+            this.toughness = typeof toughness !== 'undefined' ? toughness : 1;
         } else {
             this.name = typeof name !== 'undefined' ? name : this.name;
             this.mass = typeof mass !== 'undefined' ? mass : this.mass;
+            this.toughness = typeof toughness !== 'undefined' ? toughness : this.toughness;
         }
     }
 
@@ -51,11 +53,10 @@ export default class GravityBall extends Ball2 {
                 const speed = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
                 const newV = collision(this.mass, object.mass, [this.x, this.y], [object.x, object.y], [this.dx, this.dy], [object.dx, object.dy]);
                 const lossAdj = loss * (1 - (object.mass / (this.mass + object.mass)));
-                if (this.name === 'moon') console.log(lossAdj);
                 this._nextDx = newV[0] * lossAdj;
                 this._nextDy = newV[1] * lossAdj;
 
-                if (speed > toughness && this.name === 'rocket') {
+                if (speed > this.toughness * TOUGHNESS_ADJ * this.mass) {
                     this.fillStyle = 'rgba(255, 0, 0, 1)';
                 }
             }

@@ -47,6 +47,7 @@ export default class CpgToTheMoon extends BaseElement {
       mass: this.earthMass / 1000000,
       radius: this.earthRadius / 18,
       fillStyle: 'rgba(150, 150, 150, 1)',
+      toughness: 1
     });
     this.stars = [];
 
