@@ -79,6 +79,7 @@ export default class GravityBall extends Ball2 {
                 const distance = getDistance(this.x, this.y, object.x, object.y) - this.radius - object.radius;
                 const angle = Math.atan2(object.y - this.y, object.x - this.x);
 
+                // TODO this is not perfect collision. Issues arrise...
                 let xToMove = this.dx - (Math.cos(angle) * distance);
                 let yToMove = this.dy - Math.sin(angle) * distance;
                 object.x += xToMove;
