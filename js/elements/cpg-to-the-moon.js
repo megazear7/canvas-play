@@ -61,7 +61,7 @@ export default class CpgToTheMoon extends BaseElement {
     }
 
     this.objs = [ this.earth, this.moon, this.rocket ];
-    this.origin = this.earth;
+    this.origin = this.rocket;
     this.scale(10);
     this.startAnimation();
 
