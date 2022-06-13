@@ -2,7 +2,7 @@ import Ball2 from "./ball2.js";
 import { getDistance } from '../utility.js';
 
 const toughness = 2;
-const friction = 0.2;
+const friction = 0;
 const stickyness = 0.5;
 
 export default class GravityBall extends Ball2 {
@@ -24,7 +24,7 @@ export default class GravityBall extends Ball2 {
     }
 
     others(allObjects) {
-        return allObjects.filter(otherObj => this.name !== otherObj.name);
+        return allObjects.filter(otherObj => otherObj && this.name !== otherObj.name);
     }
 
     updateDelta(allObjects) {
@@ -50,13 +50,9 @@ export default class GravityBall extends Ball2 {
             const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x + object.dx, object.y + object.dy);
             if (nextDistance < this.radius + object.radius) {
                 const speed = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
-                this._nextDx = -1 * collision(this.mass, object.mass, this.dx, object.dx) * (1 - friction);
-                this._nextDy = collision(this.mass, object.mass, this.dy, object.dy) * (1 - friction);
-
-                if (speed < stickyness) {
-                    // this._nextDx = 0;
-                    // this._nextDy = 0;
-                }
+                const newV = collision(this.mass, object.mass, [this.x, this.y], [object.x, object.y], [this.dx, this.dy], [object.dx, object.dy]);
+                this._nextDx = newV[0];
+                this._nextDy = newV[1];
 
                 if (speed > toughness && this.name === 'rocket') {
                     this.fillStyle = 'rgba(255, 0, 0, 1)';
@@ -67,7 +63,6 @@ export default class GravityBall extends Ball2 {
 
     update(allObjects) {
         const objects = this.others(allObjects);
-
         if (this._nextDx !== undefined) {
             this.dx = this._nextDx;
             this._nextDx = undefined;
@@ -84,6 +79,7 @@ export default class GravityBall extends Ball2 {
             if (nextDistance < this.radius + object.radius) {
                 const distance = getDistance(this.x, this.y, object.x, object.y) - this.radius - object.radius;
                 const angle = Math.atan2(object.y - this.y, object.x - this.x);
+
                 xToMove = Math.cos(angle) * distance;
                 yToMove = Math.sin(angle) * distance;
             }
@@ -94,7 +90,29 @@ export default class GravityBall extends Ball2 {
     }
 }
 
-// https://brilliant.org/wiki/analyzing-elastic-collisions/
-function collision(m1, m2, u1, u2) {
-    return (((m1 - m2) / (m1 + m2)) * u1) + ((2 * m2 * u2) / (m1 + m2))
+// https://stackoverflow.com/questions/35211114/2d-elastic-ball-collision-physics
+function collision(m1, m2, x1, x2, v1, v2) {
+    return sub(
+            v1,
+            multiply(
+                ((2 * m2) / (m1 + m2)) * (dot(sub(v1, v2), sub(x1, x2)) / Math.pow(norm(sub(x1, x2)), 2)),
+                sub(x1, x2)
+            )
+           );
+}
+
+function multiply(x, v) {
+    return [v[0] * x, v[1] * x];
+}
+
+function dot(v1, v2) {
+    return v1.map((x, i) => v1[i] * v2[i]).reduce((m, n) => m + n);
+}
+
+function sub(v1, v2) {
+    return [v1[0] - v2[0], v1[1] - v2[1]];
+}
+
+function norm(x) {
+    return Math.sqrt(Math.pow(x[0], 2) + Math.pow(x[1], 2));
 }
