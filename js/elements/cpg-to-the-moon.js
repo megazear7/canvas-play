@@ -46,7 +46,7 @@ export default class CpgToTheMoon extends BaseElement {
       fillStyle: 'rgba(0, 255, 0, 1)',
     });
     this.objs = [ this.earth, this.moon, this.rocket ];
-    this.origin = this.rocket;
+    this.origin = this.earth;
     this.scale(10);
     this.startAnimation();
 
