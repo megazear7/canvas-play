@@ -2,8 +2,7 @@ import Ball2 from "./ball2.js";
 import { getDistance } from '../utility.js';
 
 const toughness = 2;
-const friction = 0;
-const stickyness = 0.5;
+const loss = 1;
 
 export default class GravityBall extends Ball2 {
     constructor(params) {
@@ -51,8 +50,10 @@ export default class GravityBall extends Ball2 {
             if (nextDistance < this.radius + object.radius) {
                 const speed = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
                 const newV = collision(this.mass, object.mass, [this.x, this.y], [object.x, object.y], [this.dx, this.dy], [object.dx, object.dy]);
-                this._nextDx = newV[0];
-                this._nextDy = newV[1];
+                const lossAdj = loss * (1 - (object.mass / (this.mass + object.mass)));
+                if (this.name === 'moon') console.log(lossAdj);
+                this._nextDx = newV[0] * lossAdj;
+                this._nextDy = newV[1] * lossAdj;
 
                 if (speed > toughness && this.name === 'rocket') {
                     this.fillStyle = 'rgba(255, 0, 0, 1)';
@@ -71,8 +72,6 @@ export default class GravityBall extends Ball2 {
             this.dy = this._nextDy;
             this._nextDy = undefined;
         }
-        let xToMove = this.dx;
-        let yToMove = this.dy;
 
         objects.forEach(object => {
             const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x, object.y);
@@ -80,13 +79,15 @@ export default class GravityBall extends Ball2 {
                 const distance = getDistance(this.x, this.y, object.x, object.y) - this.radius - object.radius;
                 const angle = Math.atan2(object.y - this.y, object.x - this.x);
 
-                xToMove = Math.cos(angle) * distance;
-                yToMove = Math.sin(angle) * distance;
+                let xToMove = this.dx - (Math.cos(angle) * distance);
+                let yToMove = this.dy - Math.sin(angle) * distance;
+                object.x += xToMove;
+                object.y += yToMove;
             }
         });
 
-        this.x += xToMove;
-        this.y += yToMove;
+        this.x += this.dx;
+        this.y += this.dy;
     }
 }
 

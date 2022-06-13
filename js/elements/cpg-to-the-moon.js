@@ -3,7 +3,7 @@ import BaseElement from './base-element.js';
 import { getDistance } from '../utility.js';
 import Circle from '../objects/circle.js';
 
-const thrust = 0.2;
+const thrust = 0.0001;
 
 export default class CpgToTheMoon extends BaseElement {
   constructor() {
@@ -29,10 +29,10 @@ export default class CpgToTheMoon extends BaseElement {
     this.moon = new GravityBall({
       context: this.context,
       name: 'moon',
-      x: this.centerX + (this.earthRadius * -2),
+      x: this.centerX + (this.earthRadius * -4),
       y: this.centerY,
       dx: 0,
-      dy: -1.3,
+      dy: -1,
       mass: this.earthMass / 6,
       radius: this.earthRadius / 6,
       fillStyle: 'rgba(200, 200, 210, 1)',
@@ -44,8 +44,8 @@ export default class CpgToTheMoon extends BaseElement {
       y: this.centerY + (this.earthRadius * -1),
       dx: 0,
       dy: 0,
-      mass: this.earthMass / 100,
-      radius: this.earthRadius / 25,
+      mass: this.earthMass / 1000000,
+      radius: this.earthRadius / 18,
       fillStyle: 'rgba(150, 150, 150, 1)',
     });
     this.stars = [];
@@ -61,8 +61,8 @@ export default class CpgToTheMoon extends BaseElement {
     }
 
     this.objs = [ this.earth, this.moon, this.rocket ];
-    this.origin = this.earth;
-    this.scale(3);
+    this.origin = this.rocket;
+    this.scale(5);
     this.startAnimation();
 
     document.addEventListener('keydown', e => {
@@ -79,16 +79,16 @@ export default class CpgToTheMoon extends BaseElement {
       } else if (e.key === 'n') {
         this.origin = undefined;
       } else if (e.key === 'ArrowUp' && this.fuel > 0 && this.rocket) {
-        this.rocket.dy -= thrust;
+        this.rocket.dy -= thrust / this.rocket.mass;
         this.useFuel();
       } else if (e.key === 'ArrowDown' && this.fuel > 0 && this.rocket) {
-        this.rocket.dy += thrust;
+        this.rocket.dy += thrust / this.rocket.mass;
         this.useFuel();
       } else if (e.key === 'ArrowLeft' && this.fuel > 0 && this.rocket) {
-        this.rocket.dx -= thrust;
+        this.rocket.dx -= thrust / this.rocket.mass;
         this.useFuel();
       } else if (e.key === 'ArrowRight' && this.fuel > 0 && this.rocket) {
-        this.rocket.dx += thrust;
+        this.rocket.dx += thrust / this.rocket.mass;
         this.useFuel();
       }
     })
