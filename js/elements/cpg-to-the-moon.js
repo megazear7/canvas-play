@@ -1,6 +1,7 @@
 import GravityBall from '../objects/gravity-ball.js';
 import BaseElement from './base-element.js';
 import { getDistance } from '../utility.js';
+import Circle from '../objects/circle.js';
 
 const thrust = 0.2;
 
@@ -23,6 +24,7 @@ export default class CpgToTheMoon extends BaseElement {
       dy: 0,
       mass: this.earthMass,
       radius: this.earthRadius,
+      fillStyle: 'rgba(52, 190, 90, 1)',
     });
     this.moon = new GravityBall({
       context: this.context,
@@ -33,6 +35,7 @@ export default class CpgToTheMoon extends BaseElement {
       dy: -1.5,
       mass: this.earthMass / 6,
       radius: this.earthRadius / 6,
+      fillStyle: 'rgba(200, 200, 210, 1)',
     });
     this.rocket = new GravityBall({
       context: this.context,
@@ -43,8 +46,20 @@ export default class CpgToTheMoon extends BaseElement {
       dy: 0,
       mass: this.earthMass / 100,
       radius: this.earthRadius / 25,
-      fillStyle: 'rgba(0, 255, 0, 1)',
+      fillStyle: 'rgba(150, 150, 150, 1)',
     });
+    this.stars = [];
+
+    for (var i = 0; i < (Math.random() * 1000) + 500; i++) {
+      this.stars.push(new Circle({
+        context: this.context,
+        fillStyle: `rgba(255, 255, 255, ${(Math.random() * 0.5) + 0.5})`,
+        radius: Math.random() * 2,
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+      }))
+    }
+
     this.objs = [ this.earth, this.moon, this.rocket ];
     this.origin = this.earth;
     this.scale(10);
@@ -111,6 +126,7 @@ export default class CpgToTheMoon extends BaseElement {
   }
 
   animate() {
+    this.stars.forEach(star => star.draw());
     this.objs.forEach(obj => obj.draw());
   }
 }

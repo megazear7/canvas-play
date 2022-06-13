@@ -54,8 +54,8 @@ export default class GravityBall extends Ball2 {
                 this._nextDy = collision(this.mass, object.mass, this.dy, object.dy) * (1 - friction);
 
                 if (speed < stickyness) {
-                    this._nextDx = 0;
-                    this._nextDy = 0;
+                    // this._nextDx = 0;
+                    // this._nextDy = 0;
                 }
 
                 if (speed > toughness && this.name === 'rocket') {
