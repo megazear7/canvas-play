@@ -18,7 +18,7 @@ export default class CpgToTheMoon extends BaseElement {
     this.centerY = this.canvas.height / 2;
     this.earthRadius = 20;
     this.earthMass = 20;
-    this.fuel = 5;
+    this.fuel = 100;
     this.scaleFactor = 1;
     this.speed = 2;
     this.sun = new GravityBall({
