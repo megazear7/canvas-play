@@ -1,7 +1,6 @@
 import Ball2 from "./ball2.js";
 import { getDistance } from '../utility.js';
 
-const loss = 1;
 const TOUGHNESS_ADJ = 3800;
 
 export default class GravityBall extends Ball2 {
@@ -11,60 +10,66 @@ export default class GravityBall extends Ball2 {
         this.changeParams(params, true);
     }
 
-    changeParams({ mass, name } = {}, initialize = false) {
+    changeParams({ mass, name, toughness, env } = {}, initialize = false) {
         super.changeParams(arguments);
         if (initialize) {
             this.name = typeof name !== 'undefined' ? name : '';
             this.mass = typeof mass !== 'undefined' ? mass : 1;
             this.toughness = typeof toughness !== 'undefined' ? toughness : 1;
+            this.env = typeof env !== 'undefined' ? env : {};
         } else {
             this.name = typeof name !== 'undefined' ? name : this.name;
             this.mass = typeof mass !== 'undefined' ? mass : this.mass;
             this.toughness = typeof toughness !== 'undefined' ? toughness : this.toughness;
+            this.env = typeof env !== 'undefined' ? env : this.env;
         }
     }
 
-    others(allObjects) {
-        return allObjects.filter(otherObj => otherObj && this.name !== otherObj.name);
+    others() {
+        return this.env.objs.filter(otherObj => otherObj && this.name !== otherObj.name);
     }
 
-    updateDelta(allObjects) {
-        const objects = this.others(allObjects);
+    updateDelta() {
+        const objects = this.others();
 
         objects.forEach(object => {
             const distance = getDistance(this.x, this.y, object.x, object.y);
-            const angle = Math.atan2(object.y - this.y, object.x - this.x);
-            const force = (this.mass * object.mass) / (distance * distance);
-            const xForce = Math.cos(angle) * force;
-            const yForce = Math.sin(angle) * force;
-            const xAcc = xForce / this.mass;
-            const yAcc = yForce / this.mass;
-            this.dx = this.dx + xAcc;
-            this.dy = this.dy + yAcc;
+            if (distance > this.radius + object.radius ) {
+                const angle = Math.atan2(object.y - this.y, object.x - this.x);
+                const force = (this.mass * object.mass) / (distance * distance);
+                const xForce = Math.cos(angle) * force;
+                const yForce = Math.sin(angle) * force;
+                const xAcc = xForce / this.mass;
+                const yAcc = yForce / this.mass;
+                this.dx = this.dx + xAcc;
+                this.dy = this.dy + yAcc;
+            }
         });
     }
 
-    updateImpact(allObjects) {
-        const objects = this.others(allObjects);
+    speed() {
+        return Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
+    }
+
+    updateImpact() {
+        const objects = this.others();
 
         objects.forEach(object => {
             const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x + object.dx, object.y + object.dy);
             if (nextDistance < this.radius + object.radius) {
-                const speed = Math.sqrt(Math.pow(this.dx, 2) + Math.pow(this.dy, 2));
                 const newV = collision(this.mass, object.mass, [this.x, this.y], [object.x, object.y], [this.dx, this.dy], [object.dx, object.dy]);
-                const lossAdj = loss * (1 - (object.mass / (this.mass + object.mass)));
-                this._nextDx = newV[0] * lossAdj;
-                this._nextDy = newV[1] * lossAdj;
+                this._nextDx = newV[0];
+                this._nextDy = newV[1];
 
-                if (speed > this.toughness * TOUGHNESS_ADJ * this.mass) {
+                if (Math.abs(norm(sub([this.dx, this.dy], [object.dx, object.dy]))) > this.toughness * TOUGHNESS_ADJ * this.mass) {
                     this.fillStyle = 'rgba(255, 0, 0, 1)';
+                    this.broken = true;
                 }
             }
         });
     }
 
-    update(allObjects) {
-        const objects = this.others(allObjects);
+    update() {
         if (this._nextDx !== undefined) {
             this.dx = this._nextDx;
             this._nextDx = undefined;
@@ -73,23 +78,27 @@ export default class GravityBall extends Ball2 {
             this.dy = this._nextDy;
             this._nextDy = undefined;
         }
+        let xToMove = this.dx;
+        let yToMove = this.dy;
 
-        objects.forEach(object => {
-            const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x, object.y);
-            if (nextDistance < this.radius + object.radius) {
-                const distance = getDistance(this.x, this.y, object.x, object.y) - this.radius - object.radius;
-                const angle = Math.atan2(object.y - this.y, object.x - this.x);
+        // this.others().forEach(object => {
+        //     const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x, object.y);
+        //     if (nextDistance < this.radius + object.radius - this.env.scaleFactor) {
+        //         const distance = getDistance(this.x, this.y, object.x, object.y) - this.radius - object.radius;
+        //         const angle = Math.atan2(object.y - this.y, object.x - this.x);
+        //         if (this.mass < object.mass) {
+        //             console.log(this.name);
+        //             // TODO this is not perfect collision. Issues arrise...
+        //             xToMove = this.dx - (Math.cos(angle) * distance);
+        //             yToMove = this.dy - (Math.sin(angle) * distance);
+        //             this.dx = object.dx;
+        //             this.dy = object.dy;
+        //         }
+        //     }
+        // });
 
-                // TODO this is not perfect collision. Issues arrise...
-                let xToMove = this.dx - (Math.cos(angle) * distance);
-                let yToMove = this.dy - Math.sin(angle) * distance;
-                object.x += xToMove;
-                object.y += yToMove;
-            }
-        });
-
-        this.x += this.dx;
-        this.y += this.dy;
+        this.x += xToMove;
+        this.y += yToMove;
     }
 }
 
