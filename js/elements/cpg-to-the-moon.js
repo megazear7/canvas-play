@@ -18,7 +18,7 @@ export default class CpgToTheMoon extends BaseElement {
     this.centerY = this.canvas.height / 2;
     this.earthRadius = 20;
     this.earthMass = 20;
-    this.fuel = 100;
+    this.fuel = 5;
     this.scaleFactor = 1;
     this.speed = 2;
     this.sun = new GravityBall({
@@ -67,7 +67,7 @@ export default class CpgToTheMoon extends BaseElement {
       dy: this.earth.dy,
       mass: massAdjust * this.earthMass / 1000000,
       radius: sizeAdjust * (this.earthRadius / 18),
-      fillStyle: 'rgba(150, 150, 150, 1)',
+      fillStyle: 'rgba(30, 30, 255, 1)',
       toughness: 1.5
     });
     this.mars = new GravityBall({
@@ -175,7 +175,7 @@ export default class CpgToTheMoon extends BaseElement {
     this.dispatchEvent(new CustomEvent('use-fuel', { detail: { fuel: this.fuel }}));
 
     if (this.fuel <= 0) {
-      this.rocket.fillStyle = 'rgba(0,0,255,1)';
+      this.rocket.fillStyle = 'rgba(100, 100, 200, 1)';
     }
   }
 
