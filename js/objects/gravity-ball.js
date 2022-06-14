@@ -10,18 +10,20 @@ export default class GravityBall extends Ball2 {
         this.changeParams(params, true);
     }
 
-    changeParams({ mass, name, toughness, env } = {}, initialize = false) {
+    changeParams({ mass, name, toughness, env, sticky } = {}, initialize = false) {
         super.changeParams(arguments);
         if (initialize) {
             this.name = typeof name !== 'undefined' ? name : '';
             this.mass = typeof mass !== 'undefined' ? mass : 1;
             this.toughness = typeof toughness !== 'undefined' ? toughness : 1;
             this.env = typeof env !== 'undefined' ? env : {};
+            this.sticky = typeof sticky !== 'undefined' ? sticky : false;
         } else {
             this.name = typeof name !== 'undefined' ? name : this.name;
             this.mass = typeof mass !== 'undefined' ? mass : this.mass;
             this.toughness = typeof toughness !== 'undefined' ? toughness : this.toughness;
             this.env = typeof env !== 'undefined' ? env : this.env;
+            this.sticky = typeof sticky !== 'undefined' ? sticky : this.sticky;
         }
     }
 
@@ -57,9 +59,17 @@ export default class GravityBall extends Ball2 {
         objects.forEach(object => {
             const nextDistance = getDistance(this.x + this.dx, this.y + this.dy, object.x + object.dx, object.y + object.dy);
             if (nextDistance < this.radius + object.radius) {
-                const newV = collision(this.mass, object.mass, [this.x, this.y], [object.x, object.y], [this.dx, this.dy], [object.dx, object.dy]);
-                this._nextDx = newV[0];
-                this._nextDy = newV[1];
+                if (this.sticky) {
+                    if (this.mass < object.mass) {
+                        // THIS NO WORKY!
+                        this.dx = object.dx;
+                        this.dy = object.dy;
+                    }
+                } else {
+                    const newV = collision(this.mass, object.mass, [this.x, this.y], [object.x, object.y], [this.dx, this.dy], [object.dx, object.dy]);
+                    this._nextDx = newV[0];
+                    this._nextDy = newV[1];
+                }
 
                 if (Math.abs(norm(sub([this.dx, this.dy], [object.dx, object.dy]))) > this.toughness * TOUGHNESS_ADJ * this.mass) {
                     this.fillStyle = 'rgba(255, 0, 0, 1)';
