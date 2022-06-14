@@ -6,7 +6,7 @@ import Circle from '../objects/circle.js';
 const speedAdjust = 0.15;
 const massAdjust = 0.025;
 const sizeAdjust = 1;
-const thrust = 0.00000015 * speedAdjust;
+const thrust = 0.00000017 * speedAdjust;
 
 export default class CpgToTheMoon extends BaseElement {
   constructor() {
@@ -108,7 +108,7 @@ export default class CpgToTheMoon extends BaseElement {
     }
 
     this.objs = [ this.sun, this.earth, this.moon, this.mars, this.neptune, this.rocket ];
-    this.origin = this.earth;
+    this.origin = this.rocket;
     // TODO Scaling ruins thrust
     this.scale(6);
     // this.origin = this.sun;
