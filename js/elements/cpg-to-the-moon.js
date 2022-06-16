@@ -1,4 +1,5 @@
 import GravityBall from '../objects/gravity-ball.js';
+import RocketShip from '../objects/rocket-ship.js';
 import BaseElement from './base-element.js';
 import { getDistance } from '../utility.js';
 import Circle from '../objects/circle.js';
@@ -71,7 +72,7 @@ export default class CpgToTheMoon extends BaseElement {
       radius: sizeAdjust * (this.earthRadius / 6),
       fillStyle: 'rgba(200, 200, 210, 1)',
     });
-    this.rocket = new GravityBall({
+    this.rocket = new RocketShip({
       context: this.context,
       env: this,
       name: 'rocket',

@@ -113,6 +113,10 @@ export default class GravityBall extends Ball2 {
         this.y += yToMove;
     }
 
+    direction() {
+        return Math.atan2(this.dy, this.dx) + (Math.PI / 2);
+    }
+
     draw() {
         if (this.img) {
             this.img.width;
@@ -122,10 +126,7 @@ export default class GravityBall extends Ball2 {
             const height = largerDimension === 'h' ? this.radius : ((this.img.height / this.img.width) * this.radius);
             this.context.save();
             this.context.setTransform(1, 0, 0, 1, this.x, this.y);
-
-            const rotate = Math.atan(this.dx, this.dy);
-
-            this.context.rotate(rotate);
+            this.context.rotate(this.direction());
             this.context.drawImage(this.img, -width / 2, -height / 2, width, height);
             this.context.restore();
         } else {
