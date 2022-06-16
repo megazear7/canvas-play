@@ -21,6 +21,7 @@ export default class CpgToTheMoon extends BaseElement {
     this.earthMass = 20;
     this.fuel = 100;
     this.scaleFactor = 1;
+    this.thrustFactor = 1;
     this.speed = 2;
 
     fetch('/images/starship.png')
@@ -33,6 +34,30 @@ export default class CpgToTheMoon extends BaseElement {
         this.rocket.img = new Image();
         this.rocket.img.src = base64data;
         this.rocket.img.onload = () => this.startAnimation();
+      }
+    });
+
+    fetch('/images/explosion.png')
+    .then(response => response.blob())
+    .then(blob => {
+      var reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        var base64data = reader.result;
+        this.explosionImg = new Image();
+        this.explosionImg.src = base64data;
+      }
+    });
+
+    fetch('/images/nofuelrocket.png')
+    .then(response => response.blob())
+    .then(blob => {
+      var reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        var base64data = reader.result;
+        this.noFuelRocket = new Image();
+        this.noFuelRocket.src = base64data;
       }
     });
 
@@ -122,7 +147,7 @@ export default class CpgToTheMoon extends BaseElement {
       }))
     }
 
-    this.objs = [ this.sun, this.earth, this.moon, this.mars, this.neptune, this.rocket ];
+    this.objs = [ this.earth, this.sun, this.moon, this.mars, this.neptune, this.rocket ];
     this.origin = this.rocket;
     // TODO Scaling ruins thrust
     this.scale(6);
@@ -169,16 +194,16 @@ export default class CpgToTheMoon extends BaseElement {
       } else if (e.key === 'n') {
         this.origin = undefined;
       } else if ((e.key === 'ArrowUp') && !this.rocket.broken && this.fuel > 0 && this.rocket) {
-        this.rocket.dy -= (thrust * this.speed * Math.pow(this.scaleFactor, 3)) / this.rocket.mass;
+        this.rocket.dy -= (thrust * this.speed * this.thrustFactor) / this.rocket.mass;
         this.useFuel();
       } else if (e.key === 'ArrowDown' && !this.rocket.broken && this.fuel > 0 && this.rocket) {
-        this.rocket.dy += (thrust * this.speed * Math.pow(this.scaleFactor, 3)) / this.rocket.mass;
+        this.rocket.dy += (thrust * this.speed * this.thrustFactor) / this.rocket.mass;
         this.useFuel();
       } else if (e.key === 'ArrowLeft' && !this.rocket.broken && this.fuel > 0 && this.rocket) {
-        this.rocket.dx -= (thrust * this.speed * Math.pow(this.scaleFactor, 3)) / this.rocket.mass;
+        this.rocket.dx -= (thrust * this.speed * this.thrustFactor) / this.rocket.mass;
         this.useFuel();
       } else if (e.key === 'ArrowRight' && !this.rocket.broken && this.fuel > 0 && this.rocket) {
-        this.rocket.dx += (thrust * this.speed * Math.pow(this.scaleFactor, 3)) / this.rocket.mass;
+        this.rocket.dx += (thrust * this.speed * this.thrustFactor) / this.rocket.mass;
         this.useFuel();
       }
     })
@@ -189,6 +214,7 @@ export default class CpgToTheMoon extends BaseElement {
     this.dispatchEvent(new CustomEvent('use-fuel', { detail: { fuel: this.fuel }}));
 
     if (this.fuel <= 0) {
+      this.rocket.noFuel();
       this.rocket.fillStyle = 'rgba(100, 100, 200, 1)';
     }
   }
@@ -218,11 +244,13 @@ export default class CpgToTheMoon extends BaseElement {
   }
 
   scale(factor) {
+    // TODO How do we scale the thrust accordingly?
+    this.thrustFactor = this.thrustFactor * factor * factor * factor;
     this.scaleFactor *= factor;
     const attrsToScale = [ 'x', 'y', 'dx', 'dy', 'radius', 'mass' ];
     attrsToScale.forEach(attr => this.objs.forEach(obj => {
       if (obj && ['mass'].includes(attr)) {
-        // Why do we have to cube root the factor for mass???
+        // TODO Why do we have to cube root the factor for mass???
         obj.mass = obj[attr] * factor * factor * factor;
       } else if (obj) {
         obj[attr] *= factor
