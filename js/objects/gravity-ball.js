@@ -71,7 +71,7 @@ export default class GravityBall extends Ball2 {
                     this._nextDy = newV[1];
                 }
 
-                if (Math.abs(norm(sub([this.dx, this.dy], [object.dx, object.dy]))) > this.toughness * TOUGHNESS_ADJ * this.mass) {
+                if (Math.abs(norm(sub([this.dx, this.dy], [this._nextDx, this._nextDy]))) > this.toughness * TOUGHNESS_ADJ * this.mass) {
                     this.fillStyle = 'rgba(255, 0, 0, 1)';
                     this.broken = true;
                 }

@@ -68,7 +68,7 @@ export default class CpgToTheMoon extends BaseElement {
       mass: massAdjust * this.earthMass / 1000000,
       radius: sizeAdjust * (this.earthRadius / 18),
       fillStyle: 'rgba(30, 30, 255, 1)',
-      toughness: 1.5,
+      toughness: 3,
       sticky: false
     });
     this.mars = new GravityBall({
