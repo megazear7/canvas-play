@@ -21,6 +21,20 @@ export default class CpgToTheMoon extends BaseElement {
     this.fuel = 100;
     this.scaleFactor = 1;
     this.speed = 2;
+
+    fetch('/images/starship.png')
+    .then(response => response.blob())
+    .then(blob => {
+      var reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        var base64data = reader.result;
+        this.rocket.img = new Image();
+        this.rocket.img.src = base64data;
+        this.rocket.img.onload = () => this.startAnimation();
+      }
+    });
+
     this.sun = new GravityBall({
       context: this.context,
       env: this,
@@ -113,7 +127,6 @@ export default class CpgToTheMoon extends BaseElement {
     this.scale(6);
     // this.origin = this.sun;
     // this.scale(0.05);
-    this.startAnimation();
 
     document.addEventListener('keydown', e => {
       if (e.key === '=' || e.key === '+') {

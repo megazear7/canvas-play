@@ -18,12 +18,14 @@ export default class GravityBall extends Ball2 {
             this.toughness = typeof toughness !== 'undefined' ? toughness : 1;
             this.env = typeof env !== 'undefined' ? env : {};
             this.sticky = typeof sticky !== 'undefined' ? sticky : false;
+            this.img = typeof img !== 'undefined' ? img : undefined;
         } else {
             this.name = typeof name !== 'undefined' ? name : this.name;
             this.mass = typeof mass !== 'undefined' ? mass : this.mass;
             this.toughness = typeof toughness !== 'undefined' ? toughness : this.toughness;
             this.env = typeof env !== 'undefined' ? env : this.env;
             this.sticky = typeof sticky !== 'undefined' ? sticky : this.sticky;
+            this.img = typeof img !== 'undefined' ? img : this.img;
         }
     }
 
@@ -109,6 +111,26 @@ export default class GravityBall extends Ball2 {
 
         this.x += xToMove;
         this.y += yToMove;
+    }
+
+    draw() {
+        if (this.img) {
+            this.img.width;
+            this.img.height;
+            const largerDimension = this.img.width > this.img.height ? 'h' : 'w';
+            const width = largerDimension === 'w' ? this.radius : ((this.img.width / this.img.height) * this.radius);
+            const height = largerDimension === 'h' ? this.radius : ((this.img.height / this.img.width) * this.radius);
+            this.context.save();
+            this.context.setTransform(1, 0, 0, 1, this.x, this.y);
+
+            const rotate = Math.atan(this.dx, this.dy);
+
+            this.context.rotate(rotate);
+            this.context.drawImage(this.img, -width / 2, -height / 2, width, height);
+            this.context.restore();
+        } else {
+            super.draw();
+        }
     }
 }
 
