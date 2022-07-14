@@ -3,11 +3,12 @@
 <head>
 </head>
 <body>
-  <h1>Test devicePixelRatio</h1>
+  <h1>Test is mobile device: <span id="test"></span></h1>
 
   <cpg-enmerkar></cpg-enmerkar>
   <script>
-    alert(Math.round(window.devicePixelRatio * 100));
+     const isMobile = navigator.userAgent.toLowerCase().includes('mobi');
+     document.getElementById('test').innerText = isMobile;
   </script>
 </body>
 </html>
