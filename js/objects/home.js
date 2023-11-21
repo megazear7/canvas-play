@@ -11,7 +11,7 @@ export default class Home {
               red = 50,
               green = 50,
               blue = 50,
-              radius = 25,
+              radius = 20,
               food = 0,
             } = {}) {
     this.context = context;
@@ -46,30 +46,36 @@ export default class Home {
   }
 
   get fullRadius() {
-    return this.radius + (this.villagers.length * 5);
+    return this.radius + (this.villagers.length * 2);
   }
 
   draw() {
-    drawCircle({
-      context: this.context,
-      x: this.x,
-      y: this.y,
-      radius: this.fullRadius,
-      lineWidth: 1,
-      red: this.red,
-      green: this.green,
-      blue: this.blue
-    });
-    writeText({
-      context: this.context,
-      text: parseInt(this.food),
-      x: this.x,
-      y: this.y
-    });
+    if (this.villagers.length > 0) {
+      drawCircle({
+        context: this.context,
+        x: this.x,
+        y: this.y,
+        radius: this.fullRadius,
+        lineWidth: 1,
+        red: this.red,
+        green: this.green,
+        blue: this.blue
+      });
+      writeText({
+        context: this.context,
+        text: parseInt(this.food),
+        x: this.x,
+        y: this.y
+      });
+    }
   }
 
   update() {
     this.draw();
+  }
+
+  minorUpdate() {
+    this.villagers = this.villagers.filter(villager => !villager.destroy);
   }
 
   majorUpdate() {
@@ -78,9 +84,7 @@ export default class Home {
       this.addVillager();
     }
     if (this.villagers.length === 0) {
-      this.red = 200;
-      this.green = 200;
-      this.blue = 200;
+      this.destroy = true;
     }
   }
 

@@ -89,6 +89,7 @@ export default class CpgVillage extends HTMLElement {
 
   minorUpdates() {
     this.objects = this.objects.filter(obj => !obj.destroy);
+    this.objects.forEach(obj => obj.minorUpdate());
   }
 
   addApple() {

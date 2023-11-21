@@ -143,6 +143,9 @@ export default class Villager {
     this.move();
   }
 
+  minorUpdate() {
+  }
+
   majorUpdate() {
     if (!this.alive) {
       this.destroy = true;
