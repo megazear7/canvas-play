@@ -26,7 +26,6 @@ export default class Home {
     this.food = food;
     this.type = HOME;
     this.villagers = [];
-    this.addVillager();
   }
 
   right() {
@@ -86,6 +85,19 @@ export default class Home {
     if (this.villagers.length === 0) {
       this.destroy = true;
     }
+    if (this.villagers.length > 10) {
+      this.splitVillage();
+    }
+  }
+
+  splitVillage() {
+    const newHome = this.environment.addHome();
+    this.villagers.forEach((villager, count) => {
+      if (count % 2 === 1) {
+        villager.migrateToNewHome(newHome);
+      }
+    });
+    this.villagers = this.villagers.filter(villager => villager.home.id === this.id);
   }
 
   addVillager() {

@@ -135,6 +135,14 @@ export default class Villager {
     });
   }
 
+  migrateToNewHome(newHome) {
+    this.red = newHome.red;
+    this.green = newHome.green;
+    this.blue = newHome.blue;
+    this.home = newHome;
+    newHome.villagers.push(this);
+  }
+
   update() {
     if (!this.destination) {
       this.findApple();

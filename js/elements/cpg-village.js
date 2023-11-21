@@ -56,17 +56,8 @@ export default class CpgVillage extends HTMLElement {
       this.objects.push(new Apple({ context: this.context, environment: this }));
     }
     for (let i = 0; i < this.villages; i++) {
-      var red = randomNumber({ min: 200, max: 255 });
-      var green = randomNumber({ min: 200, max: 255 });
-      var blue = randomNumber({ min: 200, max: 255 });
-      var home = new Home({
-        context: this.context,
-        environment: this,
-        red: red,
-        green: green,
-        blue: blue
-      });
-      this.objects.push(home);
+      const home = this.addHome();
+      home.addVillager();
     }
 
     var self = this;
@@ -98,6 +89,21 @@ export default class CpgVillage extends HTMLElement {
     if (appleCount < this.maxApples) {
       this.objects.push(new Apple({ context: this.context }));
     }
+  }
+
+  addHome() {
+    var red = randomNumber({ min: 200, max: 255 });
+    var green = randomNumber({ min: 200, max: 255 });
+    var blue = randomNumber({ min: 200, max: 255 });
+    var home = new Home({
+      context: this.context,
+      environment: this,
+      red: red,
+      green: green,
+      blue: blue
+    });
+    this.objects.push(home);
+    return home;
   }
 
   doAnimate() {
