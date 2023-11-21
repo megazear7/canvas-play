@@ -47,16 +47,17 @@ export function drawRect({
 }
 
 export function drawCircle({
-            context,
-            x = 0,
-            y = 0,
-            radius = 30,
-            lineWidth = 1,
-            lineStyle = `rgba(0, 0, 0, 1)`,
-            red = 0,
-            green = 0,
-            blue = 0,
-            opacity = 1}) {
+  context,
+  x = 0,
+  y = 0,
+  radius = 30,
+  lineWidth = 1,
+  lineStyle = `rgba(0, 0, 0, 1)`,
+  red = 0,
+  green = 0,
+  blue = 0,
+  opacity = 1
+}) {
   context.beginPath();
   context.arc(x, y, radius, 0, Math.PI * 2, false);
   context.lineWidth = lineWidth;
@@ -64,6 +65,22 @@ export function drawCircle({
   context.stroke();
   context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
   context.fill();
+}
+
+export function drawArc({
+  context,
+  x = 0,
+  y = 0,
+  radius = 30,
+  lineWidth = 1,
+  lineStyle = `rgba(0, 0, 0, 1)`,
+  percent = 100
+}) {
+  context.beginPath();
+  context.arc(x, y, radius, 0, (Math.PI * 2) * (percent / 100), false);
+  context.lineWidth = lineWidth;
+  context.strokeStyle = lineStyle;
+  context.stroke();
 }
 
 export function drawDot({

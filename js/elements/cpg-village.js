@@ -79,12 +79,16 @@ export default class CpgVillage extends HTMLElement {
     animate();
 
     setInterval(() => this.majorUpdates(), 1000);
+    setInterval(() => this.minorUpdates(), 100);
   }
 
   majorUpdates() {
-    this.objects = this.objects.filter(obj => !obj.destroy);
     this.objects.forEach(obj => obj.majorUpdate());
     this.addApple();
+  }
+
+  minorUpdates() {
+    this.objects = this.objects.filter(obj => !obj.destroy);
   }
 
   addApple() {
@@ -96,13 +100,9 @@ export default class CpgVillage extends HTMLElement {
   }
 
   doAnimate() {
-    this.apples.forEach(obj => obj.update());
     this.homes.forEach(obj => obj.update());
     this.villagers.forEach(obj => obj.update());
-  }
-
-  get apples() {
-    return this.objects.filter(obj => obj.type === APPLE);
+    this.apples.forEach(obj => obj.update());
   }
 
   get homes() {
@@ -111,6 +111,10 @@ export default class CpgVillage extends HTMLElement {
 
   get villagers() {
     return this.objects.filter(obj => obj.type === VILLAGER);
+  }
+
+  get apples() {
+    return this.objects.filter(obj => obj.type === APPLE);
   }
 }
 

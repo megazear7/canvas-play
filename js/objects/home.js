@@ -25,6 +25,7 @@ export default class Home {
     this.radius = radius;
     this.food = food;
     this.type = HOME;
+    this.villagers = [];
     this.addVillager();
   }
 
@@ -44,8 +45,21 @@ export default class Home {
     return this.y - this.radius;
   }
 
+  get fullRadius() {
+    return this.radius + (this.villagers.length * 5);
+  }
+
   draw() {
-    drawCircle({context: this.context, x: this.x, y: this.y, radius: this.radius, lineWidth: 0, red: this.red, green: this.green, blue: this.blue});
+    drawCircle({
+      context: this.context,
+      x: this.x,
+      y: this.y,
+      radius: this.fullRadius,
+      lineWidth: 1,
+      red: this.red,
+      green: this.green,
+      blue: this.blue
+    });
     writeText({
       context: this.context,
       text: parseInt(this.food),
@@ -63,13 +77,20 @@ export default class Home {
       this.food -= 20;
       this.addVillager();
     }
+    if (this.villagers.length === 0) {
+      this.red = 200;
+      this.green = 200;
+      this.blue = 200;
+    }
   }
 
   addVillager() {
-    this.environment.objects.push(new Villager({
+    const villager = new Villager({
       context: this.context,
       environment: this.environment,
       home: this
-    }))
+    });
+    this.environment.objects.push(villager);
+    this.villagers.push(villager);
   }
 }

@@ -1,4 +1,4 @@
-import { randomX, randomY, randomColor, drawCircle, shuffle } from '../utility.js';
+import { drawArc, drawCircle, shuffle } from '../utility.js';
 import { APPLE } from './apple.js';
 import { movePoint, getDistancePts } from '../utility.js';
 import { HOME } from './home.js';
@@ -54,11 +54,40 @@ export default class Villager {
   }
 
   draw() {
-    drawCircle({context: this.context, x: this.x, y: this.y, radius: this.radius, lineWidth: 0, red: this.red, green: this.green, blue: this.blue});
+    if (this.alive) {
+      drawCircle({
+        context: this.context,
+        x: this.x,
+        y: this.y,
+        radius: this.radius,
+        lineWidth: 1,
+        lineStyle: `rgba(75, 75, 75, 1)`,
+        red: this.red,
+        green: this.green,
+        blue: this.blue,
+      });
+      drawArc({
+        context: this.context,
+        x: this.x,
+        y: this.y,
+        radius: this.radius,
+        lineWidth: 1,
+        lineStyle: `rgba(50, 50, 50, 1)`,
+        percent: (this.timeRemaining / this.maxAge) * 100
+      });
+    }
+  }
+
+  get timeRemaining() {
+    return this.death - Date.now();
+  }
+
+  get alive() {
+    return this.timeRemaining > 0;
   }
 
   move() {
-    if (this.destination && getDistancePts(this, this.destination) > this.radius * 2) {
+    if (this.destination && getDistancePts(this, this.destination) > (this.radius + this.destination.radius)) {
       this.moveToDestination();
     } else if (this.destination && this.destination.type === APPLE) {
       this.takeAppleHome();
@@ -69,9 +98,12 @@ export default class Villager {
   }
 
   consumeApple() {
-    if (this.destination.carrying && this.destination.carrying != this) {
-      // Do nothing
-    } else if (this.carrying && this.carrying.type === APPLE && !this.carrying.destroy) {
+    if (this.carrying &&
+        this.carrying.type === APPLE &&
+        this.carrying.location &&
+        this.carrying.location.id === this.id &&
+        !this.carrying.destroy
+    ) {
       this.home.food = this.home.food + this.carrying.food;
       this.carrying.destroy = true;
     }
@@ -90,12 +122,11 @@ export default class Villager {
   takeAppleHome() {
     if (this.destination.carrying) {
       this.findApple();
-    }
-    if (this.destination && this.destination.type === APPLE) {
+    } else if (this.destination && this.destination.type === APPLE) {
       this.destination.location = this;
       this.carrying = this.destination;
+      this.destination = this.home;
     }
-    this.destination = this.home;
   }
 
   findApple() {
@@ -113,8 +144,11 @@ export default class Villager {
   }
 
   majorUpdate() {
-    if (Date.now() > this.death) {
+    if (!this.alive) {
       this.destroy = true;
+      if (this.carrying) {
+        this.carrying.location = undefined;
+      }
     }
   }
 }

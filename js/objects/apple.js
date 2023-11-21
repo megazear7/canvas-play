@@ -10,7 +10,7 @@ export default class Apple {
               red = 255,
               green = 0,
               blue = 0,
-              radius = 8,
+              radius = 6,
               food = 10 + (Math.random() * 10)
             } = {}) {
     this.context = context;
@@ -43,7 +43,16 @@ export default class Apple {
   }
 
   draw() {
-    drawCircle({context: this.context, x: this.x, y: this.y, radius: this.radius, lineWidth: 0, red: this.red, green: this.green, blue: this.blue});
+    drawCircle({
+      context: this.context,
+      x: this.x,
+      y: this.y,
+      radius: this.radius,
+      lineWidth: 1,
+      red: this.red,
+      green: this.green,
+      blue: this.blue
+    });
   }
 
   update() {
