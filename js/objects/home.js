@@ -45,7 +45,7 @@ export default class Home {
   }
 
   get fullRadius() {
-    return this.radius + (this.villagers.length / 2);
+    return this.radius + this.villagers.length;
   }
 
   draw() {
@@ -85,7 +85,7 @@ export default class Home {
     if (this.villagers.length === 0) {
       this.destroy = true;
     }
-    if (this.villagers.length > 10) {
+    if (this.villagers.length > 8) {
       this.splitVillage();
     }
   }

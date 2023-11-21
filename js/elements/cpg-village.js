@@ -2,6 +2,7 @@ import Villager, { VILLAGER } from '/js/objects/villager.js';
 import Apple, { APPLE } from '/js/objects/apple.js';
 import Home, { HOME } from '/js/objects/home.js';
 import { randomNumber } from '../utility.js';
+import { ROTTEN_APPLE } from '../objects/apple.js';
 
 export default class CpgVillage extends HTMLElement {
   constructor() {
@@ -110,6 +111,7 @@ export default class CpgVillage extends HTMLElement {
     this.homes.forEach(obj => obj.update());
     this.villagers.forEach(obj => obj.update());
     this.apples.forEach(obj => obj.update());
+    this.rottenApples.forEach(obj => obj.update());
   }
 
   get homes() {
@@ -122,6 +124,10 @@ export default class CpgVillage extends HTMLElement {
 
   get apples() {
     return this.objects.filter(obj => obj.type === APPLE).sort((a, b) => a.id - b.id);
+  }
+
+  get rottenApples() {
+    return this.objects.filter(obj => obj.type === ROTTEN_APPLE).sort((a, b) => a.id - b.id);
   }
 }
 
