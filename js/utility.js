@@ -26,6 +26,12 @@ export function getDistance(x1, y1, x2, y2) {
   return Math.sqrt( a*a + b*b );
 }
 
+export function getDistancePts(p1, p2) {
+  var a = p1.x - p2.x;
+  var b = p1.y - p2.y;
+  return Math.sqrt( a*a + b*b );
+}
+
 export function drawRect({
             context,
             x = 0,
@@ -184,4 +190,39 @@ export function parseLineAttr(lineAttr, defaultThickness, defaultSpeed) {
     thickness: points.length > 4 ? points[4] : defaultThickness,
     speed: points.length > 5 ? points[5] : defaultSpeed
   };
+}
+
+export function writeText({
+  context,
+  text = 'Hello world',
+  font = "sans-serif",
+  size = "12px",
+  red = 0,
+  green = 0,
+  blue = 0,
+  opacity = 1,
+  x = 0,
+  y = 0
+}) {
+  context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+  context.font = size + ' ' + font;
+  context.fillText(text, x, y);
+}
+
+export function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex > 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
 }

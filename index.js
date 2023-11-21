@@ -13,6 +13,7 @@ export { default as CpgSmartTicTacToe } from './js/elements/cpg-smart-tic-tac-to
 export { default as CpgRealTimeStrategy } from './js/elements/cpg-real-time-strategy.js';
 export { default as CpgMapMaker } from './js/elements/cpg-map-maker.js';
 export { default as CpgToTheMoon } from './js/elements/cpg-to-the-moon.js';
+export { default as CpgVillage } from './js/elements/cpg-village.js';
 
 // Canvas objects
 export { default as Crack } from './js/objects/crack.js';
