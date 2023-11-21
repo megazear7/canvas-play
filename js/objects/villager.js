@@ -33,7 +33,7 @@ export default class Villager {
     this.speed = speed;
     this.impacting = false;
     this.type = VILLAGER;
-    this.maxAge = 20000 + (Math.random() * 22000);
+    this.maxAge = 20000 + (Math.random() * 25000);
     this.death = Date.now() + this.maxAge;
   }
 
