@@ -21,7 +21,6 @@ export default class Apple {
     this.minFood = minFood;
     this.maxFood = maxFood;
     this.food = randomNumber({ min: minFood, max: minFood + ((maxFood - minFood) * 0.75) });
-    console.log(this.food);
     this.type = APPLE;
   }
 

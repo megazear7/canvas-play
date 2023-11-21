@@ -1,5 +1,5 @@
 import { drawArc, drawCircle, shuffle } from '../utility.js';
-import { APPLE } from './apple.js';
+import { APPLE, ROTTEN_APPLE } from './apple.js';
 import { movePoint, getDistancePts } from '../utility.js';
 import { HOME } from './home.js';
 
@@ -94,6 +94,8 @@ export default class Villager {
     } else if (this.destination && this.destination.type === HOME) {
       this.consumeApple();
       this.findApple();
+    } else {
+      this.findApple();
     }
   }
 
@@ -105,6 +107,8 @@ export default class Villager {
         !this.carrying.destroy
     ) {
       this.home.food = this.home.food + this.carrying.food;
+      this.carrying.destroy = true;
+    } else if (this.carrying && this.carrying.type === ROTTEN_APPLE) {
       this.carrying.destroy = true;
     }
   }
@@ -120,12 +124,14 @@ export default class Villager {
   }
 
   takeAppleHome() {
-    if (this.destination.carrying) {
+    if (this.destination.location && this.destination.location.id !== this.id) {
       this.findApple();
     } else if (this.destination && this.destination.type === APPLE) {
       this.destination.location = this;
       this.carrying = this.destination;
       this.destination = this.home;
+    } else {
+      this.findApple();
     }
   }
 
