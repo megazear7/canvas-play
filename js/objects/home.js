@@ -11,7 +11,7 @@ export default class Home {
               red = 50,
               green = 50,
               blue = 50,
-              radius = 20,
+              radius = 18,
               food = 0,
             } = {}) {
     this.context = context;
@@ -46,7 +46,7 @@ export default class Home {
   }
 
   get fullRadius() {
-    return this.radius + (this.villagers.length * 2);
+    return this.radius + (this.villagers.length / 2);
   }
 
   draw() {

@@ -107,15 +107,15 @@ export default class CpgVillage extends HTMLElement {
   }
 
   get homes() {
-    return this.objects.filter(obj => obj.type === HOME);
+    return this.objects.filter(obj => obj.type === HOME).sort((a, b) => a.id - b.id);
   }
 
   get villagers() {
-    return this.objects.filter(obj => obj.type === VILLAGER);
+    return this.objects.filter(obj => obj.type === VILLAGER).sort((a, b) => a.id - b.id);
   }
 
   get apples() {
-    return this.objects.filter(obj => obj.type === APPLE);
+    return this.objects.filter(obj => obj.type === APPLE).sort((a, b) => a.id - b.id);
   }
 }
 
