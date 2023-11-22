@@ -86,7 +86,6 @@ export default class CpgVillage extends HTMLElement {
     this.objects.forEach(obj => obj.majorUpdate());
     this.addApples();
     this.addBandits();
-    console.log(this.villagers.length);
   }
 
   minorUpdates() {
@@ -202,7 +201,7 @@ export default class CpgVillage extends HTMLElement {
   }
 
   get maxAppleValue() {
-    return minAppleValue * 2;
+    return this.minAppleValue * 2;
   }
 
   addHome() {
