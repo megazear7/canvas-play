@@ -52,7 +52,6 @@ export default class CpgVillage extends HTMLElement {
     this.appleDensity = parseFloat(this.getAttribute('apple-density')) || 1;
     this.appleValue = parseFloat(this.getAttribute('apple-value')) || 1;
     this.updateDelay = parseFloat(this.getAttribute('update-delay')) || 1;
-    this.appleValue = parseFloat(this.getAttribute('apple-value')) || 1;
     this.appleAgeRate = parseFloat(this.getAttribute('apple-age-rate')) || 1;
     this.banditDensity = parseFloat(this.getAttribute('bandit-density')) || 1;
     this.startApples = parseFloat(this.getAttribute('start-apples')) || 10;
