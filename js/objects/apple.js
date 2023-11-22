@@ -10,7 +10,7 @@ export default class Apple {
               y = randomY(),
               radius = 6,
               minFood = 10,
-              maxFood = 19,
+              maxFood = 20,
               randomFood = false,
               ageRate = 1,
             } = {}) {
