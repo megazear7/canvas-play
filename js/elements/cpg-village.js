@@ -51,13 +51,16 @@ export default class CpgVillage extends HTMLElement {
     /* --------------------- */
     this.appleDensity = parseFloat(this.getAttribute('apple-density')) || 1;
     this.appleValue = parseFloat(this.getAttribute('apple-value')) || 1;
+    this.maxVillagers = parseFloat(this.getAttribute('max-villagers')) || 20;
     this.updateDelay = parseFloat(this.getAttribute('update-delay')) || 1;
     this.appleAgeRate = parseFloat(this.getAttribute('apple-age-rate')) || 1;
     this.banditDensity = parseFloat(this.getAttribute('bandit-density')) || 1;
+    this.midGameStart = parseFloat(this.getAttribute('bandit-density')) || 20000;
     this.startApples = parseFloat(this.getAttribute('start-apples')) || 10;
     this.villages = parseFloat(this.getAttribute('villages')) || 3;
     /* --------------------- */
 
+    this.midGame = false;
     this.history = [];
     this.rowSize = 20;
     this.colSize = 20;
@@ -81,11 +84,22 @@ export default class CpgVillage extends HTMLElement {
   }
 
   majorUpdates() {
+    console.log(this.villagers.length);
     this.makeGrids();
     this.placeAllObjects();
     this.objects.forEach(obj => obj.majorUpdate());
     this.addApples();
     this.addBandits();
+    this.adjustMaxApples();
+  }
+
+  adjustMaxApples() {
+    if (this.villagers.length > this.maxVillagers) {
+      this.appleDensity = this.appleDensity * 0.995;
+      this.decreasedAppleDensity = true;
+    } else if (this.decreasedAppleDensity && this.villagers.length < this.maxVillagers) {
+      this.appleDensity = this.appleDensity * 1.005;
+    }
   }
 
   minorUpdates() {
@@ -137,7 +151,12 @@ export default class CpgVillage extends HTMLElement {
 
   addStartingVillages() {
     for (let i = 0; i < this.villages; i++) {
-      this.addHome().addVillager();
+      const home = this.addHome();
+      home.addVillager();
+      home.addVillager();
+      home.addVillager();
+      home.addVillager();
+      home.addVillager();
     }
   }
 
