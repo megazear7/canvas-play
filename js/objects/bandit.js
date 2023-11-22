@@ -3,8 +3,8 @@ import { movePoint2, getDistancePts } from '../utility.js';
 import { VILLAGER } from './villager.js';
 
 export const BANDIT = 'bandit';
-const BANDIT_MAX_SPEED = 0.5;
-const BANDIT_AGILITY = 0.01;
+const BANDIT_MAX_SPEED = 0.4;
+const BANDIT_AGILITY = 0.0075;
 const BANDIT_BASE_GIVE_UP_DISTANCE = 200;
 
 export default class Bandit {
@@ -89,7 +89,7 @@ export default class Bandit {
   }
 
   killVillager() {
-    this.death += (this.destination.timeRemaining * 0.5);
+    this.death += (this.destination.timeRemaining * 0.25);
     this.destination.destroy = true;
     this.destination = undefined;
   }
