@@ -18,7 +18,7 @@ export default class Home {
               red = 50,
               green = 50,
               blue = 50,
-              radius = 18,
+              radius = 15,
               food = 0,
               adventurousness = Math.random(),
               maxPopulation = randomNumber({ min: BASE_MIN_POP, max: BASE_MAX_POP }) * percentAdjust(0.3),
@@ -76,7 +76,7 @@ export default class Home {
   }
 
   get fullRadius() {
-    return this.radius + this.villagers.length;
+    return this.radius + this.villagers.length * 1.5;
   }
 
   get villagerCost() {
