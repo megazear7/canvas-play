@@ -1,9 +1,11 @@
 import { randomX, randomY, drawRect, shuffle, writeText, percentAdjust } from '../utility.js';
-import { movePoint, getDistancePts } from '../utility.js';
-import { HOME } from './home.js';
+import { movePoint2, getDistancePts } from '../utility.js';
 import { VILLAGER } from './villager.js';
 
 export const BANDIT = 'bandit';
+const BANDIT_MAX_SPEED = 0.5;
+const BANDIT_AGILITY = 0.01;
+const BANDIT_BASE_GIVE_UP_DISTANCE = 200;
 
 export default class Bandit {
   constructor({
@@ -15,7 +17,9 @@ export default class Bandit {
               green = 0,
               blue = 0,
               size = 20,
-              speed = 1000
+              maxSpeed = BANDIT_MAX_SPEED * percentAdjust(0.3),
+              agility = BANDIT_AGILITY * percentAdjust(0.3),
+              giveUpDistance = BANDIT_BASE_GIVE_UP_DISTANCE * percentAdjust(0.3)
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -28,27 +32,14 @@ export default class Bandit {
     this.green = green;
     this.blue = blue;
     this.size = size;
-    this.speed = speed;
+    this.v = { x: 0, y: 0 };
+    this.maxSpeed = maxSpeed;
+    this.agility = agility;
+    this.giveUpDistance = giveUpDistance;
     this.impacting = false;
     this.type = BANDIT;
     this.maxAge = 10000 + (Math.random() * 25000);
     this.death = Date.now() + this.maxAge;
-  }
-
-  right() {
-    return this.x + this.size;
-  }
-
-  left() {
-    return this.x - this.size;
-  }
-
-  bottom() {
-    return this.y + this.size;
-  }
-
-  top() {
-    return this.y - this.size;
   }
 
   draw() {
@@ -86,6 +77,8 @@ export default class Bandit {
   move() {
     if (this.destination && this.destination.destroy) {
       this.findTarget();
+    } else if (this.destination && getDistancePts(this, this.destination) > this.giveUpDistance) {
+      this.findTarget();
     } else if (this.destination && getDistancePts(this, this.destination) > ((this.size / 2) + this.destination.radius)) {
       this.moveToDestination();
     } else if (this.destination && this.destination.type === VILLAGER) {
@@ -121,9 +114,9 @@ export default class Bandit {
   }
 
   moveToDestination() {
-    const p = movePoint(this, this, this.destination, this.speed);
-    this.x = p.x;
-    this.y = p.y;
+    this.v = movePoint2(this, this.destination, this.v, this.agility, this.maxSpeed);
+    this.x = this.x + this.v.x;
+    this.y = this.y + this.v.y;
   }
 
   update() {

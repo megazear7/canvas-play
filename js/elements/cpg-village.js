@@ -151,11 +151,14 @@ export default class CpgVillage extends HTMLElement {
     for (let i = 0; i < this.villages; i++) {
       const home = this.addHome();
       home.addVillager();
+      home.addVillager();
+      home.addVillager();
+      home.addVillager();
     }
   }
 
   addBandits() {
-    const banditCount = Math.floor(((this.villagers.length / 15) * this.banditDensity) - this.bandits.length);
+    const banditCount = Math.floor(((this.villagers.length / 10) * this.banditDensity) - this.bandits.length);
     for (let i = 0; i < banditCount; i++) {
       this.addBandit();
     }
