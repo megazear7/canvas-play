@@ -47,19 +47,20 @@ export default class CpgVillage extends HTMLElement {
     /* ---------------------- */
     /* Configuration options */
     /* --------------------- */
-    this.interval = parseFloat(this.getAttribute('interval')) || 5;
-    this.maxApples = parseFloat(this.getAttribute('max-apples')) || 10;
+    this.appleDensity = parseFloat(this.getAttribute('apple-density')) || 1;
+    this.appleValue = parseFloat(this.getAttribute('apple-value')) || 1;
+    this.updateDelay = parseFloat(this.getAttribute('update-delay')) || 1;
+    this.appleValue = parseFloat(this.getAttribute('apple-value')) || 1;
+    this.appleAgeRate = parseFloat(this.getAttribute('apple-age-rate')) || 1;
     this.startApples = parseFloat(this.getAttribute('start-apples')) || 10;
     this.villages = parseFloat(this.getAttribute('villages')) || 3;
     /* --------------------- */
 
-    for (let i = 0; i < this.startApples; i++) {
-      this.objects.push(new Apple({ context: this.context, environment: this }));
-    }
-    for (let i = 0; i < this.villages; i++) {
-      const home = this.addHome();
-      home.addVillager();
-    }
+    console.log(this.minAppleValue);
+    console.log(this.maxAppleValue);
+
+    this.addStartingApples();
+    this.addStartingVillages();
 
     var self = this;
     function animate() {
@@ -70,26 +71,66 @@ export default class CpgVillage extends HTMLElement {
 
     animate();
 
-    setInterval(() => this.majorUpdates(), 1000);
-    setInterval(() => this.minorUpdates(), 100);
+    setInterval(() => this.majorUpdates(), this.updateDelay * 1000);
+    setInterval(() => this.minorUpdates(), this.updateDelay * 100);
   }
 
   majorUpdates() {
     this.objects.forEach(obj => obj.majorUpdate());
-    this.addApple();
+    this.addApples();
   }
 
   minorUpdates() {
     this.objects = this.objects.filter(obj => !obj.destroy);
     this.objects.forEach(obj => obj.minorUpdate());
   }
+  
+  addStartingVillages() {
+    for (let i = 0; i < this.villages; i++) {
+      this.addHome().addVillager();
+    }
+  }
 
-  addApple() {
+  addStartingApples() {
+    for (let i = 0; i < this.maxApples; i++) {
+      this.objects.push(new Apple({
+        context: this.context,
+        randomFood: true,
+        minFood: this.minAppleValue,
+        maxFood: this.maxAppleValue,
+        ageRate: this.appleAgeRate
+      }));
+    }
+  }
+
+  addApples() {
     const apples = this.objects.filter(obj => obj.type === APPLE);
     const appleCount = apples.length;
-    if (appleCount < this.maxApples) {
-      this.objects.push(new Apple({ context: this.context }));
+    const applesToAdd = (this.maxApples - appleCount) / 4;
+    if (applesToAdd > 0) {
+      for (let i = 0; i < applesToAdd; i++) {
+        setTimeout(() => {
+          this.objects.push(new Apple({
+            context: this.context,
+            minFood: this.minAppleValue,
+            maxFood: this.maxAppleValue,
+            ageRate: this.appleAgeRate
+          }));
+        }, Math.random() * this.updateDelay * 1000);
+      }
     }
+  }
+
+  get maxApples() {
+    return ((this.canvas.width * this.canvas.height) / 10000) * this.appleDensity;
+  }
+
+  get minAppleValue() {
+    return ((this.canvas.width * this.canvas.height) / 100000) * this.appleValue
+  }
+
+  get maxAppleValue() {
+    return ((this.canvas.width * this.canvas.height) / 100000) * 2 * this.appleValue
   }
 
   addHome() {

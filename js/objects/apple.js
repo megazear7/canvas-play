@@ -10,7 +10,9 @@ export default class Apple {
               y = randomY(),
               radius = 6,
               minFood = 10,
-              maxFood = 19
+              maxFood = 19,
+              randomFood = false,
+              ageRate = 1,
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -20,7 +22,8 @@ export default class Apple {
     this.radius = radius;
     this.minFood = minFood;
     this.maxFood = maxFood;
-    this.food = randomNumber({ min: minFood, max: minFood + ((maxFood - minFood) * 0.75) });
+    this.ageRate = ageRate;
+    this.food = randomFood ? randomNumber({ min: minFood, max: maxFood }) : minFood;
     this.type = APPLE;
   }
 
@@ -84,13 +87,11 @@ export default class Apple {
 
   majorUpdate() {
     if (this.food < this.maxFood) {
-      this.food++;
+      this.food += this.ageRate * 0.1;
     } else if (this.type !== ROTTEN_APPLE) {
-      setTimeout(() => {
-        this.food = 0;
-        this.type = ROTTEN_APPLE;
-        setTimeout(() => this.destroy = true, 5000);
-      }, 10000);
+      this.food = 0;
+      this.type = ROTTEN_APPLE;
+      setTimeout(() => this.destroy = true, 5000);
     }
   }
 }
