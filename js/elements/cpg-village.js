@@ -60,6 +60,7 @@ export default class CpgVillage extends HTMLElement {
     this.villages = parseFloat(this.getAttribute('villages')) || 3;
     /* --------------------- */
 
+    this.startAppleDensity = this.appleDensity;
     this.midGame = false;
     this.history = [];
     this.rowSize = 20;
@@ -93,10 +94,9 @@ export default class CpgVillage extends HTMLElement {
   }
 
   adjustMaxApples() {
-    if (this.villagers.length > this.maxVillagers) {
+    if (this.villagers.length > this.maxVillagers && this.appleDensity < this.startAppleDensity * 2) {
       this.appleDensity = this.appleDensity * 0.995;
-      this.decreasedAppleDensity = true;
-    } else if (this.decreasedAppleDensity && this.villagers.length < this.maxVillagers) {
+    } else if (this.villagers.length < this.maxVillagers && this.appleDensity > this.startAppleDensity * 0.5) {
       this.appleDensity = this.appleDensity * 1.005;
     }
   }
