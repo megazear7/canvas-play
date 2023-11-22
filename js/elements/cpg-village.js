@@ -138,11 +138,11 @@ export default class CpgVillage extends HTMLElement {
     this.grids.forEach((grid, index) => {
       const col = Math.floor(obj.x / grid.colSize);
       const row = Math.floor(obj.y / grid.rowSize);
-      if (grid && grid.rows[row] && grid.rows[row][col].length >= 0) {
+      if (grid && grid.rows[row] && grid.rows[row][col] && grid.rows[row][col].length >= 0) {
         grid.rows[row][col].push(obj);
         obj.grids[index] = { col, row };
       } else {
-        throw new Error("Error placing object in grid: column: " + col + " and row: " + row);
+        // Left the grid, cannot be found until returns to grid.
       }
     });
   }

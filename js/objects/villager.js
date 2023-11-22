@@ -1,6 +1,6 @@
 import { drawArc, drawCircle, shuffle } from '../utility.js';
 import { APPLE, ROTTEN_APPLE } from './apple.js';
-import { movePoint, getDistancePts } from '../utility.js';
+import { movePoint, movePoint2, getDistancePts } from '../utility.js';
 import { HOME } from './home.js';
 
 export const VILLAGER = 'villager';
@@ -23,8 +23,7 @@ export default class Villager {
     this.id = Math.random();
     this.x = x ? x : this.home.x;
     this.y = y ? y : this.home.y;
-    this.dx = 0;
-    this.dy = 0;
+    this.v = { x: 0, y: 0 };
     this.red = red ? red : this.home.red;
     this.green = green ? green : this.home.green;
     this.blue = blue ? blue : this.home.blue;
@@ -114,14 +113,22 @@ export default class Villager {
     this.destination = undefined;
   }
 
-  get speed() {
-    return this.home.villagerSpeed;
+  get agility() {
+    return this.home.villagerAgility;
+  }
+
+  get maxSpeed() {
+    return this.home.villagerMaxSpeed;
   }
 
   moveToDestination() {
-    const p = movePoint(this, this, this.destination, this.speed);
-    this.x = p.x;
-    this.y = p.y;
+    this.v = movePoint2(this, this.destination, this.v, this.agility, this.maxSpeed);
+    this.x = this.x + this.v.x;
+    this.y = this.y + this.v.y;
+  }
+
+  get currentSpeed() {
+    return Math.sqrt(this.v.x * this.v.x + this.v.y * this.v.y);
   }
 
   takeAppleHome() {
@@ -138,9 +145,9 @@ export default class Villager {
 
   findApple() {
     this.destination = undefined;
-    if (this.grids && Math.random() > this.home.adventurousness) {
+    if (this.grids) {
       this.grids.forEach((grid, index) => {
-        if (!this.destination) {
+        if (!this.destination && Math.random() > this.home.adventurousness) {
           const objs = this.environment.grids[index].rows[grid.row][grid.col] || [];
           this.destination = this.findAppleFromList(objs);
         }

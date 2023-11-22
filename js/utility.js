@@ -197,6 +197,63 @@ export function drawLine(context, p1, p2, thickness, color) {
   context.stroke();
 }
 
+export function movePoint2(p1, p2, v, agility, maxSpeed) {
+  // const currentSpeed = Math.sqrt(v.x * v.x + v.y * v.y);
+  // const possibleMaxNextSpeed = currentSpeed + maxAcceleration;
+  // const possibleMinNextSpeed = currentSpeed - maxAcceleration;
+  // const maxNextSpeed = possibleMaxNextSpeed > maxSpeed ? maxSpeed : possibleMaxNextSpeed;
+  // const minNextSpeed = possibleMinNextSpeed < 0 ? 0 : possibleMinNextSpeed;
+  const p3 = addVectors(p1, v);
+  const p4 = pointAlong(p3, p2, agility, false, true);
+  const p5 = pointAlong(p1, p4, maxSpeed, false, false);
+  const v1 = subtractVectors(p5, p1);
+  return v1;
+  // if (magnitude(v1) > minNextSpeed) {
+  //   return v1;
+  // } else {
+  //   const p6 = pointAlong(p1, p4, minNextSpeed, true);
+  //   const v2 = subtractVectors(p6, p1);
+  //   return v2;
+  // }
+}
+
+/**
+ * @return A new point at a distance d from p1 along the path to p2
+ *         or p2 if the two points are closer than d from each other
+ */
+export function pointAlong(p1, p2, d, allowOvershoot, log) {
+  const fullDistance = distanceBetween(p1, p2);
+  if (fullDistance > d || allowOvershoot) {
+    const p1P2Delta = subtractVectors(p2, p1);
+    const percentageOfDistance = d / fullDistance;
+    const distanceMod = percentageOfDistance < 1 ? percentageOfDistance : 1;
+    return {
+      x: p1.x + (p1P2Delta.x * distanceMod),
+      y: p1.y + (p1P2Delta.y * distanceMod),
+    };
+  } else {
+    return p2;
+  }
+}
+
+export function magnitude(v) {
+  return Math.sqrt(v.x * v.x + v.y * v.y);
+}
+
+export function addVectors(v1, v2) {
+  return {
+    x: v1.x + v2.x,
+    y: v1.y + v2.y
+  }
+}
+
+export function subtractVectors(v1, v2) {
+  return {
+    x: v1.x - v2.x,
+    y: v1.y - v2.y
+  }
+}
+
 export function parseLineAttr(lineAttr, defaultThickness, defaultSpeed) {
   let points = lineAttr.split(/\s+/).map(stringNumber => parseFloat(stringNumber));
   return {

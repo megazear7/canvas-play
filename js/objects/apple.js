@@ -9,8 +9,8 @@ export default class Apple {
               x = randomX(),
               y = randomY(),
               radius = 6,
-              minFood = 10,
-              maxFood = 20,
+              minFood = 11,
+              maxFood = 22,
               randomFood = false,
               ageRate = 1,
             } = {}) {
@@ -76,7 +76,7 @@ export default class Apple {
   update() {
     this.draw();
     if (this.location && this.location.destination) {
-      const p = movePoint(this, this, this.location.destination, this.location.speed);
+      const p = movePoint(this, this, this.location, 10000);
       this.x = p.x;
       this.y = p.y;
     }
