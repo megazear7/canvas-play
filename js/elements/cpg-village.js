@@ -151,9 +151,6 @@ export default class CpgVillage extends HTMLElement {
     for (let i = 0; i < this.villages; i++) {
       const home = this.addHome();
       home.addVillager();
-      home.addVillager();
-      home.addVillager();
-      home.addVillager();
     }
   }
 
