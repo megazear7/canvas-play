@@ -207,7 +207,7 @@ export default class CpgVillage extends HTMLElement {
   }
 
   get maxApples() {
-    return ((this.canvas.width * this.canvas.height) / 41000) * this.appleDensity;
+    return ((this.canvas.width * this.canvas.height) / 42000) * this.appleDensity;
   }
 
   get minAppleValue() {
