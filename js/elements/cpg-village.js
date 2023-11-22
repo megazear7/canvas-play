@@ -199,11 +199,11 @@ export default class CpgVillage extends HTMLElement {
   }
 
   get minAppleValue() {
-    return ((this.canvas.width * this.canvas.height) / 100000) * this.appleValue
+    return this.appleValue * 10;
   }
 
   get maxAppleValue() {
-    return ((this.canvas.width * this.canvas.height) / 100000) * 2 * this.appleValue
+    return minAppleValue * 2;
   }
 
   addHome() {
