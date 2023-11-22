@@ -84,7 +84,6 @@ export default class CpgVillage extends HTMLElement {
   }
 
   majorUpdates() {
-    console.log(this.villagers.length);
     this.makeGrids();
     this.placeAllObjects();
     this.objects.forEach(obj => obj.majorUpdate());
@@ -152,10 +151,6 @@ export default class CpgVillage extends HTMLElement {
   addStartingVillages() {
     for (let i = 0; i < this.villages; i++) {
       const home = this.addHome();
-      home.addVillager();
-      home.addVillager();
-      home.addVillager();
-      home.addVillager();
       home.addVillager();
     }
   }
