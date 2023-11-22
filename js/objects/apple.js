@@ -87,7 +87,7 @@ export default class Apple {
 
   majorUpdate() {
     if (this.food < this.maxFood) {
-      this.food += this.ageRate * 0.1;
+      this.food += this.ageRate * 0.05;
     } else if (this.type !== ROTTEN_APPLE) {
       this.food = 0;
       this.type = ROTTEN_APPLE;
