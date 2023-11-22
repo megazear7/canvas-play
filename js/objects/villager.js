@@ -15,8 +15,7 @@ export default class Villager {
               red,
               green,
               blue,
-              radius = 12,
-              speed = 1000
+              radius = 12
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -30,11 +29,9 @@ export default class Villager {
     this.green = green ? green : this.home.green;
     this.blue = blue ? blue : this.home.blue;
     this.radius = radius;
-    this.speed = speed;
     this.impacting = false;
     this.type = VILLAGER;
-    this.maxAge = 20000 + (Math.random() * 25000);
-    this.death = Date.now() + this.maxAge;
+    this.death = Date.now() + this.home.maxAge;
   }
 
   right() {
@@ -73,7 +70,7 @@ export default class Villager {
         radius: this.radius,
         lineWidth: 1,
         lineStyle: `rgba(50, 50, 50, 1)`,
-        percent: (this.timeRemaining / this.maxAge) * 100
+        percent: (this.timeRemaining / this.home.maxAge) * 100
       });
     }
   }
@@ -117,6 +114,10 @@ export default class Villager {
     this.destination = undefined;
   }
 
+  get speed() {
+    return this.home.villagerSpeed;
+  }
+
   moveToDestination() {
     const p = movePoint(this, this, this.destination, this.speed);
     this.x = p.x;
@@ -136,9 +137,22 @@ export default class Villager {
   }
 
   findApple() {
-    this.destination = shuffle(this.environment.objects).find(obj => {
-      return obj.type === APPLE && !obj.location;
-    });
+    this.destination = undefined;
+    if (this.grids && Math.random() > this.home.adventurousness) {
+      this.grids.forEach((grid, index) => {
+        if (!this.destination) {
+          const objs = this.environment.grids[index].rows[grid.row][grid.col] || [];
+          this.destination = this.findAppleFromList(objs);
+        }
+      });
+    }
+    if (!this.destination) {
+      this.destination = this.findAppleFromList(this.environment.objects);
+    }
+  }
+
+  findAppleFromList(objects) {
+    return shuffle(objects).find(obj => obj.type === APPLE && !obj.location);
   }
 
   migrateToNewHome(newHome) {

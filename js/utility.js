@@ -33,17 +33,21 @@ export function getDistancePts(p1, p2) {
 }
 
 export function drawRect({
-            context,
-            x = 0,
-            y = 0,
-            w = 1,
-            h = 1,
-            r = 0,
-            g = 0,
-            b = 0,
-            a = 1}) {
+  context,
+  x = 0,
+  y = 0,
+  w = 1,
+  h = 1,
+  r = 0,
+  g = 0,
+  b = 0,
+  a = 1,
+  rotate = 0
+}) {
+  context.rotate((rotate * Math.PI) / 180);
   context.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
   context.fillRect(x, y, w, h);
+  context.rotate((-rotate * Math.PI) / 180);
 }
 
 export function drawCircle({
@@ -207,6 +211,11 @@ export function parseLineAttr(lineAttr, defaultThickness, defaultSpeed) {
     thickness: points.length > 4 ? points[4] : defaultThickness,
     speed: points.length > 5 ? points[5] : defaultSpeed
   };
+}
+
+// Above or below 1 by the provided amount
+export function percentAdjust(percent) {
+  return Math.random() * (percent * 2) + (1 - percent);
 }
 
 export function writeText({

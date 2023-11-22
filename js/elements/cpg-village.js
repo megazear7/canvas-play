@@ -1,8 +1,10 @@
-import Villager, { VILLAGER } from '/js/objects/villager.js';
+import { VILLAGER } from '/js/objects/villager.js';
+import Bandit from '/js/objects/bandit.js';
 import Apple, { APPLE } from '/js/objects/apple.js';
 import Home, { HOME } from '/js/objects/home.js';
-import { randomNumber } from '../utility.js';
+import { randomNumber, randomX } from '../utility.js';
 import { ROTTEN_APPLE } from '../objects/apple.js';
+import { BANDIT } from '../objects/bandit.js';
 
 export default class CpgVillage extends HTMLElement {
   constructor() {
@@ -54,13 +56,17 @@ export default class CpgVillage extends HTMLElement {
     this.appleAgeRate = parseFloat(this.getAttribute('apple-age-rate')) || 1;
     this.startApples = parseFloat(this.getAttribute('start-apples')) || 10;
     this.villages = parseFloat(this.getAttribute('villages')) || 3;
+    this.banditCount = parseFloat(this.getAttribute('bandit-count')) || 1;
     /* --------------------- */
 
-    console.log(this.minAppleValue);
-    console.log(this.maxAppleValue);
-
+    this.rowSize = 20;
+    this.colSize = 20;
+    this.gridCount = 5;
+    this.startTime = Date.now();
+    this.makeGrids();
     this.addStartingApples();
     this.addStartingVillages();
+    this.addStartingBandits();
 
     var self = this;
     function animate() {
@@ -70,12 +76,13 @@ export default class CpgVillage extends HTMLElement {
     }
 
     animate();
-
     setInterval(() => this.majorUpdates(), this.updateDelay * 1000);
     setInterval(() => this.minorUpdates(), this.updateDelay * 100);
   }
 
   majorUpdates() {
+    this.makeGrids();
+    this.placeAllObjects();
     this.objects.forEach(obj => obj.majorUpdate());
     this.addApples();
   }
@@ -84,22 +91,84 @@ export default class CpgVillage extends HTMLElement {
     this.objects = this.objects.filter(obj => !obj.destroy);
     this.objects.forEach(obj => obj.minorUpdate());
   }
-  
+
+  makeGrids() {
+    let rowSize = this.rowSize;
+    let colSize = this.colSize;
+    this.grids = [];
+    while (rowSize < this.canvas.height / 2 || colSize < this.canvas.width / 2) {
+      const i = this.grids.length;
+      const rowCount = Math.ceil(this.canvas.height / rowSize);
+      const colCount = Math.ceil(this.canvas.width / colSize);
+      this.grids[i] = {
+        rows: [],
+        rowSize: rowSize,
+        colSize: colSize
+      };
+      for (let j = 0; j < rowCount; j++) {
+        this.grids[i].rows[j] = [];
+        for (let k = 0; k < colCount; k++) {
+          this.grids[i].rows[j][k] = [];
+        }
+      }
+      rowSize = rowSize * 2;
+      colSize = colSize * 2;
+    }
+  }
+
+  placeAllObjects() {
+    this.objects.forEach(obj => this.placeObjInGrid(obj));
+  }
+
+  placeObjInGrid(obj) {
+    obj.grids = [];
+    this.grids.forEach((grid, index) => {
+      const col = Math.floor(obj.x / grid.colSize);
+      const row = Math.floor(obj.y / grid.rowSize);
+      if (grid && grid.rows[row] && grid.rows[row][col].length >= 0) {
+        grid.rows[row][col].push(obj);
+        obj.grids[index] = { col, row };
+      } else {
+        throw new Error("Error placing object in grid: column: " + col + " and row: " + row);
+      }
+    });
+  }
+
   addStartingVillages() {
     for (let i = 0; i < this.villages; i++) {
       this.addHome().addVillager();
     }
   }
 
+  addStartingBandits() {
+    for (let i = 0; i < this.banditCount; i++) {
+      setTimeout(() => {
+        this.addBandit();
+      }, 20000 + Math.random() * 20000);
+    }
+  }
+
+  addBandit() {
+    const bandit = new Bandit({
+      context: this.context,
+      environment: this
+    });
+    this.objects.push(bandit);
+    this.placeObjInGrid(bandit);
+    return bandit;
+  }
+
   addStartingApples() {
     for (let i = 0; i < this.maxApples; i++) {
-      this.objects.push(new Apple({
+      const apple = new Apple({
         context: this.context,
         randomFood: true,
         minFood: this.minAppleValue,
         maxFood: this.maxAppleValue,
         ageRate: this.appleAgeRate
-      }));
+      });
+      this.objects.push(apple);
+      this.placeObjInGrid(apple);
     }
   }
 
@@ -110,19 +179,21 @@ export default class CpgVillage extends HTMLElement {
     if (applesToAdd > 0) {
       for (let i = 0; i < applesToAdd; i++) {
         setTimeout(() => {
-          this.objects.push(new Apple({
+          const apple = new Apple({
             context: this.context,
             minFood: this.minAppleValue,
             maxFood: this.maxAppleValue,
             ageRate: this.appleAgeRate
-          }));
+          });
+          this.objects.push(apple);
+          this.placeObjInGrid(apple);
         }, Math.random() * this.updateDelay * 1000);
       }
     }
   }
 
   get maxApples() {
-    return ((this.canvas.width * this.canvas.height) / 10000) * this.appleDensity;
+    return ((this.canvas.width * this.canvas.height) / 40000) * this.appleDensity;
   }
 
   get minAppleValue() {
@@ -145,6 +216,7 @@ export default class CpgVillage extends HTMLElement {
       blue: blue
     });
     this.objects.push(home);
+    this.placeObjInGrid(home);
     return home;
   }
 
@@ -153,6 +225,7 @@ export default class CpgVillage extends HTMLElement {
     this.villagers.forEach(obj => obj.update());
     this.apples.forEach(obj => obj.update());
     this.rottenApples.forEach(obj => obj.update());
+    this.bandits.forEach(obj => obj.update());
   }
 
   get homes() {
@@ -169,6 +242,10 @@ export default class CpgVillage extends HTMLElement {
 
   get rottenApples() {
     return this.objects.filter(obj => obj.type === ROTTEN_APPLE).sort((a, b) => a.id - b.id);
+  }
+
+  get bandits() {
+    return this.objects.filter(obj => obj.type === BANDIT).sort((a, b) => a.id - b.id);
   }
 }
 

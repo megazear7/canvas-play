@@ -1,4 +1,4 @@
-import { randomX, randomY, drawCircle, writeText } from '../utility.js';
+import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, percentAdjust } from '../utility.js';
 import Villager from './villager.js';
 export const HOME = 'home';
 
@@ -13,6 +13,11 @@ export default class Home {
               blue = 50,
               radius = 18,
               food = 0,
+              adventurousness = Math.random(),
+              maxPopulation = Math.random() * 5 + 5,
+              maxAge = 20000 + (Math.random() * 25000),
+              homeSpeed = 100,
+              villagerSpeed = 1000
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -25,6 +30,11 @@ export default class Home {
     this.radius = radius;
     this.food = food;
     this.type = HOME;
+    this.adventurousness = adventurousness;
+    this.maxPopulation = maxPopulation;
+    this.maxAge = maxAge;
+    this.homeSpeed = homeSpeed;
+    this.villagerSpeed = villagerSpeed;
     this.villagers = [];
   }
 
@@ -64,13 +74,28 @@ export default class Home {
         context: this.context,
         text: parseInt(this.food),
         x: this.x,
-        y: this.y
+        y: this.y,
       });
+    }
+  }
+
+  moveToDestination() {
+    const p = movePoint(this, this, this.destination, this.homeSpeed);
+    this.x = p.x;
+    this.y = p.y;
+  }
+
+  move() {
+    if (this.destination && getDistancePts(this, this.destination) > this.radius) {
+      this.moveToDestination();
+    } else {
+      this.destination = undefined;
     }
   }
 
   update() {
     this.draw();
+    this.move();
   }
 
   minorUpdate() {
@@ -85,13 +110,24 @@ export default class Home {
     if (this.villagers.length === 0) {
       this.destroy = true;
     }
-    if (this.villagers.length > 8) {
+    if (this.villagers.length > this.maxPopulation) {
       this.splitVillage();
     }
   }
 
   splitVillage() {
     const newHome = this.environment.addHome();
+    newHome.x = this.x;
+    newHome.y = this.y;
+    newHome.adventurousness = this.adventurousness * percentAdjust(0.1);
+    newHome.maxPopulation = this.maxPopulation * percentAdjust(0.1);
+    newHome.maxAge = this.maxAge * percentAdjust(0.1);
+    newHome.homeSpeed = this.homeSpeed * percentAdjust(0.1);
+    newHome.villagerSpeed = this.villagerSpeed  * percentAdjust(0.1);
+    newHome.destination = {
+      x: randomX(),
+      y: randomY()
+    };
     this.villagers.forEach((villager, count) => {
       if (count % 2 === 1) {
         villager.migrateToNewHome(newHome);
@@ -108,5 +144,6 @@ export default class Home {
     });
     this.environment.objects.push(villager);
     this.villagers.push(villager);
+    this.environment.placeObjInGrid(villager);
   }
 }
