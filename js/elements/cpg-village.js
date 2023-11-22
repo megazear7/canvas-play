@@ -51,7 +51,7 @@ export default class CpgVillage extends HTMLElement {
     /* --------------------- */
     this.appleDensity = parseFloat(this.getAttribute('apple-density')) || 1;
     this.appleValue = parseFloat(this.getAttribute('apple-value')) || 1;
-    this.maxVillagers = parseFloat(this.getAttribute('max-villagers')) || 20;
+    this.villagerDensity = parseFloat(this.getAttribute('villager-density')) || 1;
     this.updateDelay = parseFloat(this.getAttribute('update-delay')) || 1;
     this.appleAgeRate = parseFloat(this.getAttribute('apple-age-rate')) || 1;
     this.banditDensity = parseFloat(this.getAttribute('bandit-density')) || 1;
@@ -206,8 +206,12 @@ export default class CpgVillage extends HTMLElement {
     }
   }
 
+  get maxVillagers() {
+    return ((this.canvas.width * this.canvas.height) / 30000) * this.villagerDensity;
+  }
+
   get maxApples() {
-    return ((this.canvas.width * this.canvas.height) / 42000) * this.appleDensity;
+    return this.maxVillagers * 1.5 * this.appleDensity
   }
 
   get minAppleValue() {
