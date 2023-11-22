@@ -15,7 +15,7 @@ export default class Bandit {
               green = 0,
               blue = 0,
               size = 20,
-              speed = 500
+              speed = 1000
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -137,11 +137,6 @@ export default class Bandit {
   majorUpdate() {
     if (!this.alive) {
       this.destroy = true;
-      setTimeout(() => {
-        const bandit = this.environment.addBandit();
-        bandit.size =  this.size * percentAdjust(0.1);
-        bandit.speed =  this.speed * percentAdjust(0.1);
-      }, Math.random() * this.maxAge);
     }
   }
 }

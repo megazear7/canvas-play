@@ -1,6 +1,13 @@
-import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, percentAdjust } from '../utility.js';
+import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, percentAdjust, randomNumber } from '../utility.js';
 import Villager from './villager.js';
 export const HOME = 'home';
+
+const BASE_MIN_AGE = 10000;
+const BASE_MAX_AGE = 20000;
+const BASE_MIN_POP = 5;
+const BASE_MAX_POP = 10;
+const BASE_HOME_SPEED = 100;
+const BASE_VILLAGER_SPEED = 1600;
 
 export default class Home {
   constructor({
@@ -14,10 +21,10 @@ export default class Home {
               radius = 18,
               food = 0,
               adventurousness = Math.random(),
-              maxPopulation = Math.random() * 5 + 5,
-              maxAge = 20000 + (Math.random() * 25000),
-              homeSpeed = 100,
-              villagerSpeed = 1000
+              maxPopulation = randomNumber({ min: BASE_MIN_POP, max: BASE_MAX_POP }) * percentAdjust(0.3),
+              maxAge = randomNumber({ min: BASE_MIN_AGE, max: BASE_MAX_AGE }) * percentAdjust(0.3),
+              homeSpeed = BASE_HOME_SPEED * percentAdjust(0.3),
+              villagerSpeed = BASE_VILLAGER_SPEED * percentAdjust(0.3)
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -36,6 +43,20 @@ export default class Home {
     this.homeSpeed = homeSpeed;
     this.villagerSpeed = villagerSpeed;
     this.villagers = [];
+    this.environment.history.push(this.characteristics);
+    window.localStorage.setItem('VILLAGE_HISTORY', JSON.stringify(this.environment.history));
+  }
+
+  get characteristics() {
+    return {
+      type: this.type,
+      adventurousness: this.adventurousness,
+      maxPopulation: this.maxPopulation,
+      maxAge: this.maxAge,
+      homeSpeed: this.homeSpeed,
+      villagerSpeed: this.villagerSpeed,
+      villagerCost: this.villagerCost
+    };
   }
 
   right() {
@@ -56,6 +77,16 @@ export default class Home {
 
   get fullRadius() {
     return this.radius + this.villagers.length;
+  }
+
+  get villagerCost() {
+    return (
+            (this.homeSpeed / BASE_HOME_SPEED) +
+            (this.villagerSpeed / BASE_VILLAGER_SPEED) +
+            (this.maxAge / BASE_MAX_AGE) +
+            (this.maxPopulation / BASE_MAX_POP)
+           )
+           * 6;
   }
 
   draw() {
@@ -103,8 +134,8 @@ export default class Home {
   }
 
   majorUpdate() {
-    if (this.food > 20) {
-      this.food -= 20;
+    if (this.food > this.villagerCost) {
+      this.food -= this.villagerCost;
       this.addVillager();
     }
     if (this.villagers.length === 0) {
@@ -123,7 +154,7 @@ export default class Home {
     newHome.maxPopulation = this.maxPopulation * percentAdjust(0.1);
     newHome.maxAge = this.maxAge * percentAdjust(0.1);
     newHome.homeSpeed = this.homeSpeed * percentAdjust(0.1);
-    newHome.villagerSpeed = this.villagerSpeed  * percentAdjust(0.1);
+    newHome.villagerSpeed = this.villagerSpeed * percentAdjust(0.1);
     newHome.destination = {
       x: randomX(),
       y: randomY()

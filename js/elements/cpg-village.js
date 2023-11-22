@@ -54,11 +54,12 @@ export default class CpgVillage extends HTMLElement {
     this.updateDelay = parseFloat(this.getAttribute('update-delay')) || 1;
     this.appleValue = parseFloat(this.getAttribute('apple-value')) || 1;
     this.appleAgeRate = parseFloat(this.getAttribute('apple-age-rate')) || 1;
+    this.banditDensity = parseFloat(this.getAttribute('bandit-density')) || 1;
     this.startApples = parseFloat(this.getAttribute('start-apples')) || 10;
     this.villages = parseFloat(this.getAttribute('villages')) || 3;
-    this.banditCount = parseFloat(this.getAttribute('bandit-count')) || 1;
     /* --------------------- */
 
+    this.history = [];
     this.rowSize = 20;
     this.colSize = 20;
     this.gridCount = 5;
@@ -66,7 +67,7 @@ export default class CpgVillage extends HTMLElement {
     this.makeGrids();
     this.addStartingApples();
     this.addStartingVillages();
-    this.addStartingBandits();
+    this.addBandits();
 
     var self = this;
     function animate() {
@@ -85,6 +86,8 @@ export default class CpgVillage extends HTMLElement {
     this.placeAllObjects();
     this.objects.forEach(obj => obj.majorUpdate());
     this.addApples();
+    this.addBandits();
+    console.log(this.villagers.length);
   }
 
   minorUpdates() {
@@ -140,11 +143,10 @@ export default class CpgVillage extends HTMLElement {
     }
   }
 
-  addStartingBandits() {
-    for (let i = 0; i < this.banditCount; i++) {
-      setTimeout(() => {
-        this.addBandit();
-      }, 20000 + Math.random() * 20000);
+  addBandits() {
+    const banditCount = Math.floor(((this.villagers.length / 15) * this.banditDensity) - this.bandits.length);
+    for (let i = 0; i < banditCount; i++) {
+      this.addBandit();
     }
   }
 
@@ -193,7 +195,7 @@ export default class CpgVillage extends HTMLElement {
   }
 
   get maxApples() {
-    return ((this.canvas.width * this.canvas.height) / 40000) * this.appleDensity;
+    return ((this.canvas.width * this.canvas.height) / 41000) * this.appleDensity;
   }
 
   get minAppleValue() {
