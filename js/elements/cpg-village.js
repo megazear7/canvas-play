@@ -151,6 +151,9 @@ export default class CpgVillage extends HTMLElement {
     for (let i = 0; i < this.villages; i++) {
       const home = this.addHome();
       home.addVillager();
+      home.addVillager();
+      home.addVillager();
+      home.addVillager();
     }
   }
 
@@ -206,7 +209,6 @@ export default class CpgVillage extends HTMLElement {
   }
 
   addStolenApple(x, y, food) {
-    console.log(food);
     const apple = new Apple({
       context: this.context,
       minFood: this.minAppleValue,

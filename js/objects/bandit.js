@@ -90,6 +90,7 @@ export default class Bandit {
 
   killVillager() {
     this.death += (this.destination.timeRemaining * 0.40);
+    this.destination.home.heroTargets.push(this);
     this.destination.destroy = true;
     this.destination = undefined;
   }

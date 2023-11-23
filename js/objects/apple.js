@@ -26,7 +26,6 @@ export default class Apple {
     this.ageRate = ageRate;
     this.food = randomFood ? randomNumber({ min: minFood, max: maxFood }) : minFood;
     if (foodOverride) {
-      console.log("FOOD OVERRIDE");
       this.food = foodOverride;
     }
     this.type = APPLE;

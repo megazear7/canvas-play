@@ -1,7 +1,7 @@
 import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, percentAdjust, randomNumber } from '../utility.js';
-import Villager from './villager.js';
-export const HOME = 'home';
+import Villager, { HERO } from './villager.js';
 
+export const HOME = 'home';
 export const BASE_MIN_AGE = 12000;
 export const BASE_MAX_AGE = 24000;
 export const BASE_MIN_POP = 5;
@@ -11,6 +11,7 @@ export const VILLAGER_BASE_ADVENTUROUSNESS = 0.25;
 export const BASE_VILLAGER_MAX_SPEED = 1;
 export const BASE_VILLAGER_AGILITY = 0.04;
 export const BASE_VILLAGER_AGGRESIVENESS = 0.1;
+export const BASE_VILLAGER_HEROISM = 0.025;
 export const BASE_VILLAGER_STRENGTH = 6;
 
 export default class Home {
@@ -32,6 +33,7 @@ export default class Home {
               villagerMaxSpeed = BASE_VILLAGER_MAX_SPEED * percentAdjust(0.3),
               villagerAgressiveness = BASE_VILLAGER_AGGRESIVENESS * percentAdjust(0.3),
               villagerStrength = BASE_VILLAGER_STRENGTH * percentAdjust(0.3),
+              villagerHeroism = BASE_VILLAGER_HEROISM * percentAdjust(0.3),
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -52,7 +54,10 @@ export default class Home {
     this.villagerMaxSpeed = villagerMaxSpeed;
     this.villagerAgressiveness = villagerAgressiveness;
     this.villagerStrength = villagerStrength;
+    this.villagerHeroism = villagerHeroism;
     this.villagers = [];
+    this.heroTargets = [];
+    this.heroes = [];
     this.environment.history.push(this.characteristics);
     window.localStorage.setItem('VILLAGE_HISTORY', JSON.stringify(this.environment.history));
   }
@@ -155,7 +160,7 @@ export default class Home {
     if (this.villagers.length === 0) {
       this.destroy = true;
     }
-    if (this.villagers.length > this.maxPopulation) {
+    if (this.villagers.filter(obj => obj.subType !== HERO).length > this.maxPopulation) {
       this.splitVillage();
     }
   }
@@ -176,6 +181,7 @@ export default class Home {
     newHome.villagerMaxSpeed = this.villagerMaxSpeed * percentAdjust(0.1);
     newHome.villagerStrength = this.villagerStrength * percentAdjust(0.1);
     newHome.villagerAgressiveness = this.villagerAgressiveness * percentAdjust(0.1);
+    newHome.villagerHeroism = this.villagerHeroism * percentAdjust(0.1);
     newHome.parent = this;
     newHome.destination = {
       x: randomX(),
@@ -198,5 +204,6 @@ export default class Home {
     this.environment.objects.push(villager);
     this.villagers.push(villager);
     this.environment.placeObjInGrid(villager);
+    return villager;
   }
 }
