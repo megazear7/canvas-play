@@ -2,16 +2,16 @@ import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, per
 import Villager from './villager.js';
 export const HOME = 'home';
 
-const BASE_MIN_AGE = 12000;
-const BASE_MAX_AGE = 24000;
-const BASE_MIN_POP = 5;
-const BASE_MAX_POP = 10;
-const BASE_HOME_SPEED = 100;
-const VILLAGER_BASE_ADVENTUROUSNESS = 0.25;
-const BASE_VILLAGER_MAX_SPEED = 1;
-const BASE_VILLAGER_AGILITY = 0.04;
-const BASE_VILLAGER_AGGRESIVENESS = 0.1;
-const BASE_VILLAGER_STRENGTH = 6;
+export const BASE_MIN_AGE = 12000;
+export const BASE_MAX_AGE = 24000;
+export const BASE_MIN_POP = 5;
+export const BASE_MAX_POP = 10;
+export const BASE_HOME_SPEED = 100;
+export const VILLAGER_BASE_ADVENTUROUSNESS = 0.25;
+export const BASE_VILLAGER_MAX_SPEED = 1;
+export const BASE_VILLAGER_AGILITY = 0.04;
+export const BASE_VILLAGER_AGGRESIVENESS = 0.1;
+export const BASE_VILLAGER_STRENGTH = 6;
 
 export default class Home {
   constructor({

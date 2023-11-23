@@ -1,7 +1,7 @@
-import { drawArc, drawCircle, shuffle } from '../utility.js';
+import { drawArc, drawCircle, shuffle, drawLine } from '../utility.js';
 import { APPLE, ROTTEN_APPLE } from './apple.js';
 import { movePoint2, getDistancePts } from '../utility.js';
-import { HOME } from './home.js';
+import { HOME, BASE_VILLAGER_STRENGTH } from './home.js';
 
 export const VILLAGER = 'villager';
 export const GATHERER = 'gatherer';
@@ -80,7 +80,16 @@ export default class Villager {
           x: this.x,
           y: this.y,
           radius: this.radius - 4,
-          lineWidth: 1,
+          lineWidth: 2.5,
+          lineStyle: `rgba(255, 0, 0, 1)`,
+          percent: ((this.strength / BASE_VILLAGER_STRENGTH) * 50)
+        });
+        drawArc({
+          context: this.context,
+          x: this.x,
+          y: this.y,
+          radius: this.radius - 4,
+          lineWidth: 0.5,
           lineStyle: `rgba(255, 0, 0, 1)`
         });
       }
