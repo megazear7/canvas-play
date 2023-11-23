@@ -1,6 +1,6 @@
 import { randomX, randomY, drawRect, shuffle, writeText, percentAdjust } from '../utility.js';
 import { movePoint2, getDistancePts } from '../utility.js';
-import { VILLAGER } from './villager.js';
+import { VILLAGER, WARRIOR } from './villager.js';
 
 export const BANDIT = 'bandit';
 const BANDIT_MAX_SPEED = 0.4;
@@ -89,7 +89,7 @@ export default class Bandit {
   }
 
   killVillager() {
-    this.death += (this.destination.timeRemaining * 0.25);
+    this.death += (this.destination.timeRemaining * 0.40);
     this.destination.destroy = true;
     this.destination = undefined;
   }
@@ -110,7 +110,7 @@ export default class Bandit {
   }
 
   findTargetFromList(objects) {
-    return shuffle(objects).find(obj => obj.type === VILLAGER && !obj.destroy);
+    return shuffle(objects).find(obj => obj.type === VILLAGER && obj.subType === WARRIOR && !obj.destroy);
   }
 
   moveToDestination() {

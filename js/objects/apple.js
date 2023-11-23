@@ -12,6 +12,7 @@ export default class Apple {
               minFood = 11,
               maxFood = 22,
               randomFood = false,
+              foodOverride = false,
               ageRate = 1,
             } = {}) {
     this.context = context;
@@ -24,6 +25,10 @@ export default class Apple {
     this.maxFood = maxFood;
     this.ageRate = ageRate;
     this.food = randomFood ? randomNumber({ min: minFood, max: maxFood }) : minFood;
+    if (foodOverride) {
+      console.log("FOOD OVERRIDE");
+      this.food = foodOverride;
+    }
     this.type = APPLE;
   }
 

@@ -1,9 +1,11 @@
 import { drawArc, drawCircle, shuffle } from '../utility.js';
 import { APPLE, ROTTEN_APPLE } from './apple.js';
-import { movePoint, movePoint2, getDistancePts } from '../utility.js';
+import { movePoint2, getDistancePts } from '../utility.js';
 import { HOME } from './home.js';
 
 export const VILLAGER = 'villager';
+export const GATHERER = 'gatherer';
+export const WARRIOR = 'WARRIOR';
 
 export default class Villager {
   constructor({
@@ -30,6 +32,7 @@ export default class Villager {
     this.radius = radius;
     this.impacting = false;
     this.type = VILLAGER;
+    this.subType = Math.random() > this.home.villagerAgressiveness ? GATHERER : WARRIOR;
     this.death = Date.now() + this.home.maxAge;
   }
 
@@ -71,6 +74,16 @@ export default class Villager {
         lineStyle: `rgba(50, 50, 50, 1)`,
         percent: (this.timeRemaining / this.home.maxAge) * 100
       });
+      if (this.subType === WARRIOR) {
+        drawArc({
+          context: this.context,
+          x: this.x,
+          y: this.y,
+          radius: this.radius - 4,
+          lineWidth: 1,
+          lineStyle: `rgba(255, 0, 0, 1)`
+        });
+      }
     }
   }
 
@@ -87,12 +100,31 @@ export default class Villager {
       this.moveToDestination();
     } else if (this.destination && this.destination.type === APPLE) {
       this.takeAppleHome();
+    } else if (this.destination && this.destination.type === HOME && this.home.id !== this.destination.id) {
+      this.fightEnemyHome();
     } else if (this.destination && this.destination.type === HOME) {
       this.consumeApple();
-      this.findApple();
+      this.findPreferredTarget();
     } else {
-      this.findApple();
+      this.findPreferredTarget();
     }
+  }
+
+  fightEnemyHome() {
+    const stolenFood = this.destination.food > this.strength ? this.strength : this.destination.food;
+    if (stolenFood > 0) {
+      this.destination.food = this.destination.food > this.strength ? this.destination.food -= this.strength : 0;
+      const apple = this.environment.addStolenApple(this.x, this.y, stolenFood);
+      apple.location = this;
+      this.carrying = apple;
+      this.destination = this.home;
+    } else {
+      this.findPreferredTarget();
+    }
+  }
+
+  findPreferredTarget() {
+    this.subType === WARRIOR ? this.findEnemyVillage() : this.findApple();
   }
 
   consumeApple() {
@@ -121,6 +153,10 @@ export default class Villager {
     return this.home.villagerMaxSpeed;
   }
 
+  get strength() {
+    return this.home.villagerStrength;
+  }
+
   moveToDestination() {
     this.v = movePoint2(this, this.destination, this.v, this.agility, this.maxSpeed);
     this.x = this.x + this.v.x;
@@ -133,13 +169,32 @@ export default class Villager {
 
   takeAppleHome() {
     if (this.destination.location && this.destination.location.id !== this.id) {
-      this.findApple();
+      this.findPreferredTarget();
     } else if (this.destination && this.destination.type === APPLE) {
       this.destination.location = this;
       this.carrying = this.destination;
       this.destination = this.home;
     } else {
-      this.findApple();
+      this.findPreferredTarget();
+    }
+  }
+
+  goFurther() {
+    return Math.random() < this.home.adventurousness;
+  }
+
+  findEnemyVillage() {
+    this.destination = undefined;
+    if (this.grids) {
+      this.grids.forEach((grid, index) => {
+        if (!this.destination && this.goFurther()) {
+          const objs = this.environment.grids[index].rows[grid.row][grid.col] || [];
+          this.destination = this.findVillageFromList(objs);
+        }
+      });
+    }
+    if (!this.destination) {
+      this.destination = this.findAppleFromList(this.environment.objects);
     }
   }
 
@@ -147,7 +202,7 @@ export default class Villager {
     this.destination = undefined;
     if (this.grids) {
       this.grids.forEach((grid, index) => {
-        if (!this.destination && Math.random() > this.home.adventurousness) {
+        if (!this.destination && this.goFurther()) {
           const objs = this.environment.grids[index].rows[grid.row][grid.col] || [];
           this.destination = this.findAppleFromList(objs);
         }
@@ -156,6 +211,15 @@ export default class Villager {
     if (!this.destination) {
       this.destination = this.findAppleFromList(this.environment.objects);
     }
+  }
+
+  findVillageFromList(objects) {
+    return shuffle(objects).find(obj => {
+      return obj.type === HOME
+        && this.home.id != obj.id
+        && !this.home.isParentOf(obj)
+        && !obj.isParentOf(this);
+    });
   }
 
   findAppleFromList(objects) {
@@ -172,7 +236,7 @@ export default class Villager {
 
   update() {
     if (!this.destination) {
-      this.findApple();
+      this.findPreferredTarget();
     }
     this.draw();
     this.move();

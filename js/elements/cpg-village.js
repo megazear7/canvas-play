@@ -1,6 +1,6 @@
 import { VILLAGER } from '/js/objects/villager.js';
 import Bandit from '/js/objects/bandit.js';
-import Apple, { APPLE } from '/js/objects/apple.js';
+import  Apple, { APPLE } from '/js/objects/apple.js';
 import Home, { HOME } from '/js/objects/home.js';
 import { randomNumber, randomX } from '../utility.js';
 import { ROTTEN_APPLE } from '../objects/apple.js';
@@ -109,7 +109,7 @@ export default class CpgVillage extends HTMLElement {
     let rowSize = this.rowSize;
     let colSize = this.colSize;
     this.grids = [];
-    while (rowSize < this.canvas.height / 2 || colSize < this.canvas.width / 2) {
+    while (rowSize < this.canvas.height || colSize < this.canvas.width) {
       const i = this.grids.length;
       const rowCount = Math.ceil(this.canvas.height / rowSize);
       const colCount = Math.ceil(this.canvas.width / colSize);
@@ -203,6 +203,23 @@ export default class CpgVillage extends HTMLElement {
         }, Math.random() * this.updateDelay * 1000);
       }
     }
+  }
+
+  addStolenApple(x, y, food) {
+    console.log(food);
+    const apple = new Apple({
+      context: this.context,
+      minFood: this.minAppleValue,
+      maxFood: this.maxAppleValue,
+      ageRate: this.appleAgeRate,
+      x: x,
+      y: y,
+      foodOverride: food,
+      ageRate: 0
+    });
+    this.objects.push(apple);
+    this.placeObjInGrid(apple);
+    return apple;
   }
 
   get maxVillagers() {

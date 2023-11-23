@@ -10,6 +10,8 @@ const BASE_HOME_SPEED = 100;
 const VILLAGER_BASE_ADVENTUROUSNESS = 0.25;
 const BASE_VILLAGER_MAX_SPEED = 1;
 const BASE_VILLAGER_AGILITY = 0.04;
+const BASE_VILLAGER_AGGRESIVENESS = 0.1;
+const BASE_VILLAGER_STRENGTH = 6;
 
 export default class Home {
   constructor({
@@ -28,6 +30,8 @@ export default class Home {
               homeSpeed = BASE_HOME_SPEED * percentAdjust(0.3),
               villagerAgility = BASE_VILLAGER_AGILITY * percentAdjust(0.3),
               villagerMaxSpeed = BASE_VILLAGER_MAX_SPEED * percentAdjust(0.3),
+              villagerAgressiveness = BASE_VILLAGER_AGGRESIVENESS * percentAdjust(0.3),
+              villagerStrength = BASE_VILLAGER_STRENGTH * percentAdjust(0.3),
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -46,6 +50,8 @@ export default class Home {
     this.homeSpeed = homeSpeed;
     this.villagerAgility = villagerAgility;
     this.villagerMaxSpeed = villagerMaxSpeed;
+    this.villagerAgressiveness = villagerAgressiveness;
+    this.villagerStrength = villagerStrength;
     this.villagers = [];
     this.environment.history.push(this.characteristics);
     window.localStorage.setItem('VILLAGE_HISTORY', JSON.stringify(this.environment.history));
@@ -91,9 +97,10 @@ export default class Home {
             (this.villagerAgility / BASE_VILLAGER_AGILITY) +
             (this.villagerMaxSpeed / BASE_VILLAGER_MAX_SPEED) +
             (this.maxAge / BASE_MAX_AGE) +
-            (this.maxPopulation / BASE_MAX_POP)
+            (this.maxPopulation / BASE_MAX_POP) +
+            (this.villagerStrength / BASE_VILLAGER_STRENGTH)
            )
-           * 5;
+           * 3.7;
   }
 
   draw() {
@@ -153,6 +160,10 @@ export default class Home {
     }
   }
 
+  isParentOf(obj) {
+    return obj.type === HOME && obj.parent && obj.parent.id === this.id;
+  }
+
   splitVillage() {
     const newHome = this.environment.addHome();
     newHome.x = this.x;
@@ -163,6 +174,9 @@ export default class Home {
     newHome.homeSpeed = this.homeSpeed * percentAdjust(0.1);
     newHome.villagerAgility = this.villagerAgility * percentAdjust(0.1);
     newHome.villagerMaxSpeed = this.villagerMaxSpeed * percentAdjust(0.1);
+    newHome.villagerStrength = this.villagerStrength * percentAdjust(0.1);
+    newHome.villagerAgressiveness = this.villagerAgressiveness * percentAdjust(0.1);
+    newHome.parent = this;
     newHome.destination = {
       x: randomX(),
       y: randomY()
