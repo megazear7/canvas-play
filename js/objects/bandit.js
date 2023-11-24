@@ -202,6 +202,7 @@ export default class Bandit {
     bandit.y = this.y;
     bandit.maxAge = extraTime;
     bandit.death = Date.now() + extraTime;
+    this.death = Date.now() + (this.timeRemaining / 2);
   }
 
   findTargetFromList(objects) {
