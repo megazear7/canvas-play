@@ -14,7 +14,7 @@ export default class Bandit {
   constructor({
               context,
               environment,
-              x = Math.random() > 2 ? window.innerWidth + 20 : -20,
+              x = Math.random() > 0.5 ? window.innerWidth + 20 : -20,
               y = randomY(),
               red = 0,
               green = 0,
