@@ -180,8 +180,8 @@ export default class Bandit {
   }
 
   killVillager() {
-    const extraTime = this.destination.timeRemaining * 0.65;
-    if (this.timeRemaining + extraTime > 50 * 1000) {
+    const extraTime = this.destination.timeRemaining * 0.60;
+    if (this.timeRemaining + extraTime > 75 * 1000) {
       this.destination.destroy = true;
       this.destination = undefined;
       this.spawn(extraTime);
