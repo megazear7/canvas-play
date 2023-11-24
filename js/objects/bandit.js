@@ -164,7 +164,7 @@ export default class Bandit {
   }
   
   hasNearbyVillager() {
-    return this.destination && this.destination.type === VILLAGER && this.targetIsClose();
+    return this.destination && this.destination.type === VILLAGER && !this.destination.destroy && this.targetIsClose();
   }
 
   reachedExploreDestination() {
@@ -172,7 +172,7 @@ export default class Bandit {
   }
 
   reachedVillager() {
-    return this.reachedTarget() && this.destination.type === VILLAGER;
+    return this.reachedTarget() && this.destination.type === VILLAGER && !this.destination.destroy;
   }
 
   reachedTarget() {

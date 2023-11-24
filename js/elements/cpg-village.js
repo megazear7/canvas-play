@@ -80,6 +80,7 @@ export default class CpgVillage extends HTMLElement {
     animate();
     setInterval(() => this.majorUpdates(), this.updateDelay * 1000);
     setInterval(() => this.minorUpdates(), this.updateDelay * 100);
+    setInterval(() => this.addBandits(), 20 * 1000);
   }
 
   majorUpdates() {
@@ -87,7 +88,6 @@ export default class CpgVillage extends HTMLElement {
     this.placeAllObjects();
     this.objects.forEach(obj => obj.majorUpdate());
     this.addApples();
-    this.addBandits();
     this.adjustMaxApples();
   }
 

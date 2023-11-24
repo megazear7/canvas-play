@@ -350,6 +350,9 @@ export default class Villager {
     this.green = newHome.green;
     this.blue = newHome.blue;
     this.home = newHome;
+    if (this.destination && this.destination.type === HOME) {
+      this.destination = newHome;
+    }
     newHome.villagers.push(this);
   }
 
