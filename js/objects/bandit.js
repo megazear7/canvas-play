@@ -1,6 +1,6 @@
-import { randomX, randomY, drawRect, shuffle, writeText, percentAdjust, drawArc, drawLine } from '../utility.js';
+import { randomX, randomY, drawRect, shuffle, writeText, percentAdjust } from '../utility.js';
 import { movePoint2, getDistancePts } from '../utility.js';
-import { HERO, VILLAGER, WARRIOR } from './villager.js';
+import { HERO, VILLAGER } from './villager.js';
 
 export const BANDIT = 'bandit';
 const BANDIT_MAX_SPEED = 0.2;
@@ -180,7 +180,7 @@ export default class Bandit {
   }
 
   killVillager() {
-    const extraTime = this.destination.timeRemaining * 0.50;
+    const extraTime = this.destination.timeRemaining * 0.25;
     if (this.timeRemaining + extraTime > 100 * 1000) {
       this.destination.destroy = true;
       this.destination = undefined;
