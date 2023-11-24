@@ -3,10 +3,12 @@ import { movePoint2, getDistancePts } from '../utility.js';
 import { HERO, VILLAGER, WARRIOR } from './villager.js';
 
 export const BANDIT = 'bandit';
-const BANDIT_MAX_SPEED = 0.5;
-const BANDIT_AGILITY = 0.03;
+const BANDIT_MAX_SPEED = 0.45;
+const BANDIT_AGILITY = 0.0275;
 const BANDIT_BASE_GIVE_UP_DISTANCE = 1;
 const EXPLORE = 'EXPLORE';
+export const MUTATION_RATE = 0.2;
+export const STARTING_VARIABILITY = 0.5;
 
 export default class Bandit {
   constructor({
@@ -18,9 +20,9 @@ export default class Bandit {
               green = 0,
               blue = 0,
               size = 20,
-              maxSpeed = BANDIT_MAX_SPEED * percentAdjust(0.3),
-              agility = BANDIT_AGILITY * percentAdjust(0.3),
-              giveUp = BANDIT_BASE_GIVE_UP_DISTANCE * percentAdjust(0.3)
+              maxSpeed = BANDIT_MAX_SPEED * percentAdjust(STARTING_VARIABILITY),
+              agility = BANDIT_AGILITY * percentAdjust(STARTING_VARIABILITY),
+              giveUp = BANDIT_BASE_GIVE_UP_DISTANCE * percentAdjust(STARTING_VARIABILITY)
             } = {}) {
     this.context = context;
     this.environment = environment;
@@ -178,10 +180,28 @@ export default class Bandit {
   }
 
   killVillager() {
-    this.death += (this.destination.timeRemaining * 0.80);
-    this.destination.home.heroTargets.push(this);
-    this.destination.destroy = true;
-    this.destination = undefined;
+    const extraTime = this.destination.timeRemaining * 0.80;
+    if (this.timeRemaining + extraTime > 50 * 1000) {
+      this.destination.destroy = true;
+      this.destination = undefined;
+      this.spawn(extraTime);
+    } else {
+      this.death += extraTime;
+      this.destination.home.heroTargets.push(this);
+      this.destination.destroy = true;
+      this.destination = undefined;
+    }
+  }
+
+  spawn(extraTime) {
+    const bandit = this.environment.addBandit();
+    bandit.maxSpeed = this.maxSpeed * percentAdjust(MUTATION_RATE);
+    bandit.agility = this.agility * percentAdjust(MUTATION_RATE);
+    bandit.giveUp = this.giveUp * percentAdjust(MUTATION_RATE);
+    bandit.x = this.x;
+    bandit.y = this.y;
+    bandit.maxAge = extraTime;
+    bandit.death = Date.now() + extraTime;
   }
 
   findTargetFromList(objects) {

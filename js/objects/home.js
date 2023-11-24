@@ -1,15 +1,13 @@
-import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, percentAdjust, randomNumber } from '../utility.js';
+import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, percentAdjust } from '../utility.js';
 import Villager, { HERO } from './villager.js';
 
 export const HOME = 'home';
-export const BASE_MIN_AGE = 24000;
-export const BASE_MAX_AGE = 48000;
-export const BASE_MIN_POP = 5;
-export const BASE_MAX_POP = 10;
+export const BASE_MAX_AGE = 36000;
+export const BASE_MAX_POP = 12;
 export const BASE_HOME_SPEED = 100;
 export const VILLAGER_BASE_ADVENTUROUSNESS = 0.2;
-export const BASE_VILLAGER_MAX_SPEED = 0.65;
-export const BASE_VILLAGER_AGILITY = 0.0275;
+export const BASE_VILLAGER_MAX_SPEED = 0.6;
+export const BASE_VILLAGER_AGILITY = 0.025;
 export const BASE_VILLAGER_AGGRESIVENESS = 0.1;
 export const BASE_VILLAGER_HEROISM = 0.01;
 export const BASE_VILLAGER_STRENGTH = 7;
@@ -28,8 +26,8 @@ export default class Home {
               radius = 15,
               food = 0,
               adventurousness = VILLAGER_BASE_ADVENTUROUSNESS * percentAdjust(STARTING_VARIABILITY),
-              maxPopulation = randomNumber({ min: BASE_MIN_POP, max: BASE_MAX_POP }) * percentAdjust(STARTING_VARIABILITY),
-              maxAge = randomNumber({ min: BASE_MIN_AGE, max: BASE_MAX_AGE }) * percentAdjust(STARTING_VARIABILITY),
+              maxPopulation = BASE_MAX_POP * percentAdjust(STARTING_VARIABILITY),
+              maxAge = BASE_MAX_AGE * percentAdjust(STARTING_VARIABILITY),
               homeSpeed = BASE_HOME_SPEED * percentAdjust(STARTING_VARIABILITY),
               villagerAgility = BASE_VILLAGER_AGILITY * percentAdjust(STARTING_VARIABILITY),
               villagerMaxSpeed = BASE_VILLAGER_MAX_SPEED * percentAdjust(STARTING_VARIABILITY),
