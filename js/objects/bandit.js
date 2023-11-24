@@ -3,7 +3,7 @@ import { movePoint2, getDistancePts } from '../utility.js';
 import { HERO, VILLAGER } from './villager.js';
 
 export const BANDIT = 'bandit';
-const BANDIT_MAX_SPEED = 0.2;
+const BANDIT_MAX_SPEED = 0.25;
 const BANDIT_AGILITY = 0.01;
 const BANDIT_BASE_GIVE_UP_DISTANCE = 1;
 const EXPLORE = 'EXPLORE';
@@ -14,7 +14,7 @@ export default class Bandit {
   constructor({
               context,
               environment,
-              x = randomX(),
+              x = Math.random() > 2 ? window.innerWidth + 20 : -20,
               y = randomY(),
               red = 0,
               green = 0,
@@ -27,8 +27,8 @@ export default class Bandit {
     this.context = context;
     this.environment = environment;
     this.id = Math.random();
-    this.x = x ? x : this.home.x;
-    this.y = y ? y : this.home.y;
+    this.x = x;
+    this.y = y;
     this.dx = 0;
     this.dy = 0;
     this.red = red;
@@ -202,7 +202,7 @@ export default class Bandit {
     bandit.y = this.y;
     bandit.maxAge = extraTime;
     bandit.death = Date.now() + extraTime;
-    this.death = Date.now() + (this.timeRemaining / 2);
+    this.death = Date.now() + (this.timeRemaining * 0.25);
   }
 
   findTargetFromList(objects) {
