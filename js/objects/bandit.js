@@ -8,7 +8,7 @@ const BANDIT_AGILITY = 0.026;
 const BANDIT_BASE_GIVE_UP_DISTANCE = 1;
 const EXPLORE = 'EXPLORE';
 export const MUTATION_RATE = 0.2;
-export const STARTING_VARIABILITY = 0.5;
+export const STARTING_VARIABILITY = 0.25;
 
 export default class Bandit {
   constructor({
@@ -41,7 +41,7 @@ export default class Bandit {
     this.giveUp = giveUp;
     this.impacting = false;
     this.type = BANDIT;
-    this.maxAge = 10000 + (Math.random() * 25000);
+    this.maxAge = 10000 + (Math.random() * 20000);
     this.death = Date.now() + this.maxAge;
   }
 
@@ -180,7 +180,7 @@ export default class Bandit {
   }
 
   killVillager() {
-    const extraTime = this.destination.timeRemaining * 0.70;
+    const extraTime = this.destination.timeRemaining * 0.65;
     if (this.timeRemaining + extraTime > 50 * 1000) {
       this.destination.destroy = true;
       this.destination = undefined;
