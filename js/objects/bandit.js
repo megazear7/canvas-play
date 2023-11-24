@@ -3,11 +3,11 @@ import { movePoint2, getDistancePts } from '../utility.js';
 import { HERO, VILLAGER, WARRIOR } from './villager.js';
 
 export const BANDIT = 'bandit';
-const BANDIT_MAX_SPEED = 0.38;
-const BANDIT_AGILITY = 0.02;
+const BANDIT_MAX_SPEED = 0.35;
+const BANDIT_AGILITY = 0.015;
 const BANDIT_BASE_GIVE_UP_DISTANCE = 1;
 const EXPLORE = 'EXPLORE';
-export const MUTATION_RATE = 0.2;
+export const MUTATION_RATE = 0.05;
 export const STARTING_VARIABILITY = 0.25;
 
 export default class Bandit {
@@ -180,7 +180,7 @@ export default class Bandit {
   }
 
   killVillager() {
-    const extraTime = this.destination.timeRemaining * 0.60;
+    const extraTime = this.destination.timeRemaining * 0.50;
     if (this.timeRemaining + extraTime > 100 * 1000) {
       this.destination.destroy = true;
       this.destination = undefined;
