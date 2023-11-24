@@ -2,17 +2,19 @@ import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, per
 import Villager, { HERO } from './villager.js';
 
 export const HOME = 'home';
-export const BASE_MIN_AGE = 12000;
-export const BASE_MAX_AGE = 24000;
+export const BASE_MIN_AGE = 24000;
+export const BASE_MAX_AGE = 48000;
 export const BASE_MIN_POP = 5;
 export const BASE_MAX_POP = 10;
 export const BASE_HOME_SPEED = 100;
-export const VILLAGER_BASE_ADVENTUROUSNESS = 0.25;
-export const BASE_VILLAGER_MAX_SPEED = 1;
-export const BASE_VILLAGER_AGILITY = 0.04;
+export const VILLAGER_BASE_ADVENTUROUSNESS = 0.2;
+export const BASE_VILLAGER_MAX_SPEED = 0.65;
+export const BASE_VILLAGER_AGILITY = 0.0275;
 export const BASE_VILLAGER_AGGRESIVENESS = 0.1;
-export const BASE_VILLAGER_HEROISM = 0.025;
-export const BASE_VILLAGER_STRENGTH = 6;
+export const BASE_VILLAGER_HEROISM = 0.01;
+export const BASE_VILLAGER_STRENGTH = 7;
+export const MUTATION_RATE = 0.2;
+export const STARTING_VARIABILITY = 0.5;
 
 export default class Home {
   constructor({
@@ -25,16 +27,19 @@ export default class Home {
               blue = 50,
               radius = 15,
               food = 0,
-              adventurousness = VILLAGER_BASE_ADVENTUROUSNESS * percentAdjust(0.3),
-              maxPopulation = randomNumber({ min: BASE_MIN_POP, max: BASE_MAX_POP }) * percentAdjust(0.3),
-              maxAge = randomNumber({ min: BASE_MIN_AGE, max: BASE_MAX_AGE }) * percentAdjust(0.3),
-              homeSpeed = BASE_HOME_SPEED * percentAdjust(0.3),
-              villagerAgility = BASE_VILLAGER_AGILITY * percentAdjust(0.3),
-              villagerMaxSpeed = BASE_VILLAGER_MAX_SPEED * percentAdjust(0.3),
-              villagerAgressiveness = BASE_VILLAGER_AGGRESIVENESS * percentAdjust(0.3),
-              villagerStrength = BASE_VILLAGER_STRENGTH * percentAdjust(0.3),
-              villagerHeroism = BASE_VILLAGER_HEROISM * percentAdjust(0.3),
+              adventurousness = VILLAGER_BASE_ADVENTUROUSNESS * percentAdjust(STARTING_VARIABILITY),
+              maxPopulation = randomNumber({ min: BASE_MIN_POP, max: BASE_MAX_POP }) * percentAdjust(STARTING_VARIABILITY),
+              maxAge = randomNumber({ min: BASE_MIN_AGE, max: BASE_MAX_AGE }) * percentAdjust(STARTING_VARIABILITY),
+              homeSpeed = BASE_HOME_SPEED * percentAdjust(STARTING_VARIABILITY),
+              villagerAgility = BASE_VILLAGER_AGILITY * percentAdjust(STARTING_VARIABILITY),
+              villagerMaxSpeed = BASE_VILLAGER_MAX_SPEED * percentAdjust(STARTING_VARIABILITY),
+              villagerAgressiveness = BASE_VILLAGER_AGGRESIVENESS * percentAdjust(STARTING_VARIABILITY),
+              villagerStrength = BASE_VILLAGER_STRENGTH * percentAdjust(STARTING_VARIABILITY),
+              villagerHeroism = BASE_VILLAGER_HEROISM * percentAdjust(STARTING_VARIABILITY),
             } = {}) {
+    this.villagers = [];
+    this.heroTargets = [];
+    this.heroes = [];
     this.context = context;
     this.environment = environment;
     this.id = Math.random();
@@ -55,9 +60,6 @@ export default class Home {
     this.villagerAgressiveness = villagerAgressiveness;
     this.villagerStrength = villagerStrength;
     this.villagerHeroism = villagerHeroism;
-    this.villagers = [];
-    this.heroTargets = [];
-    this.heroes = [];
     this.environment.history.push(this.characteristics);
     window.localStorage.setItem('VILLAGE_HISTORY', JSON.stringify(this.environment.history));
   }
@@ -76,36 +78,19 @@ export default class Home {
     };
   }
 
-  right() {
-    return this.x + this.radius;
-  }
-
-  left() {
-    return this.x - this.radius;
-  }
-
-  bottom() {
-    return this.y + this.radius;
-  }
-
-  top() {
-    return this.y - this.radius;
-  }
-
   get fullRadius() {
     return this.radius + this.villagers.length * 1.5;
   }
 
   get villagerCost() {
     return (
-            (this.homeSpeed / BASE_HOME_SPEED) +
-            (this.villagerAgility / BASE_VILLAGER_AGILITY) +
-            (this.villagerMaxSpeed / BASE_VILLAGER_MAX_SPEED) +
-            (this.maxAge / BASE_MAX_AGE) +
-            (this.maxPopulation / BASE_MAX_POP) +
-            (this.villagerStrength / BASE_VILLAGER_STRENGTH)
-           )
-           * 3.7;
+            ((1 * this.homeSpeed) / BASE_HOME_SPEED) +
+            ((2 * this.villagerAgility) / BASE_VILLAGER_AGILITY) +
+            ((9 * this.villagerMaxSpeed) / BASE_VILLAGER_MAX_SPEED) +
+            ((4 * this.maxAge) / BASE_MAX_AGE) +
+            ((2 * this.maxPopulation) / BASE_MAX_POP) +
+            ((3 * this.villagerStrength) / BASE_VILLAGER_STRENGTH)
+           );
   }
 
   draw() {
@@ -173,15 +158,15 @@ export default class Home {
     const newHome = this.environment.addHome();
     newHome.x = this.x;
     newHome.y = this.y;
-    newHome.adventurousness = this.adventurousness * percentAdjust(0.1);
-    newHome.maxPopulation = this.maxPopulation * percentAdjust(0.1);
-    newHome.maxAge = this.maxAge * percentAdjust(0.1);
-    newHome.homeSpeed = this.homeSpeed * percentAdjust(0.1);
-    newHome.villagerAgility = this.villagerAgility * percentAdjust(0.1);
-    newHome.villagerMaxSpeed = this.villagerMaxSpeed * percentAdjust(0.1);
-    newHome.villagerStrength = this.villagerStrength * percentAdjust(0.1);
-    newHome.villagerAgressiveness = this.villagerAgressiveness * percentAdjust(0.1);
-    newHome.villagerHeroism = this.villagerHeroism * percentAdjust(0.1);
+    newHome.adventurousness = this.adventurousness * percentAdjust(MUTATION_RATE)
+    newHome.maxPopulation = this.maxPopulation * percentAdjust(MUTATION_RATE)
+    newHome.maxAge = this.maxAge * percentAdjust(MUTATION_RATE)
+    newHome.homeSpeed = this.homeSpeed * percentAdjust(MUTATION_RATE)
+    newHome.villagerAgility = this.villagerAgility * percentAdjust(MUTATION_RATE)
+    newHome.villagerMaxSpeed = this.villagerMaxSpeed * percentAdjust(MUTATION_RATE)
+    newHome.villagerStrength = this.villagerStrength * percentAdjust(MUTATION_RATE)
+    newHome.villagerAgressiveness = this.villagerAgressiveness * percentAdjust(MUTATION_RATE)
+    newHome.villagerHeroism = this.villagerHeroism * percentAdjust(MUTATION_RATE)
     newHome.parent = this;
     newHome.destination = {
       x: randomX(),

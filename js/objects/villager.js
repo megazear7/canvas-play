@@ -36,29 +36,13 @@ export default class Villager {
     this.death = Date.now() + this.home.maxAge;
     if (Math.random() < this.home.villagerAgressiveness) {
       this.subType = WARRIOR;
-    } else if (this.home.heroes.length === 0 && Math.random() < this.home.villagerHeroism) {
+    } else if (this.home.heroes.length === 0 && Math.random() < this.home.villagerHeroism && this.home.villagers.length > 0) {
       this.subType = HERO;
       this.death = Date.now() + (this.home.maxAge * 4);
       this.home.heroes.push(this);
     } else {
       this.subType = GATHERER;
     }
-  }
-
-  right() {
-    return this.x + this.radius;
-  }
-
-  left() {
-    return this.x - this.radius;
-  }
-
-  bottom() {
-    return this.y + this.radius;
-  }
-
-  top() {
-    return this.y - this.radius;
   }
 
   draw() {
@@ -158,6 +142,24 @@ export default class Villager {
           fillGreen: 0,
           fillBlue: 0
         })
+        // TODO: Uncomment this to see the destination drawn on the screen
+        // if (this.destination) {
+        //   drawArc({
+        //     context: this.context,
+        //     x: this.destination.x,
+        //     y: this.destination.y,
+        //     radius: 5,
+        //     lineWidth: 0.5,
+        //     lineStyle: `rgb(0,0,0)`
+        //   });
+        //   drawLine(
+        //     this.context,
+        //     this,
+        //     this.destination,
+        //     2,
+        //     'rgb(0,0,0)'
+        //   )
+        // }
       }
     }
   }
@@ -171,7 +173,7 @@ export default class Villager {
   }
 
   move() {
-    if (this.destination && getDistancePts(this, this.destination) > (this.radius + this.destination.radius)) {
+    if (this.destination && !this.reachedDestination() && !this.destination.destroy) {
       this.moveToDestination();
     } else if (this.hunting && this.destination.id === this.hunting.id) {
       this.attackTarget();
@@ -184,6 +186,14 @@ export default class Villager {
       this.findPreferredTarget();
     } else {
       this.findPreferredTarget();
+    }
+  }
+
+  reachedDestination() {
+    if (this.subType === HERO && this.destination.type === HOME) {
+      return getDistancePts(this, this.destination) < 2;
+    } else {
+      return getDistancePts(this, this.destination) < (this.radius + this.destination.radius);
     }
   }
 
@@ -220,10 +230,17 @@ export default class Villager {
   findBadGuy() {
     this.home.heroTargets = this.home.heroTargets.filter(obj => !obj.destroy);
     if (this.home.heroTargets.length > 0) {
-      setTimeout(() => {
-        this.destination = shuffle(this.home.heroTargets)[0];
+      const destination = shuffle(this.home.heroTargets)[0];
+      const wait = 3000 * (1 - this.home.villagerAgressiveness);
+      if (destination.type === VILLAGER) {
+        setTimeout(() => {
+          this.destination = destination;
+          this.hunting = this.destination;
+        }, wait);
+      } else {
+        this.destination = destination;
         this.hunting = this.destination;
-      }, this.agility * 10000);
+      }
     } else {
       this.destination = this.home;
     }
@@ -248,15 +265,15 @@ export default class Villager {
   }
 
   get agility() {
-    return this.home.villagerAgility * (this.subType === HERO ? 1.2 : 1);
+    return this.home.villagerAgility * (this.subType === HERO ? 1.5 : 1);
   }
 
   get maxSpeed() {
-    return this.home.villagerMaxSpeed * (this.subType === HERO ? 1.2 : 1);
+    return this.home.villagerMaxSpeed * (this.subType === HERO ? 1.5 : 1);
   }
 
   get strength() {
-    return this.home.villagerStrength * (this.subType === HERO ? 1.2 : 1);
+    return this.home.villagerStrength * (this.subType === HERO ? 1.5 : 1);
   }
 
   moveToDestination() {

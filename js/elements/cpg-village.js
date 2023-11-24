@@ -2,7 +2,7 @@ import { VILLAGER } from '/js/objects/villager.js';
 import Bandit from '/js/objects/bandit.js';
 import  Apple, { APPLE } from '/js/objects/apple.js';
 import Home, { HOME } from '/js/objects/home.js';
-import { randomNumber, randomX } from '../utility.js';
+import { randomNumber } from '../utility.js';
 import { ROTTEN_APPLE } from '../objects/apple.js';
 import { BANDIT } from '../objects/bandit.js';
 
@@ -55,7 +55,6 @@ export default class CpgVillage extends HTMLElement {
     this.updateDelay = parseFloat(this.getAttribute('update-delay')) || 1;
     this.appleAgeRate = parseFloat(this.getAttribute('apple-age-rate')) || 1;
     this.banditDensity = parseFloat(this.getAttribute('bandit-density')) || 1;
-    this.midGameStart = parseFloat(this.getAttribute('bandit-density')) || 20000;
     this.villages = parseFloat(this.getAttribute('villages')) || 3;
     /* --------------------- */
 
@@ -93,10 +92,10 @@ export default class CpgVillage extends HTMLElement {
   }
 
   adjustMaxApples() {
-    if (this.villagers.length > this.maxVillagers && this.appleDensity < this.startAppleDensity * 2) {
-      this.appleDensity = this.appleDensity * 0.995;
-    } else if (this.villagers.length < this.maxVillagers && this.appleDensity > this.startAppleDensity * 0.5) {
-      this.appleDensity = this.appleDensity * 1.005;
+    if (this.villagers.length < this.maxVillagers && this.appleDensity < this.startAppleDensity * 2) {
+      this.appleDensity = this.appleDensity * 1.01;
+    } else if (this.villagers.length > this.maxVillagers && this.appleDensity > this.startAppleDensity * 0.5) {
+      this.appleDensity = this.appleDensity * 0.99;
     }
   }
 
@@ -150,9 +149,6 @@ export default class CpgVillage extends HTMLElement {
   addStartingVillages() {
     for (let i = 0; i < this.villages; i++) {
       const home = this.addHome();
-      home.addVillager();
-      home.addVillager();
-      home.addVillager();
       home.addVillager();
     }
   }
