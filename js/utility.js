@@ -32,6 +32,50 @@ export function getDistancePts(p1, p2) {
   return Math.sqrt( a*a + b*b );
 }
 
+export function drawRect2({
+  context,
+  center,
+  width,
+  height,
+  fillStyle = 'rgba(0,0,0,1)',
+  lineStyle = 'rgba(0,0,0,0)',
+  lineWidth = 1
+}) {
+  const points = [
+    {
+      x: center.x - width / 2,
+      y: center.y - height / 2
+    },
+    {
+      x: center.x + width / 2,
+      y: center.y - height / 2
+    },
+    {
+      x: center.x + width / 2,
+      y: center.y + height / 2
+    },
+    {
+      x: center.x - width / 2,
+      y: center.y + height / 2
+    }
+  ]
+  context.beginPath();
+  points.forEach(point => context.lineTo(point.x, point.y));
+  context.lineTo(points[0].x, points[0].y);
+  context.fillStyle = fillStyle;
+  context.fill();
+  context.lineWidth = lineWidth;
+  context.strokeStyle = lineStyle;
+  context.stroke();
+}
+
+export function isOffScreen(canvas, p) {
+  return p.x > canvas.width ||
+         p.y > canvas.height ||
+         p.x < 0 ||
+         p.y < 0;
+}
+
 export function drawRect({
   context,
   x = 0,
@@ -120,18 +164,80 @@ export function getMousePos(canvas, event) {
   };
 }
 
+export function polygon({
+  context,
+  points,
+  shift,
+  fillRed = 0,
+  fillGreen = 0,
+  fillBlue = 0,
+  fillOpacity = 1,
+  lineRed = 0,
+  lineGreen = 0,
+  lineBlue = 0,
+  lineOpacity = 1
+}) {
+  //iterate through all points and calculate the center, c
+  var c = {x:0, y:0}, p;
+  points.forEach(p => {
+      c.x+=p.x;
+      c.y+=p.y;
+  });
+
+  c.x/=points.length;
+  c.y/=points.length;
+
+
+  points.sort((p1, p2) => {
+      var dx1 = p1.x-c.x;
+      var dy1 = p1.y-c.y;
+      var a1 = Math.atan2(dy1, dx1);
+
+      var dx2 = p2.x-c.x;
+      var dy2 = p2.y-c.y;
+      var a2 = Math.atan2(dy2, dx2);
+
+      //If angles are the same, sort by length
+      if (a1===a2){
+          var d1 = dx1*dx1 + dy1*dy1;
+          var d2 = dx2*dx2 + dy2*dy2;
+
+          return d1-d2;
+      }
+
+      //otherwise sort by angle
+      return a1-a2;
+  });
+
+  //Iterate through all Points and draw lines between them
+  fillPoints({
+    context,
+    points,
+    shift,
+    fillRed,
+    fillGreen,
+    fillBlue,
+    fillOpacity,
+    lineRed,
+    lineGreen,
+    lineBlue,
+    lineOpacity
+  });
+}
+
 export function fillPoints({
-          context,
-          points,
-          shift,
-          fillRed = 0,
-          fillGreen = 0,
-          fillBlue = 0,
-          fillOpacity = 1,
-          lineRed = 0,
-          lineGreen = 0,
-          lineBlue = 0,
-          lineOpacity = 1} = {}) {
+  context,
+  points,
+  shift,
+  fillRed = 0,
+  fillGreen = 0,
+  fillBlue = 0,
+  fillOpacity = 1,
+  lineRed = 0,
+  lineGreen = 0,
+  lineBlue = 0,
+  lineOpacity = 1
+} = {}) {
   context.beginPath();
   points.forEach(point => context.lineTo(point.x, point.y + shift));
   context.lineTo(points[0].x, points[points.length-1].y);

@@ -1,7 +1,7 @@
 import { drawArc, drawCircle, shuffle, drawLine, fillPoints } from '../utility.js';
 import { APPLE, ROTTEN_APPLE } from './apple.js';
 import { movePoint2, getDistancePts } from '../utility.js';
-import { HOME, BASE_VILLAGER_STRENGTH } from './home.js';
+import { HOME, BASE_VILLAGER_STRENGTH, OUTPOST } from './home.js';
 
 export const VILLAGER = 'villager';
 export const GATHERER = 'gatherer';
@@ -292,10 +292,29 @@ export default class Villager {
     } else if (this.destination && this.destination.type === APPLE) {
       this.destination.location = this;
       this.carrying = this.destination;
-      this.destination = this.home;
+      this.destination = this.findNearestDropOff();
     } else {
       this.findPreferredTarget();
     }
+  }
+
+  findNearestDropOff() {
+    if (this.home.outposts.length === 0) {
+      return this.home;
+    } else {
+      const nearestOutpost = this.findNearestOutpost();
+      if (nearestOutpost.distance < getDistancePts(this, this.home)) {
+        return nearestOutpost.outpost;
+      } else {
+        return this.home;
+      }
+    }
+  }
+
+  findNearestOutpost() {
+    return this.home.outposts.length > 0 ? this.home.outposts
+      .map(outpost => ({ outpost: outpost, distance: getDistancePts(this, outpost) }))
+      .sort((a,b) => a.distance - b.distance)[0] : undefined;
   }
 
   goFurther() {
