@@ -67,7 +67,6 @@ export default class Home {
     this.villagerHeroism = villagerHeroism;
     this.expansionRate = expansionRate;
     this.environment.history.push(this.characteristics);
-    console.log(this.villagerCost);
     window.localStorage.setItem('VILLAGE_HISTORY', JSON.stringify(this.environment.history));
   }
 
@@ -104,7 +103,6 @@ export default class Home {
   draw() {
     if (this.villagers.length > 0) {
       if (this.outposts.length > 0) {
-        console.log('A');
         drawCircle({
           context: this.context,
           x: this.x,
