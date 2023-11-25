@@ -292,7 +292,7 @@ export default class Villager {
     } else if (this.destination && this.destination.type === APPLE) {
       this.destination.location = this;
       this.carrying = this.destination;
-      this.destination = this.findNearestDropOff();
+      this.destination = this.nearestDropOff;
     } else {
       this.findPreferredTarget();
     }
@@ -387,7 +387,9 @@ export default class Villager {
   }
 
   majorUpdate() {
-    if (!this.alive) {
+    if (this.alive) {
+      this.nearestDropOff = this.findNearestDropOff();
+    } else {
       this.destroy = true;
       if (this.carrying) {
         this.carrying.location = undefined;

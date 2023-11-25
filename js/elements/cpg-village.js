@@ -5,6 +5,7 @@ import Home, { HOME } from '/js/objects/home.js';
 import { randomNumber } from '../utility.js';
 import { ROTTEN_APPLE } from '../objects/apple.js';
 import { BANDIT } from '../objects/bandit.js';
+import Arrow, { ARROW } from '../objects/arrow.js';
 
 export default class CpgVillage extends HTMLElement {
   constructor() {
@@ -153,6 +154,17 @@ export default class CpgVillage extends HTMLElement {
     }
   }
 
+  createArrow(source, destination, strength) {
+    this.objects.push(new Arrow({
+      context: this.context,
+      environment: this,
+      x: source.x,
+      y: source.y,
+      destination: destination,
+      strength
+    }));
+  }
+
   addBandits() {
     const banditCount = Math.floor(((this.villagers.length / 10) * this.banditDensity) - this.bandits.length);
     for (let i = 0; i < banditCount; i++) {
@@ -237,9 +249,9 @@ export default class CpgVillage extends HTMLElement {
   }
 
   addHome() {
-    var red = randomNumber({ min: 200, max: 255 });
-    var green = randomNumber({ min: 200, max: 255 });
-    var blue = randomNumber({ min: 200, max: 255 });
+    var red = randomNumber({ min: 180, max: 220 });
+    var green = randomNumber({ min: 180, max: 220 });
+    var blue = randomNumber({ min: 180, max: 220 });
     var home = new Home({
       context: this.context,
       environment: this,
@@ -258,6 +270,7 @@ export default class CpgVillage extends HTMLElement {
     this.apples.forEach(obj => obj.update());
     this.rottenApples.forEach(obj => obj.update());
     this.bandits.forEach(obj => obj.update());
+    this.arrows.forEach(obj => obj.update());
   }
 
   get homes() {
@@ -278,6 +291,16 @@ export default class CpgVillage extends HTMLElement {
 
   get bandits() {
     return this.objects.filter(obj => obj.type === BANDIT).sort((a, b) => a.id - b.id);
+  }
+
+  get arrows() {
+    return this.objects.filter(obj => obj.type === ARROW).sort((a, b) => a.id - b.id);
+  }
+
+  get outposts() {
+    const outposts = [];
+    this.homes.forEach(home => outposts.push(...home.outposts));
+    return outposts;
   }
 }
 
