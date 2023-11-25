@@ -1,4 +1,4 @@
-import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, percentAdjust, drawRect2, isOffScreen } from '../utility.js';
+import { randomX, randomY, drawCircle, writeText, getDistancePts, movePoint, percentAdjust, drawRect2, isOffScreen, percentAdjustUp } from '../utility.js';
 import Villager, { HERO } from './villager.js';
 
 export const HOME = 'home';
@@ -44,6 +44,7 @@ export default class Home {
     this.heroes = [];
     this.outposts = [];
     this.kingdomRadius = 0;
+    this.failedKingdom = false;
     this.context = context;
     this.environment = environment;
     this.id = Math.random();
@@ -66,6 +67,7 @@ export default class Home {
     this.villagerHeroism = villagerHeroism;
     this.expansionRate = expansionRate;
     this.environment.history.push(this.characteristics);
+    console.log(this.villagerCost);
     window.localStorage.setItem('VILLAGE_HISTORY', JSON.stringify(this.environment.history));
   }
 
@@ -91,17 +93,18 @@ export default class Home {
     return (
             ((1 * this.homeSpeed) / BASE_HOME_SPEED) +
             ((2 * this.villagerAgility) / BASE_VILLAGER_AGILITY) +
-            ((9 * this.villagerMaxSpeed) / BASE_VILLAGER_MAX_SPEED) +
-            ((4 * this.maxAge) / BASE_MAX_AGE) +
+            ((12 * this.villagerMaxSpeed) / BASE_VILLAGER_MAX_SPEED) +
+            ((6 * this.maxAge) / BASE_MAX_AGE) +
             ((2 * this.startingMaxPopulation) / BASE_MAX_POP) +
             ((3 * this.villagerStrength) / BASE_VILLAGER_STRENGTH) +
             (this.outposts.length * this.outposts.length)
-           );
+           ) * 0.8;
   }
 
   draw() {
     if (this.villagers.length > 0) {
       if (this.outposts.length > 0) {
+        console.log('A');
         drawCircle({
           context: this.context,
           x: this.x,
@@ -180,7 +183,7 @@ export default class Home {
   }
 
   findInvadingOutpost() {
-    return this.environment.outposts.find(outpost => outpost.id != this.id && getDistancePts(this, outpost) < this.kingdomRadius);
+    return this.outposts.length > 0 && this.environment.outposts.find(outpost => outpost.id != this.id && getDistancePts(this, outpost) < this.kingdomRadius);
   }
 
   shootAtInvadingOutpost(outpost) {
@@ -200,7 +203,7 @@ export default class Home {
       this.destroy = true;
     }
     if (this.effectivePopulation > this.maxPopulation) {
-      if (this.outposts.length > 0 || (Math.random() < this.expansionRate && !this.destination)) {
+      if (!this.failedKingdom && this.outposts.length > 0 || (Math.random() < this.expansionRate && !this.destination)) {
         this.buildOutpost();
       } else {
         this.splitVillage();
@@ -233,9 +236,9 @@ export default class Home {
     newHome.villagerStrength = this.villagerStrength * percentAdjust(MUTATION_RATE)
     newHome.villagerAgressiveness = this.villagerAgressiveness * percentAdjust(MUTATION_RATE)
     newHome.villagerHeroism = this.villagerHeroism * percentAdjust(MUTATION_RATE)
-    newHome.expansionRate = this.expansionRate * percentAdjust(MUTATION_RATE)
+    newHome.expansionRate = this.expansionRate * this.outposts.length > 0 ? percentAdjustUp(MUTATION_RATE) : percentAdjust(MUTATION_RATE);
     newHome.parent = this;
-    const spot = this.findSpotOnCanvas(250);
+    const spot = this.findSpotOnCanvas(400);
     if (spot) {
       newHome.destination = {
         x: spot.x,
@@ -280,7 +283,7 @@ export default class Home {
       spot = this.findSpot(distance);
       tries++;
     }
-    return spot;
+    return spot && !isOffScreen(this.environment.canvas, spot) ? spot : undefined;
   }
 
   findSpot(distance) {

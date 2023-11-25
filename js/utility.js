@@ -369,6 +369,10 @@ export function percentAdjust(percent) {
   return Math.random() * (percent * 2) + (1 - percent);
 }
 
+export function percentAdjustUp(percent) {
+  return (Math.random() * percent) + 1;
+}
+
 export function writeText({
   context,
   text = 'Hello world',

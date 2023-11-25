@@ -47,6 +47,12 @@ export default class Arrow {
 
   update() {
     if (getDistancePts(this, this.destination) < this.destination.radius) {
+      if (this.destination.home.outposts.length === 1) {
+        this.destination.home.failedKingdom = true;
+        setTimeout(() => {
+          this.destination.home.failedKingdom = false;
+        }, this.strength * 1000)
+      }
       this.destination.destroy = true;
       this.destroy = true;
     }

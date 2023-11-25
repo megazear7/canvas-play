@@ -249,9 +249,9 @@ export default class CpgVillage extends HTMLElement {
   }
 
   addHome() {
-    var red = randomNumber({ min: 180, max: 220 });
-    var green = randomNumber({ min: 180, max: 220 });
-    var blue = randomNumber({ min: 180, max: 220 });
+    var red = randomNumber({ min: 140, max: 200 });
+    var green = randomNumber({ min: 140, max: 200 });
+    var blue = randomNumber({ min: 140, max: 200 });
     var home = new Home({
       context: this.context,
       environment: this,
