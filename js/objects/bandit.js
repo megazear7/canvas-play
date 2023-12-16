@@ -3,8 +3,8 @@ import { movePoint2, getDistancePts } from '../utility.js';
 import { HERO, VILLAGER } from './villager.js';
 
 export const BANDIT = 'bandit';
-const BANDIT_MAX_SPEED = 0.25;
-const BANDIT_AGILITY = 0.01;
+const BANDIT_MAX_SPEED = 0.5;
+const BANDIT_AGILITY = 0.08;
 const BANDIT_BASE_GIVE_UP_DISTANCE = 1;
 const EXPLORE = 'EXPLORE';
 export const MUTATION_RATE = 0.05;
