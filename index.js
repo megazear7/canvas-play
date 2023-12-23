@@ -15,6 +15,7 @@ export { default as CpgMapMaker } from './js/elements/cpg-map-maker.js';
 export { default as CpgToTheMoon } from './js/elements/cpg-to-the-moon.js';
 export { default as CpgVillage } from './js/elements/cpg-village.js';
 export { default as CpgVectors } from './js/elements/cpg-vectors.js';
+export { default as CpgNetworkWorld } from './js/elements/cpg-network-world.js';
 
 // Canvas objects
 export { default as Crack } from './js/objects/crack.js';
