@@ -22,7 +22,7 @@ const PLAYER_CONFIG = {
   // Health properties
   maxHealth: 100,
   attackDamage: 25,
-  attackRange: 150, // Increased from 50 to allow attacking with collision detection
+  attackRange: 160, // Increased from 50 to allow attacking with collision detection
   attackCooldown: 500 // ms between attacks (0.5 seconds)
 };
 
@@ -34,9 +34,27 @@ const ENEMY_CONFIG = {
   moveSpeed: 1.5,
   maxHealth: 50,
   attackDamage: 15,
-  attackRange: 150, // Increased from 40 to match player range
-  detectionRange: 300, // Distance at which enemy starts chasing player
-  attackCooldown: 1000 // ms between attacks
+  attackRange: 120, // Increased from 40 to match player range
+  detectionRange: 600, // Distance at which enemy starts chasing player
+  attackCooldown: 800 // ms between attacks
+};
+
+// Orb configuration
+const ORB_CONFIG = {
+  width: 24,
+  height: 24,
+  color: '#FF0000',
+  bounceFactor: 0.7, // How much velocity is retained when bouncing
+  healthValue: 25, // Health gained when collected
+  spawnInterval: 12000 // ms between orb spawns
+};
+
+// Game configuration
+const GAME_CONFIG = {
+  initialMaxOrcs: 2,
+  orcSpawnInterval: 5000, // 20 seconds
+  maxOrcIncreaseInterval: 30000, // 1 minute
+  platformCount: 8 // Number of platforms to generate
 };
 
 export default class CpgSideScroller extends BaseElement {
@@ -44,6 +62,10 @@ export default class CpgSideScroller extends BaseElement {
     super();
     this.createProps(CpgSideScroller.observedAttributes);
     this.configure({ fullScreen: true });
+
+    // Safe canvas dimensions (fallback if not set)
+    const canvasWidth = this.canvas ? this.canvas.width : 800;
+    const canvasHeight = this.canvas ? this.canvas.height : 600;
 
     // Loading state
     this.isLoading = true;
@@ -92,7 +114,7 @@ export default class CpgSideScroller extends BaseElement {
     // Game state
     this.player = {
       x: 100,
-      y: this.canvas.height - PLAYER_CONFIG.startOffsetY,
+      y: canvasHeight - PLAYER_CONFIG.startOffsetY,
       width: PLAYER_CONFIG.width,
       height: PLAYER_CONFIG.height,
       velocityX: 0,
@@ -109,6 +131,15 @@ export default class CpgSideScroller extends BaseElement {
     // Enemy management
     this.enemies = [];
 
+    // Orb management
+    this.orbs = [];
+    this.lastOrbSpawn = 0;
+
+    // Dynamic orc spawning
+    this.maxOrcs = GAME_CONFIG.initialMaxOrcs;
+    this.lastOrcSpawn = 0;
+    this.lastMaxOrcIncrease = Date.now();
+
     // Game state
     this.gameOver = false;
 
@@ -118,14 +149,10 @@ export default class CpgSideScroller extends BaseElement {
     this.friction = PLAYER_CONFIG.friction;
 
     // Ground level
-    this.groundY = this.canvas.height - 50;
+    this.groundY = canvasHeight - 50;
 
-    // Simple platforms
-    this.platforms = [
-      { x: 200, y: this.groundY - 50, width: 100, height: 20, color: '#884800ff' },
-      { x: 400, y: this.groundY - 100, width: 150, height: 20, color: '#884800ff' },
-      { x: 650, y: this.groundY - 80, width: 120, height: 20, color: '#884800ff' }
-    ];
+    // Generate platforms
+    this.generatePlatforms();
 
     this.keys = {};
 
@@ -239,6 +266,39 @@ export default class CpgSideScroller extends BaseElement {
     });
   }
 
+  generatePlatforms() {
+    this.platforms = [];
+    
+    // Generate random platforms
+    for (let i = 0; i < GAME_CONFIG.platformCount; i++) {
+      const width = 100 + Math.random() * 200; // Random width between 100-300
+      const height = 20 + Math.random() * 30; // Random height between 20-50
+      const x = Math.random() * (this.canvas.width - width);
+      const y = this.groundY - 100 - Math.random() * 300; // Random height above ground
+      
+      const colors = ['#8B4513', '#A0522D', '#CD853F', '#D2691E'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      
+      this.platforms.push({
+        x: x,
+        y: y,
+        width: width,
+        height: height,
+        color: color
+      });
+    }
+    
+    // Sort platforms by Y position (lowest first for collision detection)
+    this.platforms.sort((a, b) => b.y - a.y);
+  }
+
+  checkCollision(obj1, obj2) {
+    return obj1.x < obj2.x + obj2.width &&
+           obj1.x + obj1.width > obj2.x &&
+           obj1.y < obj2.y + obj2.height &&
+           obj1.y + obj1.height > obj2.y;
+  }
+
   update() {
     // Apply gravity first
     this.player.velocityY += this.gravity;
@@ -295,21 +355,17 @@ export default class CpgSideScroller extends BaseElement {
         if (overlapX < overlapY) {
           // Horizontal collision - separate on X axis
           if (this.player.x < enemy.x) {
-            // Player is to the left of enemy
             this.player.x = enemy.x - this.player.width;
           } else {
-            // Player is to the right of enemy
             this.player.x = enemy.x + enemy.width;
           }
         } else {
           // Vertical collision - separate on Y axis
           if (this.player.y < enemy.y) {
-            // Player is above enemy
             this.player.y = enemy.y - this.player.height;
             this.player.velocityY = 0;
             this.player.onGround = true;
           } else {
-            // Player is below enemy
             this.player.y = enemy.y + enemy.height;
             this.player.velocityY = 0;
           }
@@ -363,8 +419,9 @@ export default class CpgSideScroller extends BaseElement {
             enemy.health -= PLAYER_CONFIG.attackDamage;
             console.log(`Player attacked! Enemy health: ${enemy.health}`);
             
-            // Remove enemy if health <= 0
+            // Remove enemy if health <= 0 and spawn orb
             if (enemy.health <= 0) {
+              this.spawnOrb(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
               this.enemies.splice(i, 1);
               console.log('Enemy defeated!');
             }
@@ -372,8 +429,12 @@ export default class CpgSideScroller extends BaseElement {
         }
       }
     }
+    
     // Enemy AI and combat
     this.updateEnemies();
+
+    // Update orbs
+    this.updateOrbs();
 
     // Keep player in bounds
     if (this.player.x < 0) this.player.x = 0;
@@ -387,6 +448,118 @@ export default class CpgSideScroller extends BaseElement {
     // Check for game over
     if (this.player.health <= 0) {
       this.gameOver = true;
+    }
+  }
+
+  updateEnemies() {
+    const now = Date.now();
+    
+    // Spawn new enemies over time
+    if (this.enemies.length < this.maxOrcs && now - this.lastOrcSpawn > GAME_CONFIG.orcSpawnInterval) {
+      this.spawnEnemy();
+      this.lastOrcSpawn = now;
+    }
+    
+    // Increase max orcs over time
+    if (now - this.lastMaxOrcIncrease > GAME_CONFIG.maxOrcIncreaseInterval) {
+      this.maxOrcs++;
+      this.lastMaxOrcIncrease = now;
+      console.log(`Max orcs increased to ${this.maxOrcs}`);
+    }
+    
+    // Update each enemy
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      const enemy = this.enemies[i];
+      
+      // Calculate distance to player
+      const dx = this.player.x - enemy.x;
+      const dy = this.player.y - enemy.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      // Enemy AI
+      if (distance < ENEMY_CONFIG.detectionRange) {
+        // Move towards player
+        if (dx > 10) {
+          enemy.velocityX = ENEMY_CONFIG.moveSpeed;
+          enemy.currentAnimation = 'walkingRight';
+        } else if (dx < -10) {
+          enemy.velocityX = -ENEMY_CONFIG.moveSpeed;
+          enemy.currentAnimation = 'walkingLeft';
+        } else {
+          enemy.velocityX = 0;
+          enemy.currentAnimation = 'standing';
+        }
+        
+        // Attack if in range
+        if (distance < ENEMY_CONFIG.attackRange && now - enemy.lastAttackTime > ENEMY_CONFIG.attackCooldown) {
+          enemy.isAttacking = true;
+          enemy.attackStartTime = now;
+          enemy.lastAttackTime = now;
+          enemy.attackDirection = dx > 0 ? 'right' : 'left';
+          
+          // Deal damage to player
+          this.player.health -= ENEMY_CONFIG.attackDamage;
+          console.log(`Enemy attacked! Player health: ${this.player.health}`);
+        }
+      } else {
+        // Idle behavior
+        enemy.velocityX = 0;
+        enemy.currentAnimation = 'standing';
+      }
+      
+      // Apply gravity
+      enemy.velocityY += this.gravity;
+      
+      // Update position
+      enemy.x += enemy.velocityX;
+      enemy.y += enemy.velocityY;
+      
+      // Ground collision
+      if (enemy.y + enemy.height >= this.groundY) {
+        enemy.y = this.groundY - enemy.height;
+        enemy.velocityY = 0;
+      }
+      
+      // Platform collisions
+      for (const platform of this.platforms) {
+        if (enemy.x < platform.x + platform.width &&
+            enemy.x + enemy.width > platform.x &&
+            enemy.y < platform.y + platform.height &&
+            enemy.y + enemy.height > platform.y) {
+          
+          // Landing on top of platform
+          if (enemy.velocityY > 0 &&
+              enemy.y < platform.y &&
+              enemy.y + enemy.height > platform.y) {
+            enemy.y = platform.y - enemy.height;
+            enemy.velocityY = 0;
+          }
+        }
+      }
+      
+      // Update enemy animation
+      if (enemy.isAttacking) {
+        const attackElapsed = now - enemy.attackStartTime;
+        if (attackElapsed >= 500) {
+          enemy.isAttacking = false;
+        } else {
+          enemy.currentAnimation = enemy.attackDirection === 'left' ? 'attackLeft' : 'attackRight';
+        }
+      }
+      
+      // Update animation frame
+      enemy.animationTimer++;
+      if (enemy.animationTimer >= this.animationSpeed) {
+        enemy.animationTimer = 0;
+        const frameCount = this.getFrameCount(enemy.currentAnimation);
+        enemy.animationFrame = (enemy.animationFrame + 1) % frameCount;
+      }
+      
+      // Keep enemy in bounds
+      if (enemy.x < 0) enemy.x = 0;
+      if (enemy.x + enemy.width > this.canvas.width) {
+        enemy.x = this.canvas.width - enemy.width;
+      }
     }
   }
 
@@ -598,6 +771,16 @@ export default class CpgSideScroller extends BaseElement {
     // Draw player health bar
     this.drawHealthBar(ctx, this.player.x, this.player.y - 20, this.player.width, 10, this.player.health, PLAYER_CONFIG.maxHealth);
 
+    // Draw orbs
+    for (const orb of this.orbs) {
+      if (!orb.collected) {
+        ctx.fillStyle = orb.color;
+        ctx.beginPath();
+        ctx.arc(orb.x + orb.width / 2, orb.y + orb.height / 2, orb.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
     // Draw instructions
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.font = '16px Arial';
@@ -652,7 +835,10 @@ export default class CpgSideScroller extends BaseElement {
         color: ENEMY_CONFIG.color,
         currentAnimation: 'standing',
         animationFrame: 0,
-        animationTimer: 0
+        animationTimer: 0,
+        isAttacking: false,
+        attackStartTime: 0,
+        attackDirection: 'left' // Default for enemies facing player
       },
       {
         x: 900,
@@ -666,160 +852,125 @@ export default class CpgSideScroller extends BaseElement {
         color: ENEMY_CONFIG.color,
         currentAnimation: 'standing',
         animationFrame: 0,
-        animationTimer: 0
+        animationTimer: 0,
+        isAttacking: false,
+        attackStartTime: 0,
+        attackDirection: 'left' // Default for enemies facing player
       }
     ];
   }
 
-  // Helper function to check collision between two rectangles
-  checkCollision(rect1, rect2) {
-    return rect1.x < rect2.x + rect2.width &&
-           rect1.x + rect1.width > rect2.x &&
-           rect1.y < rect2.y + rect2.height &&
-           rect1.y + rect1.height > rect2.y;
+  spawnEnemy() {
+    // Spawn a single enemy at a random position
+    const side = Math.random() < 0.5 ? 'left' : 'right';
+    let x;
+    if (side === 'left') {
+      x = -ENEMY_CONFIG.width; // Off-screen left
+    } else {
+      x = this.canvas.width; // Off-screen right
+    }
+    
+    const enemy = {
+      x: x,
+      y: this.groundY - ENEMY_CONFIG.height,
+      width: ENEMY_CONFIG.width,
+      height: ENEMY_CONFIG.height,
+      velocityX: 0,
+      velocityY: 0,
+      health: ENEMY_CONFIG.maxHealth,
+      lastAttackTime: 0,
+      color: ENEMY_CONFIG.color,
+      currentAnimation: 'standing',
+      animationFrame: 0,
+      animationTimer: 0,
+      isAttacking: false,
+      attackStartTime: 0,
+      attackDirection: 'left'
+    };
+    
+    this.enemies.push(enemy);
   }
 
-  updateEnemies() {
-    for (let i = this.enemies.length - 1; i >= 0; i--) {
-      const enemy = this.enemies[i];
+  spawnOrb(x, y) {
+    this.orbs.push({
+      x: x,
+      y: y,
+      width: ORB_CONFIG.width,
+      height: ORB_CONFIG.height,
+      velocityX: (Math.random() - 0.5) * 4, // Random horizontal velocity
+      velocityY: -Math.random() * 3 - 2, // Initial upward velocity
+      color: ORB_CONFIG.color,
+      collected: false
+    });
+  }
+
+  updateOrbs() {
+    const now = Date.now();
+    
+    // Spawn orbs periodically
+    if (now - this.lastOrbSpawn > ORB_CONFIG.spawnInterval) {
+      const x = Math.random() * (this.canvas.width - ORB_CONFIG.width);
+      const y = this.groundY - ORB_CONFIG.height - Math.random() * 200;
+      this.spawnOrb(x, y);
+      this.lastOrbSpawn = now;
+    }
+    
+    for (let i = this.orbs.length - 1; i >= 0; i--) {
+      const orb = this.orbs[i];
       
-      // Calculate distance to player
-      const dx = this.player.x - enemy.x;
-      const dy = this.player.y - enemy.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      // Apply gravity
+      orb.velocityY += this.gravity * 0.5; // Lighter gravity for orbs
       
-      // Check if enemy and player are at similar vertical heights (within 50 pixels)
-      const verticalProximity = Math.abs((this.player.y + this.player.height/2) - (enemy.y + enemy.height/2)) < 50;
+      // Update position
+      orb.x += orb.velocityX;
+      orb.y += orb.velocityY;
       
-      // Store previous animation for change detection
-      const prevAnimation = this.enemyCurrentAnimation;
-      
-      // Move towards player if within detection range AND at similar height
-      if (distance < ENEMY_CONFIG.detectionRange && verticalProximity) {
-        if (Math.abs(dx) > 5) { // Only move if not too close
-          enemy.velocityX = (dx > 0) ? ENEMY_CONFIG.moveSpeed : -ENEMY_CONFIG.moveSpeed;
-        } else {
-          enemy.velocityX *= 0.8; // Slow down when close
-        }
-      } else {
-        enemy.velocityX *= 0.9; // Slow down when player is far or at different height
+      // Ground collision
+      if (orb.y + orb.height >= this.groundY) {
+        orb.y = this.groundY - orb.height;
+        orb.velocityY = -orb.velocityY * ORB_CONFIG.bounceFactor;
+        orb.velocityX *= 0.8; // Friction
       }
       
-      // Apply gravity to enemies
-      enemy.velocityY += this.gravity;
-      
-      // Update enemy position
-      enemy.x += enemy.velocityX;
-      enemy.y += enemy.velocityY;
-      
-      // Ground collision for enemies
-      if (enemy.y + enemy.height >= this.groundY) {
-        enemy.y = this.groundY - enemy.height;
-        enemy.velocityY = 0;
-      }
-      
-      // Platform collisions for enemies
+      // Platform collisions
       for (const platform of this.platforms) {
-        if (enemy.x < platform.x + platform.width &&
-            enemy.x + enemy.width > platform.x &&
-            enemy.y < platform.y + platform.height &&
-            enemy.y + enemy.height > platform.y) {
+        if (orb.x < platform.x + platform.width &&
+            orb.x + orb.width > platform.x &&
+            orb.y < platform.y + platform.height &&
+            orb.y + orb.height > platform.y) {
           
           // Landing on top of platform
-          if (enemy.velocityY > 0 &&
-              enemy.y < platform.y &&
-              enemy.y + enemy.height > platform.y) {
-            enemy.y = platform.y - enemy.height;
-            enemy.velocityY = 0;
+          if (orb.velocityY > 0 &&
+              orb.y < platform.y &&
+              orb.y + orb.height > platform.y) {
+            orb.y = platform.y - orb.height;
+            orb.velocityY = -orb.velocityY * ORB_CONFIG.bounceFactor;
+            orb.velocityX *= 0.8; // Friction
           }
         }
       }
       
-      // Enemy-to-enemy collision (only when at similar heights and not in combat)
-      for (let j = 0; j < this.enemies.length; j++) {
-        if (i !== j) { // Don't check collision with self
-          const otherEnemy = this.enemies[j];
-          // Check if enemies are at similar vertical heights (within 20 pixels)
-          const verticalOverlap = Math.abs((enemy.y + enemy.height/2) - (otherEnemy.y + otherEnemy.height/2)) < 20;
-          
-          // Check if enemies are in combat range (don't push apart if they can attack each other)
-          const dx = otherEnemy.x - enemy.x;
-          const dy = otherEnemy.y - enemy.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const inCombatRange = distance < ENEMY_CONFIG.attackRange;
-          
-          if (verticalOverlap && !inCombatRange && this.checkCollision(enemy, otherEnemy)) {
-            // Calculate overlap on each axis
-            const overlapX = Math.min(enemy.x + enemy.width - otherEnemy.x, otherEnemy.x + otherEnemy.width - enemy.x);
-            const overlapY = Math.min(enemy.y + enemy.height - otherEnemy.y, otherEnemy.y + otherEnemy.height - enemy.y);
-            
-            // Resolve collision by moving the smaller overlap
-            if (overlapX < overlapY) {
-              // Horizontal collision - separate on X axis
-              if (enemy.x < otherEnemy.x) {
-                // Enemy is to the left of other enemy
-                enemy.x = otherEnemy.x - enemy.width;
-              } else {
-                // Enemy is to the right of other enemy
-                enemy.x = otherEnemy.x + otherEnemy.width;
-              }
-            } else {
-              // Vertical collision - separate on Y axis
-              if (enemy.y < otherEnemy.y) {
-                // Enemy is above other enemy
-                enemy.y = otherEnemy.y - enemy.height;
-                enemy.velocityY = 0;
-              } else {
-                // Enemy is below other enemy
-                enemy.y = otherEnemy.y + otherEnemy.height;
-                enemy.velocityY = 0;
-              }
-            }
-          }
-        }
+      // Keep orb in bounds
+      if (orb.x < 0) {
+        orb.x = 0;
+        orb.velocityX = -orb.velocityX * ORB_CONFIG.bounceFactor;
+      }
+      if (orb.x + orb.width > this.canvas.width) {
+        orb.x = this.canvas.width - orb.width;
+        orb.velocityX = -orb.velocityX * ORB_CONFIG.bounceFactor;
       }
       
-      // Keep enemy in bounds
-      if (enemy.x < 0) enemy.x = 0;
-      if (enemy.x + enemy.width > this.canvas.width) enemy.x = this.canvas.width - enemy.width;
-      
-      // Determine enemy animation based on movement
-      let newAnimation = 'standing';
-      if (enemy.velocityY < -0.1 || enemy.velocityY > 0.1) { // If moving vertically (jumping/falling)
-        newAnimation = 'jumping';
-      } else if (enemy.velocityX < -0.1) {
-        newAnimation = 'walkingLeft';
-      } else if (enemy.velocityX > 0.1) {
-        newAnimation = 'walkingRight';
+      // Check collection by player
+      if (!orb.collected && this.checkCollision(this.player, orb)) {
+        // Player collects orb
+        this.player.health = Math.min(this.player.health + ORB_CONFIG.healthValue, PLAYER_CONFIG.maxHealth);
+        orb.collected = true;
+        console.log(`Orb collected! Player health: ${this.player.health}`);
       }
       
-      // Update enemy animation
-      if (newAnimation !== enemy.currentAnimation) {
-        enemy.currentAnimation = newAnimation;
-        enemy.animationFrame = 0;
-        enemy.animationTimer = 0;
-      }
-      
-      // Update enemy animation frame
-      enemy.animationTimer++;
-      if (enemy.animationTimer >= PLAYER_CONFIG.animationSpeed) {
-        enemy.animationTimer = 0;
-        const frameCount = this.getFrameCount(enemy.currentAnimation);
-        enemy.animationFrame = (enemy.animationFrame + 1) % frameCount;
-      }
-      
-      // Attack player if in range
-      if (distance < ENEMY_CONFIG.attackRange) {
-        const now = Date.now();
-        if (now - enemy.lastAttackTime > ENEMY_CONFIG.attackCooldown) {
-          this.player.health -= ENEMY_CONFIG.attackDamage;
-          enemy.lastAttackTime = now;
-          
-          // Prevent health from going below 0
-          if (this.player.health < 0) this.player.health = 0;
-          
-          console.log(`Enemy attacked! Player health: ${this.player.health}`);
-        }
+      // Remove collected orbs
+      if (orb.collected) {
+        this.orbs.splice(i, 1);
       }
     }
   }
@@ -836,20 +987,30 @@ export default class CpgSideScroller extends BaseElement {
     this.player.isAttacking = false;
     this.player.attackStartTime = 0;
     this.player.attackDirection = 'right';
-
+    
+    // Reset enemies
+    this.enemies = [];
+    this.maxOrcs = GAME_CONFIG.initialMaxOrcs;
+    this.lastOrcSpawn = 0;
+    this.lastMaxOrcIncrease = Date.now();
+    this.spawnEnemies();
+    
+    // Reset orbs
+    this.orbs = [];
+    this.lastOrbSpawn = 0;
+    
     // Reset game state
     this.gameOver = false;
+    
+    // Reset animation
     this.currentAnimation = 'standing';
     this.animationFrame = 0;
     this.animationTimer = 0;
     this.isJumping = false;
     
-    // Respawn enemies
-    this.spawnEnemies();
+    // Regenerate platforms
+    this.generatePlatforms();
     
     console.log('Game restarted!');
   }
 }
-
-// Register the custom element
-customElements.define('cpg-side-scroller', CpgSideScroller);
