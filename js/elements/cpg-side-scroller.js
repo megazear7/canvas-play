@@ -52,9 +52,9 @@ const ORB_CONFIG = {
 // Game configuration
 const GAME_CONFIG = {
   initialMaxOrcs: 2,
-  orcSpawnInterval: 5000, // 20 seconds
-  maxOrcIncreaseInterval: 30000, // 1 minute
-  platformCount: 8 // Number of platforms to generate
+  orcSpawnInterval: 10000,
+  maxOrcIncreaseInterval: 30000,
+  platformCount: 8,
 };
 
 export default class CpgSideScroller extends BaseElement {
@@ -137,6 +137,7 @@ export default class CpgSideScroller extends BaseElement {
 
     // Dynamic orc spawning
     this.maxOrcs = GAME_CONFIG.initialMaxOrcs;
+    this.orcSpawnInterval = GAME_CONFIG.orcSpawnInterval; // Dynamic interval that decreases
     this.lastOrcSpawn = 0;
     this.lastMaxOrcIncrease = Date.now();
 
@@ -175,17 +176,17 @@ export default class CpgSideScroller extends BaseElement {
     await new Promise((resolve) => {
       this.enemyImage.onload = resolve;
       this.enemyImage.onerror = resolve; // Continue even if image fails to load
-      this.enemyImage.src = '/images/side-scroller/orc-001.png';
+      this.enemyImage.src = '/images/side-scroller/sprites/orc-standing-001.png';
     });
 
     // Load enemy sprites for all animation types
     const animationConfigs = [
-      { type: 'standing', frameCount: 30 },
-      { type: 'walking-left', frameCount: 30 }, 
-      { type: 'walking-right', frameCount: 30 },
-      { type: 'jumping', frameCount: 30 },
-      { type: 'attack-left', frameCount: 30 },
-      { type: 'attack-right', frameCount: 30 }
+      { type: 'standing', frameCount: 10 },
+      { type: 'walking-left', frameCount: 10 }, 
+      { type: 'walking-right', frameCount: 10 },
+      { type: 'jumping', frameCount: 10 },
+      { type: 'attack-left', frameCount: 10 },
+      { type: 'attack-right', frameCount: 10 }
     ];
 
     // Calculate total sprites needed
@@ -207,7 +208,7 @@ export default class CpgSideScroller extends BaseElement {
       for (let frame = 1; frame <= config.frameCount; frame++) {
         const img = new Image();
         const frameNumber = frame.toString().padStart(3, '0'); // 3-digit padding
-        img.src = `/images/side-scroller/orc-${config.type}-${frameNumber}.png`;
+        img.src = `/images/side-scroller/sprites/orc-${config.type}-${frameNumber}.png`;
         
         await new Promise((resolve) => {
           img.onload = resolve;
@@ -223,7 +224,7 @@ export default class CpgSideScroller extends BaseElement {
       for (let frame = 1; frame <= config.frameCount; frame++) {
         const img = new Image();
         const frameNumber = frame.toString().padStart(3, '0'); // 3-digit padding
-        img.src = `/images/side-scroller/halfling-${config.type}-${frameNumber}.png`;
+        img.src = `/images/side-scroller/sprites/halfling-${config.type}-${frameNumber}.png`;
         
         await new Promise((resolve) => {
           img.onload = () => {
@@ -455,7 +456,7 @@ export default class CpgSideScroller extends BaseElement {
     const now = Date.now();
     
     // Spawn new enemies over time
-    if (this.enemies.length < this.maxOrcs && now - this.lastOrcSpawn > GAME_CONFIG.orcSpawnInterval) {
+    if (this.enemies.length < this.maxOrcs && now - this.lastOrcSpawn > this.orcSpawnInterval) {
       this.spawnEnemy();
       this.lastOrcSpawn = now;
     }
@@ -782,9 +783,11 @@ export default class CpgSideScroller extends BaseElement {
     }
 
     // Draw instructions
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(20, 42, 390, 45);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     ctx.font = '16px Arial';
-    ctx.fillText('Use arrow keys to move, W/↑ to jump, space to attack!', 20, 30);
+    ctx.fillText('Use arrow keys to move,\n↑ to jump, space to attack!', 215, 70);
 
     // Draw game over screen
     if (this.gameOver) {
@@ -889,6 +892,10 @@ export default class CpgSideScroller extends BaseElement {
     };
     
     this.enemies.push(enemy);
+    
+    // Decrease spawn interval by 10% for next spawn
+    this.orcSpawnInterval *= 0.9;
+    console.log(`Enemy spawned! Next spawn interval: ${this.orcSpawnInterval}ms`);
   }
 
   spawnOrb(x, y) {
@@ -991,6 +998,7 @@ export default class CpgSideScroller extends BaseElement {
     // Reset enemies
     this.enemies = [];
     this.maxOrcs = GAME_CONFIG.initialMaxOrcs;
+    this.orcSpawnInterval = GAME_CONFIG.orcSpawnInterval; // Reset to original interval
     this.lastOrcSpawn = 0;
     this.lastMaxOrcIncrease = Date.now();
     this.spawnEnemies();
