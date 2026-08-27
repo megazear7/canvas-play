@@ -36,15 +36,89 @@ export default class CpgKnight extends HTMLElement {
           width: 100%;
           height: 100%;
         }
-        .status {
+        .loader {
           position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          font: 400 18px Helvetica, Verdana, sans-serif;
-          color: #fff;
-          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+          inset: 0;
+          z-index: 40;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 18px;
+          background: radial-gradient(ellipse at 50% 38%, #1b2b20 0%, #0a100d 72%);
+          color: #eef4ee;
+          transition: opacity 0.55s ease, visibility 0.55s ease;
+        }
+        .loader.hidden {
+          opacity: 0;
+          visibility: hidden;
           pointer-events: none;
+        }
+        .loader-mark {
+          position: relative;
+          width: 96px;
+          height: 96px;
+          display: grid;
+          place-items: center;
+        }
+        .loader-ring {
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          border: 2px solid rgba(57, 255, 106, 0.14);
+          border-top-color: #39ff6a;
+          animation: loader-spin 0.85s linear infinite;
+        }
+        .loader-crest {
+          width: 64px;
+          height: 64px;
+          border-radius: 16px;
+          overflow: hidden;
+          background: #2a312c;
+          box-shadow:
+            0 0 0 1px rgba(57, 255, 106, 0.35),
+            0 10px 28px rgba(0, 0, 0, 0.35);
+          animation: loader-pulse 1.6s ease-in-out infinite;
+        }
+        .loader-crest img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: 50% 8%;
+          transform: scale(1.85);
+          transform-origin: 50% 10%;
+        }
+        .loader-title {
+          font: 650 12px/1 ui-sans-serif, system-ui, sans-serif;
+          letter-spacing: 0.32em;
+          text-transform: uppercase;
+          color: #39ff6a;
+        }
+        .loader-bar {
+          width: min(280px, 70vw);
+          height: 4px;
+          overflow: hidden;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.08);
+        }
+        .loader-fill {
+          height: 100%;
+          width: 8%;
+          border-radius: inherit;
+          background: linear-gradient(90deg, #1f8a3a, #39ff6a);
+          transition: width 0.28s ease;
+        }
+        .loader-copy {
+          font: 400 14px/1.35 ui-sans-serif, system-ui, sans-serif;
+          color: rgba(255, 255, 255, 0.72);
+          min-height: 1.2em;
+        }
+        @keyframes loader-spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes loader-pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.06); }
         }
         .toast {
           position: absolute;
@@ -154,7 +228,17 @@ export default class CpgKnight extends HTMLElement {
         }
       </style>
       <canvas></canvas>
-      <div class="status">Loading knight…</div>
+      <div class="loader">
+        <div class="loader-mark">
+          <div class="loader-ring"></div>
+          <div class="loader-crest">
+            <img src="${KNIGHT_PORTRAIT_URL}" alt="">
+          </div>
+        </div>
+        <div class="loader-title">The Field</div>
+        <div class="loader-bar"><div class="loader-fill"></div></div>
+        <div class="loader-copy">Preparing the field…</div>
+      </div>
       <div class="toast" aria-hidden="true">
         <div class="toast-portrait-wrap">
           <img class="toast-portrait" src="${KNIGHT_PORTRAIT_URL}" alt="Knight">
@@ -171,7 +255,9 @@ export default class CpgKnight extends HTMLElement {
       </div>
     `;
     this.canvas = this.shadow.querySelector('canvas');
-    this.statusEl = this.shadow.querySelector('.status');
+    this.loaderEl = this.shadow.querySelector('.loader');
+    this.loaderFill = this.shadow.querySelector('.loader-fill');
+    this.loaderCopy = this.shadow.querySelector('.loader-copy');
     this.toastEl = this.shadow.querySelector('.toast');
     this.toastPortrait = this.shadow.querySelector('.toast-portrait');
     this.toastLabel = this.shadow.querySelector('.toast-label');
@@ -215,6 +301,13 @@ export default class CpgKnight extends HTMLElement {
     this.moveSource = null;
     this.moveGain = null;
     this.ambienceSource = null;
+    this.obstacles = [];
+    this.waypoints = [];
+    this.knightRadius = 0.55;
+    this.orcRadius = 0.78;
+    this.assetsReady = false;
+    this.loaderStep = 0;
+    this.loaderSteps = 7;
   }
 
   connectedCallback() {
@@ -270,16 +363,50 @@ export default class CpgKnight extends HTMLElement {
       this.onResize = this.onResize.bind(this);
       window.addEventListener('resize', this.onResize);
       this.loop();
+      this.setLoader('Loading knight…', 0.04);
       await this.loadKnight(THREE, GLTFLoader);
-      this.statusEl.remove();
-      await Promise.all([
-        this.loadExtraClips(GLTFLoader),
-        this.loadOrc(THREE, GLTFLoader)
-      ]);
+      this.advanceLoader('Loading animations…');
+      await this.loadExtraClips(GLTFLoader);
+      this.setLoader('Loading orc…');
+      await this.loadOrc(THREE, GLTFLoader);
+      this.advanceLoader('Loading sounds…');
+      await this.preloadSounds();
+      this.addBushes(THREE);
+      this.assetsReady = true;
+      this.hideLoader();
     } catch (err) {
       console.error(err);
-      this.statusEl.textContent = 'Could not load the 3D knight.';
+      this.setLoader('Could not load the scene.');
     }
+  }
+
+  setLoader(label, fraction) {
+    if (label && this.loaderCopy) {
+      this.loaderCopy.textContent = label;
+    }
+    if (typeof fraction === 'number' && this.loaderFill) {
+      const pct = Math.max(0, Math.min(1, fraction));
+      this.loaderFill.style.width = `${Math.round(pct * 100)}%`;
+    }
+  }
+
+  advanceLoader(label) {
+    this.loaderStep = Math.min(this.loaderSteps, this.loaderStep + 1);
+    this.setLoader(label, this.loaderStep / this.loaderSteps);
+  }
+
+  hideLoader() {
+    this.setLoader('Ready', 1);
+    if (!this.loaderEl) {
+      return;
+    }
+    this.loaderEl.classList.add('hidden');
+    setTimeout(() => {
+      if (this.loaderEl) {
+        this.loaderEl.remove();
+        this.loaderEl = null;
+      }
+    }, 600);
   }
 
   ensureImportMap() {
@@ -371,8 +498,6 @@ export default class CpgKnight extends HTMLElement {
     ground.receiveShadow = true;
     this.scene.add(ground);
 
-    this.addBushes(THREE);
-
     const ring = new THREE.Mesh(
       new THREE.RingGeometry(0.48, 0.68, 48),
       new THREE.MeshBasicMaterial({
@@ -409,11 +534,11 @@ export default class CpgKnight extends HTMLElement {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     this.audioCtx = new Ctx();
     this.audioBuffers = new Map();
-    this.preloadSounds();
   }
 
   async preloadSounds() {
     const urls = [...SWISH_URLS, ...ROAR_URLS, ...DEATH_URLS, STEPS_URL, WALK_URL, SERVICE_URL, AMBIENCE_URL];
+    let loaded = 0;
     await Promise.all(urls.map(async (url) => {
       try {
         const response = await fetch(url);
@@ -422,8 +547,13 @@ export default class CpgKnight extends HTMLElement {
         this.audioBuffers.set(url, buffer);
       } catch (err) {
         console.error('Failed to load sound', url, err);
+      } finally {
+        loaded += 1;
+        const base = this.loaderStep / this.loaderSteps;
+        this.setLoader(`Loading sounds… ${loaded}/${urls.length}`, base + (loaded / urls.length) / this.loaderSteps);
       }
     }));
+    this.advanceLoader('Ready');
   }
 
   unlockAudio() {
@@ -565,6 +695,7 @@ export default class CpgKnight extends HTMLElement {
     }
     if (!selected && this.mode !== 'attack') {
       this.target = null;
+      this.waypoints = [];
       this.mode = 'hold';
       this.playAction('idle');
     }
@@ -576,14 +707,16 @@ export default class CpgKnight extends HTMLElement {
     }
     this.target = { x, z };
     this.mode = 'run';
+    this.waypoints = this.buildPath(x, z);
     this.playAction('run');
   }
 
   startChase() {
-    if (this.orcDead || this.mode === 'attack') {
+    if (this.orcDead || this.mode === 'attack' || !this.orc) {
       return;
     }
     this.mode = 'chase';
+    this.waypoints = this.buildPath(this.orc.position.x, this.orc.position.z, { ignoreOrc: true });
     this.playAction('run');
   }
 
@@ -726,36 +859,312 @@ export default class CpgKnight extends HTMLElement {
   }
 
   addBushes(THREE) {
-    const geometry = new THREE.CircleGeometry(1, 24);
+    this.obstacles = [];
+    const geometry = new THREE.SphereGeometry(1, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2);
     const material = new THREE.MeshStandardMaterial({
-      color: 0x145c24,
-      roughness: 0.95,
+      color: 0x1a8a32,
+      roughness: 0.88,
       metalness: 0.0
     });
 
-    const bushes = [
-      { x: 0, z: 0, scale: 0.85 },
-      { x: 2.4, z: 1.8, scale: 0.55 },
-      { x: -2.8, z: 2.2, scale: 0.7 },
-      { x: 6.4, z: 0.6, scale: 0.95 },
-      { x: -6.2, z: -1.1, scale: 0.8 },
-      { x: 1.1, z: -6.5, scale: 0.6 },
-      { x: 5.6, z: 5.2, scale: 0.75 },
-      { x: -4.6, z: 6.1, scale: 0.5 },
-      { x: 7.2, z: -4.0, scale: 0.9 },
-      { x: -7.0, z: 3.2, scale: 0.65 },
-      { x: -1.6, z: -3.4, scale: 0.45 },
-      { x: 3.8, z: -2.6, scale: 0.7 }
-    ];
+    const knightStart = {
+      x: Math.cos(this.pathAngle) * this.pathRadius,
+      z: Math.sin(this.pathAngle) * this.pathRadius
+    };
+    const orcPos = this.orc
+      ? { x: this.orc.position.x, z: this.orc.position.z }
+      : { x: -5.4, z: 3.2 };
 
-    bushes.forEach(({ x, z, scale }) => {
+    const count = 6;
+    let attempts = 0;
+    while (this.obstacles.length < count && attempts < 120) {
+      attempts += 1;
+      const r = 0.58 + Math.random() * 0.42;
+      const x = (Math.random() - 0.5) * 16;
+      const z = (Math.random() - 0.5) * 16;
+      if (Math.hypot(x, z) > 8.2) {
+        continue;
+      }
+      if (Math.hypot(x - knightStart.x, z - knightStart.z) < r + this.knightRadius + 1.5) {
+        continue;
+      }
+      if (Math.hypot(x - orcPos.x, z - orcPos.z) < r + this.orcRadius + 1.5) {
+        continue;
+      }
+      if (Math.abs(Math.hypot(x, z) - this.pathRadius) < r + this.knightRadius + 0.6) {
+        continue;
+      }
+      if (this.obstacles.some((o) => Math.hypot(x - o.x, z - o.z) < r + o.r + 0.5)) {
+        continue;
+      }
+
       const bush = new THREE.Mesh(geometry, material);
-      bush.rotation.x = -Math.PI / 2;
-      bush.position.set(x, 0.02, z);
-      bush.scale.setScalar(scale);
+      bush.position.set(x, 0, z);
+      bush.scale.setScalar(r);
+      bush.castShadow = true;
       bush.receiveShadow = true;
       this.scene.add(bush);
-    });
+      this.obstacles.push({ x, z, r, mesh: bush });
+    }
+  }
+
+  isBlocked(x, z, { ignoreOrc = false } = {}) {
+    const radius = this.knightRadius;
+    for (const o of this.obstacles) {
+      if (Math.hypot(x - o.x, z - o.z) < o.r + radius + 0.12) {
+        return true;
+      }
+    }
+    if (!ignoreOrc && this.orc && !this.orcDead) {
+      if (Math.hypot(x - this.orc.position.x, z - this.orc.position.z) < this.orcRadius + radius + 0.08) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  lineClear(ax, az, bx, bz, opts) {
+    const dist = Math.hypot(bx - ax, bz - az);
+    const steps = Math.max(2, Math.ceil(dist / 0.2));
+    for (let i = 1; i < steps; i++) {
+      const t = i / steps;
+      if (this.isBlocked(ax + (bx - ax) * t, az + (bz - az) * t, opts)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  nudgeOutOfObstacles(x, z, radius) {
+    for (let n = 0; n < 10; n++) {
+      let moved = false;
+      for (const o of this.obstacles) {
+        const dx = x - o.x;
+        const dz = z - o.z;
+        const d = Math.hypot(dx, dz);
+        const minD = radius + o.r + 0.1;
+        if (d < minD) {
+          const nx = d < 1e-5 ? 1 : dx / d;
+          const nz = d < 1e-5 ? 0 : dz / d;
+          x += nx * (minD - d);
+          z += nz * (minD - d);
+          moved = true;
+        }
+      }
+      if (!moved) {
+        break;
+      }
+    }
+    return { x, z };
+  }
+
+  simplifyPath(points, opts) {
+    if (points.length <= 2) {
+      return points;
+    }
+    const out = [points[0]];
+    let i = 0;
+    while (i < points.length - 1) {
+      let far = i + 1;
+      for (let j = i + 2; j < points.length; j++) {
+        if (this.lineClear(points[i].x, points[i].z, points[j].x, points[j].z, opts)) {
+          far = j;
+        } else {
+          break;
+        }
+      }
+      out.push(points[far]);
+      i = far;
+    }
+    return out;
+  }
+
+  buildPath(goalX, goalZ, opts = {}) {
+    const start = { x: this.knight.position.x, z: this.knight.position.z };
+    const goal = this.nudgeOutOfObstacles(goalX, goalZ, this.knightRadius);
+    if (this.lineClear(start.x, start.z, goal.x, goal.z, opts)) {
+      return [goal];
+    }
+
+    const cell = 0.45;
+    const min = -12;
+    const size = Math.round(24 / cell);
+    const toIdx = (x, z) => {
+      const i = Math.max(0, Math.min(size - 1, Math.round((x - min) / cell)));
+      const j = Math.max(0, Math.min(size - 1, Math.round((z - min) / cell)));
+      return [i, j];
+    };
+    const toWorld = (i, j) => ({ x: min + i * cell, z: min + j * cell });
+
+    const blocked = new Uint8Array(size * size);
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const w = toWorld(i, j);
+        if (this.isBlocked(w.x, w.z, opts)) {
+          blocked[i * size + j] = 1;
+        }
+      }
+    }
+
+    const nearestFree = (i, j) => {
+      if (!blocked[i * size + j]) {
+        return [i, j];
+      }
+      for (let radius = 1; radius < 14; radius++) {
+        for (let di = -radius; di <= radius; di++) {
+          for (let dj = -radius; dj <= radius; dj++) {
+            const ni = i + di;
+            const nj = j + dj;
+            if (ni < 0 || nj < 0 || ni >= size || nj >= size) {
+              continue;
+            }
+            if (!blocked[ni * size + nj]) {
+              return [ni, nj];
+            }
+          }
+        }
+      }
+      return [i, j];
+    };
+
+    let [si, sj] = nearestFree(...toIdx(start.x, start.z));
+    let [gi, gj] = nearestFree(...toIdx(goal.x, goal.z));
+
+    const open = [[si, sj]];
+    const gScore = new Float32Array(size * size);
+    gScore.fill(1e9);
+    gScore[si * size + sj] = 0;
+    const cameI = new Int16Array(size * size);
+    const cameJ = new Int16Array(size * size);
+    cameI.fill(-1);
+    const inOpen = new Uint8Array(size * size);
+    inOpen[si * size + sj] = 1;
+    const heuristic = (i, j) => {
+      const dx = Math.abs(i - gi);
+      const dz = Math.abs(j - gj);
+      return Math.max(dx, dz) + 0.414 * Math.min(dx, dz);
+    };
+
+    let found = false;
+    while (open.length) {
+      let best = 0;
+      let bestF = Infinity;
+      for (let n = 0; n < open.length; n++) {
+        const [i, j] = open[n];
+        const f = gScore[i * size + j] + heuristic(i, j);
+        if (f < bestF) {
+          bestF = f;
+          best = n;
+        }
+      }
+      const [ci, cj] = open.splice(best, 1)[0];
+      inOpen[ci * size + cj] = 0;
+      if (ci === gi && cj === gj) {
+        found = true;
+        break;
+      }
+      for (let di = -1; di <= 1; di++) {
+        for (let dj = -1; dj <= 1; dj++) {
+          if (!di && !dj) {
+            continue;
+          }
+          const ni = ci + di;
+          const nj = cj + dj;
+          if (ni < 0 || nj < 0 || ni >= size || nj >= size) {
+            continue;
+          }
+          if (blocked[ni * size + nj]) {
+            continue;
+          }
+          if (di && dj && (blocked[(ci + di) * size + cj] || blocked[ci * size + (cj + dj)])) {
+            continue;
+          }
+          const step = di && dj ? 1.414 : 1;
+          const tentative = gScore[ci * size + cj] + step;
+          const idx = ni * size + nj;
+          if (tentative < gScore[idx]) {
+            gScore[idx] = tentative;
+            cameI[idx] = ci;
+            cameJ[idx] = cj;
+            if (!inOpen[idx]) {
+              open.push([ni, nj]);
+              inOpen[idx] = 1;
+            }
+          }
+        }
+      }
+    }
+
+    if (!found) {
+      return [goal];
+    }
+
+    const rev = [];
+    let ci = gi;
+    let cj = gj;
+    while (!(ci === si && cj === sj)) {
+      rev.push(toWorld(ci, cj));
+      const idx = ci * size + cj;
+      const pi = cameI[idx];
+      const pj = cameJ[idx];
+      if (pi < 0) {
+        break;
+      }
+      ci = pi;
+      cj = pj;
+    }
+    rev.reverse();
+    if (!rev.length || Math.hypot(rev[rev.length - 1].x - goal.x, rev[rev.length - 1].z - goal.z) > 0.2) {
+      rev.push(goal);
+    }
+    return this.simplifyPath([start, ...rev], opts).slice(1);
+  }
+
+  followWaypoints(dt, speed, arriveDist) {
+    if (!this.waypoints.length) {
+      return true;
+    }
+    const wp = this.waypoints[0];
+    const dx = wp.x - this.knight.position.x;
+    const dz = wp.z - this.knight.position.z;
+    const dist = Math.hypot(dx, dz);
+    const threshold = this.waypoints.length === 1 ? arriveDist : 0.28;
+    if (dist <= threshold) {
+      this.waypoints.shift();
+      return this.waypoints.length === 0;
+    }
+    const step = Math.min(speed * dt, dist);
+    this.knight.position.x += (dx / dist) * step;
+    this.knight.position.z += (dz / dist) * step;
+    this.knight.rotation.y = Math.atan2(dx, dz) + this.facingOffset;
+    return false;
+  }
+
+  separateFrom(ox, oz, otherRadius) {
+    const p = this.knight.position;
+    const dx = p.x - ox;
+    const dz = p.z - oz;
+    const d = Math.hypot(dx, dz);
+    const minD = this.knightRadius + otherRadius;
+    if (d >= minD) {
+      return;
+    }
+    if (d < 1e-5) {
+      p.x += minD;
+      return;
+    }
+    const push = (minD - d) / d;
+    p.x += dx * push;
+    p.z += dz * push;
+  }
+
+  resolveCollisions({ ignoreOrc = false } = {}) {
+    for (const o of this.obstacles) {
+      this.separateFrom(o.x, o.z, o.r);
+    }
+    if (!ignoreOrc && this.orc && !this.orcDead) {
+      this.separateFrom(this.orc.position.x, this.orc.position.z, this.orcRadius);
+    }
   }
 
   prepareSkinnedModel(model, meshList) {
@@ -847,7 +1256,7 @@ export default class CpgKnight extends HTMLElement {
             return;
           }
           const pct = Math.round((progress.loaded / progress.total) * 100);
-          this.statusEl.textContent = `Loading knight… ${pct}%`;
+          this.setLoader(`Loading knight… ${pct}%`, (progress.loaded / progress.total) / this.loaderSteps);
         },
         reject
       );
@@ -867,11 +1276,12 @@ export default class CpgKnight extends HTMLElement {
 
   async loadExtraClips(GLTFLoader) {
     const loader = new GLTFLoader();
-    const [runClip, idleClip, attackClip] = await Promise.all([
-      this.loadClip(loader, KNIGHT_RUN_URL),
-      this.loadClip(loader, KNIGHT_IDLE_URL),
-      this.loadClip(loader, KNIGHT_ATTACK_URL)
-    ]);
+    const runClip = await this.loadClip(loader, KNIGHT_RUN_URL);
+    this.advanceLoader('Loading idle…');
+    const idleClip = await this.loadClip(loader, KNIGHT_IDLE_URL);
+    this.advanceLoader('Loading attack…');
+    const attackClip = await this.loadClip(loader, KNIGHT_ATTACK_URL);
+    this.advanceLoader('Loading orc…');
     if (runClip && this.mixer) {
       this.actions.run = this.mixer.clipAction(runClip);
     }
@@ -886,7 +1296,18 @@ export default class CpgKnight extends HTMLElement {
   async loadOrc(THREE, GLTFLoader) {
     const loader = new GLTFLoader();
     const gltf = await new Promise((resolve, reject) => {
-      loader.load(ORC_LOOK_URL, resolve, undefined, reject);
+      loader.load(
+        ORC_LOOK_URL,
+        resolve,
+        (progress) => {
+          if (!progress.total) {
+            return;
+          }
+          const base = this.loaderStep / this.loaderSteps;
+          this.setLoader('Loading orc…', base + (progress.loaded / progress.total) / this.loaderSteps);
+        },
+        reject
+      );
     });
     const model = gltf.scene;
     this.orcMeshes = [];
@@ -904,6 +1325,7 @@ export default class CpgKnight extends HTMLElement {
       this.playOrcAction('look');
     }
 
+    this.advanceLoader('Loading orc…');
     const deadClip = await this.loadClip(loader, ORC_DEAD_URL);
     if (deadClip && this.orcMixer) {
       this.orcActions.dead = this.orcMixer.clipAction(deadClip);
@@ -947,7 +1369,7 @@ export default class CpgKnight extends HTMLElement {
   }
 
   updateMovement(dt) {
-    if (!this.knight) {
+    if (!this.assetsReady || !this.knight) {
       return;
     }
 
@@ -958,26 +1380,24 @@ export default class CpgKnight extends HTMLElement {
       if (dist <= this.attackRange) {
         this.startAttack();
       } else {
-        const step = Math.min(this.runSpeed * dt, dist - this.attackRange + 0.01);
-        this.knight.position.x += (dx / dist) * step;
-        this.knight.position.z += (dz / dist) * step;
-        this.knight.rotation.y = Math.atan2(dx, dz) + this.facingOffset;
+        if (!this.waypoints.length) {
+          this.waypoints = this.buildPath(this.orc.position.x, this.orc.position.z, { ignoreOrc: true });
+        }
+        this.followWaypoints(dt, this.runSpeed, 0.35);
+        this.resolveCollisions({ ignoreOrc: true });
       }
     } else if (this.mode === 'run' && this.target) {
-      const dx = this.target.x - this.knight.position.x;
-      const dz = this.target.z - this.knight.position.z;
-      const dist = Math.hypot(dx, dz);
-      if (dist < 0.12) {
-        this.knight.position.x = this.target.x;
-        this.knight.position.z = this.target.z;
-        this.target = null;
-        this.mode = 'hold';
-        this.playAction('idle');
-      } else {
-        const step = Math.min(this.runSpeed * dt, dist);
-        this.knight.position.x += (dx / dist) * step;
-        this.knight.position.z += (dz / dist) * step;
-        this.knight.rotation.y = Math.atan2(dx, dz) + this.facingOffset;
+      const arrived = this.followWaypoints(dt, this.runSpeed, 0.16);
+      this.resolveCollisions();
+      if (arrived || !this.waypoints.length) {
+        const dx = this.target.x - this.knight.position.x;
+        const dz = this.target.z - this.knight.position.z;
+        if (Math.hypot(dx, dz) < 0.2 || arrived) {
+          this.target = null;
+          this.waypoints = [];
+          this.mode = 'hold';
+          this.playAction('idle');
+        }
       }
     } else if (this.mode === 'attack') {
       this.attackElapsed += dt;
@@ -989,11 +1409,15 @@ export default class CpgKnight extends HTMLElement {
         this.attackHit = true;
         this.killOrc();
       }
+      this.resolveCollisions({ ignoreOrc: true });
     } else if (this.mode === 'patrol') {
       this.pathAngle += (this.walkSpeed / this.pathRadius) * dt;
       this.knight.position.x = Math.cos(this.pathAngle) * this.pathRadius;
       this.knight.position.z = Math.sin(this.pathAngle) * this.pathRadius;
       this.knight.rotation.y = -this.pathAngle + this.facingOffset;
+      this.resolveCollisions();
+    } else {
+      this.resolveCollisions();
     }
 
     this.knight.position.y = this.groundY;
@@ -1017,9 +1441,11 @@ export default class CpgKnight extends HTMLElement {
       this.orcMixer.update(dt);
     }
 
-    this.syncMoveSound();
-    if (!this.ambienceSource) {
-      this.startAmbience();
+    if (this.assetsReady) {
+      this.syncMoveSound();
+      if (!this.ambienceSource) {
+        this.startAmbience();
+      }
     }
 
     this.panCamera(dt);
