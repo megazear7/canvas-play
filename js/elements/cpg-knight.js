@@ -2,6 +2,7 @@ const THREE_VERSION = '0.185.1';
 const THREE_URL = `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/build/three.module.js`;
 const GLTF_LOADER_URL = `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/examples/jsm/loaders/GLTFLoader.js`;
 const MAP_CONTROLS_URL = `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/examples/jsm/controls/MapControls.js`;
+const SKELETON_UTILS_URL = `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/examples/jsm/utils/SkeletonUtils.js`;
 const KNIGHT_WALK_URL = '/images/knight/knight-walking.glb';
 const KNIGHT_RUN_URL = '/images/knight/knight-running.glb';
 const KNIGHT_IDLE_URL = '/images/knight/knight-alert.glb';
@@ -120,11 +121,31 @@ export default class CpgKnight extends HTMLElement {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.06); }
         }
-        .toast {
+        .marquee {
+          position: absolute;
+          z-index: 25;
+          display: none;
+          border: 1px solid rgba(57, 255, 106, 0.9);
+          background: rgba(57, 255, 106, 0.12);
+          pointer-events: none;
+        }
+        .toast-stack {
           position: absolute;
           left: 50%;
           bottom: 28px;
           z-index: 30;
+          width: 620px;
+          height: 140px;
+          transform: translateX(-50%);
+          pointer-events: none;
+        }
+        .toast-stack:has(.toast) {
+          pointer-events: auto;
+        }
+        .toast {
+          position: absolute;
+          left: 50%;
+          bottom: 0;
           display: flex;
           align-items: center;
           gap: 14px;
@@ -141,17 +162,14 @@ export default class CpgKnight extends HTMLElement {
             0 0 28px rgba(57, 255, 106, 0.1);
           backdrop-filter: blur(18px) saturate(1.2);
           -webkit-backdrop-filter: blur(18px) saturate(1.2);
-          transform: translate(-50%, calc(100% + 56px));
-          opacity: 0;
-          pointer-events: none;
-          transition:
-            transform 0.52s cubic-bezier(0.16, 1, 0.3, 1),
-            opacity 0.32s ease;
-        }
-        .toast.visible {
-          transform: translate(-50%, 0);
+          transform: translateX(-50%) translate(calc(var(--i, 0) * 14px), calc(var(--i, 0) * -10px)) rotate(calc(var(--i, 0) * -6deg));
           opacity: 1;
           pointer-events: auto;
+          transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+          z-index: calc(5 - var(--i, 0));
+        }
+        .toast-stack.multi:hover .toast {
+          transform: translateX(-50%) translateX(calc((var(--i, 0) - 0.5) * 300px)) rotate(0deg);
         }
         .toast.enemy {
           border-color: rgba(255, 72, 72, 0.55);
@@ -228,6 +246,7 @@ export default class CpgKnight extends HTMLElement {
         }
       </style>
       <canvas></canvas>
+      <div class="marquee"></div>
       <div class="loader">
         <div class="loader-mark">
           <div class="loader-ring"></div>
@@ -239,61 +258,18 @@ export default class CpgKnight extends HTMLElement {
         <div class="loader-bar"><div class="loader-fill"></div></div>
         <div class="loader-copy">Preparing the field…</div>
       </div>
-      <div class="toast" aria-hidden="true">
-        <div class="toast-portrait-wrap">
-          <img class="toast-portrait" src="${KNIGHT_PORTRAIT_URL}" alt="Knight">
-        </div>
-        <div class="toast-meta">
-          <div class="toast-label">Selected</div>
-          <div class="toast-name">Knight</div>
-        </div>
-        <button class="toast-close" type="button" aria-label="Deselect knight">
-          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
+      <div class="toast-stack"></div>
     `;
     this.canvas = this.shadow.querySelector('canvas');
     this.loaderEl = this.shadow.querySelector('.loader');
     this.loaderFill = this.shadow.querySelector('.loader-fill');
     this.loaderCopy = this.shadow.querySelector('.loader-copy');
-    this.toastEl = this.shadow.querySelector('.toast');
-    this.toastPortrait = this.shadow.querySelector('.toast-portrait');
-    this.toastLabel = this.shadow.querySelector('.toast-label');
-    this.toastName = this.shadow.querySelector('.toast-name');
-    this.closeBtn = this.shadow.querySelector('.toast-close');
-    this.toastKind = null;
+    this.toastStack = this.shadow.querySelector('.toast-stack');
+    this.marqueeEl = this.shadow.querySelector('.marquee');
     this.rafId = null;
     this.clock = null;
-    this.mixer = null;
-    this.knight = null;
-    this.pathAngle = 0;
-    this.groundY = 0;
     this.facingOffset = 0;
-    this.selected = false;
-    this.knightMeshes = [];
-    this.knightMaterials = [];
-    this.selectionRing = null;
-    this.raycaster = null;
-    this.groundPlane = null;
-    this.pointerDown = null;
-    this.mode = 'patrol';
-    this.target = null;
-    this.actions = {};
-    this.currentAction = null;
-    this.orc = null;
-    this.orcMixer = null;
-    this.orcActions = {};
-    this.orcCurrentAction = null;
-    this.orcMeshes = [];
-    this.orcDead = false;
-    this.orcSelected = false;
-    this.orcGroundY = 0;
-    this.swishPlayed = false;
     this.attackRange = 1.9;
-    this.attackElapsed = 0;
-    this.attackHit = false;
     this.keys = {};
     this.audioCtx = null;
     this.audioBuffers = new Map();
@@ -302,12 +278,24 @@ export default class CpgKnight extends HTMLElement {
     this.moveGain = null;
     this.ambienceSource = null;
     this.obstacles = [];
-    this.waypoints = [];
     this.knightRadius = 0.55;
     this.orcRadius = 0.78;
     this.assetsReady = false;
     this.loaderStep = 0;
     this.loaderSteps = 7;
+    this.knights = [];
+    this.orcs = [];
+    this.selectedKnights = [];
+    this.selectedEnemy = null;
+    this.knightTemplate = null;
+    this.orcTemplate = null;
+    this.knightClips = {};
+    this.orcClips = {};
+    this.knightGroundY = 0;
+    this.orcGroundY = 0;
+    this.pointerDown = null;
+    this.dragBox = null;
+    this.SkeletonUtils = null;
   }
 
   connectedCallback() {
@@ -325,10 +313,8 @@ export default class CpgKnight extends HTMLElement {
     window.removeEventListener('keyup', this.onKeyUp);
     if (this.canvas) {
       this.canvas.removeEventListener('pointerdown', this.onPointerDown);
+      this.canvas.removeEventListener('pointermove', this.onPointerMove);
       this.canvas.removeEventListener('pointerup', this.onPointerUp);
-    }
-    if (this.closeBtn) {
-      this.closeBtn.removeEventListener('click', this.onCloseClick);
     }
     this.setMoveSound(null);
     if (this.ambienceSource) {
@@ -353,7 +339,9 @@ export default class CpgKnight extends HTMLElement {
       const THREE = await import(THREE_URL);
       const { GLTFLoader } = await import(GLTF_LOADER_URL);
       const { MapControls } = await import(MAP_CONTROLS_URL);
+      const SkeletonUtils = await import(SKELETON_UTILS_URL);
       this.THREE = THREE;
+      this.SkeletonUtils = SkeletonUtils;
 
       this.setupScene(THREE, MapControls);
       this.setupSelection(THREE);
@@ -364,11 +352,13 @@ export default class CpgKnight extends HTMLElement {
       window.addEventListener('resize', this.onResize);
       this.loop();
       this.setLoader('Loading knight…', 0.04);
-      await this.loadKnight(THREE, GLTFLoader);
+      await this.loadKnightAssets(THREE, GLTFLoader);
       this.advanceLoader('Loading animations…');
       await this.loadExtraClips(GLTFLoader);
+      this.spawnKnights();
       this.setLoader('Loading orc…');
-      await this.loadOrc(THREE, GLTFLoader);
+      await this.loadOrcAssets(THREE, GLTFLoader);
+      this.spawnOrcs();
       this.advanceLoader('Loading sounds…');
       await this.preloadSounds();
       this.addBushes(THREE);
@@ -413,7 +403,6 @@ export default class CpgKnight extends HTMLElement {
     if (document.querySelector('script[type="importmap"]')) {
       return;
     }
-
     const script = document.createElement('script');
     script.type = 'importmap';
     script.textContent = JSON.stringify({
@@ -422,7 +411,6 @@ export default class CpgKnight extends HTMLElement {
         'three/addons/': `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/examples/jsm/`
       }
     });
-
     const firstModule = document.querySelector('script[type="module"]');
     if (firstModule) {
       firstModule.parentNode.insertBefore(script, firstModule);
@@ -463,12 +451,13 @@ export default class CpgKnight extends HTMLElement {
     this.controls.minDistance = 6;
     this.controls.maxDistance = 28;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.12;
+    this.controls.mouseButtons.LEFT = -1;
+    this.controls.mouseButtons.MIDDLE = THREE.MOUSE.DOLLY;
+    this.controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
     this.controls.update();
 
     this.scene.add(new THREE.AmbientLight(0xffffff, 0.45));
-
-    const hemi = new THREE.HemisphereLight(0xe8f4ff, 0x3d6b2f, 1.4);
-    this.scene.add(hemi);
+    this.scene.add(new THREE.HemisphereLight(0xe8f4ff, 0x3d6b2f, 1.4));
 
     const sun = new THREE.DirectionalLight(0xfff4d6, 2.8);
     sun.position.set(8, 14, 6);
@@ -497,30 +486,17 @@ export default class CpgKnight extends HTMLElement {
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     this.scene.add(ground);
-
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(0.48, 0.68, 48),
-      new THREE.MeshBasicMaterial({
-        color: 0x39ff6a,
-        side: THREE.DoubleSide
-      })
-    );
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.y = 0.04;
-    ring.visible = false;
-    this.selectionRing = ring;
-    this.scene.add(ring);
   }
 
   setupSelection(THREE) {
     this.raycaster = new THREE.Raycaster();
     this.groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
     this.onPointerDown = this.onPointerDown.bind(this);
+    this.onPointerMove = this.onPointerMove.bind(this);
     this.onPointerUp = this.onPointerUp.bind(this);
-    this.onCloseClick = this.onCloseClick.bind(this);
     this.canvas.addEventListener('pointerdown', this.onPointerDown);
+    this.canvas.addEventListener('pointermove', this.onPointerMove);
     this.canvas.addEventListener('pointerup', this.onPointerUp);
-    this.closeBtn.addEventListener('click', this.onCloseClick);
   }
 
   setupCameraKeys() {
@@ -584,162 +560,519 @@ export default class CpgKnight extends HTMLElement {
     this.keys[event.code] = false;
   }
 
-  onCloseClick(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (this.toastKind === 'orc') {
-      this.orcSelected = false;
-      if (this.selected) {
-        this.showToast('knight');
-      } else {
-        this.hideToast();
+  allUnits() {
+    return [...this.knights, ...this.orcs];
+  }
+
+  makeRing(color) {
+    const THREE = this.THREE;
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.48, 0.68, 48),
+      new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.04;
+    ring.visible = false;
+    this.scene.add(ring);
+    return ring;
+  }
+
+  prepareSkinnedModel(model) {
+    const meshes = [];
+    const materials = [];
+    model.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        meshes.push(child);
+        if (child.material) {
+          const list = Array.isArray(child.material) ? child.material : [child.material];
+          list.forEach((material) => {
+            material.metalness = 0.15;
+            material.roughness = 0.65;
+            if (material.emissive) {
+              material.emissiveIntensity = 0.08;
+            }
+            material.needsUpdate = true;
+            materials.push({
+              material,
+              emissiveIntensity: material.emissiveIntensity
+            });
+          });
+        }
       }
+    });
+    const box = new this.THREE.Box3().setFromObject(model);
+    model.position.y -= box.min.y;
+    return { meshes, materials, groundY: model.position.y };
+  }
+
+  bindClips(mixer, clips) {
+    const actions = {};
+    Object.keys(clips).forEach((name) => {
+      if (clips[name]) {
+        actions[name] = mixer.clipAction(clips[name]);
+      }
+    });
+    return actions;
+  }
+
+  createUnit({ kind, model, clips, x, z, radius, mode, pathAngle = 0 }) {
+    const { meshes, materials, groundY } = this.prepareSkinnedModel(model);
+    model.position.x = x;
+    model.position.z = z;
+    model.position.y = groundY;
+    this.scene.add(model);
+    const mixer = new this.THREE.AnimationMixer(model);
+    const unit = {
+      kind,
+      model,
+      mixer,
+      actions: this.bindClips(mixer, clips),
+      currentAction: null,
+      meshes,
+      materials,
+      radius,
+      mode,
+      target: null,
+      waypoints: [],
+      selected: false,
+      ring: this.makeRing(kind === 'knight' ? 0x39ff6a : 0xff5a5a),
+      pathAngle,
+      pathRadius: this.pathRadius,
+      dead: false,
+      attackElapsed: 0,
+      attackHit: false,
+      swishPlayed: false,
+      chaseTarget: null,
+      groundY
+    };
+    mixer.addEventListener('finished', (event) => {
+      if (event.action === unit.actions.attack && unit.mode === 'attack') {
+        unit.mode = 'hold';
+        unit.chaseTarget = null;
+        this.playAction(unit, 'idle');
+      }
+    });
+    if (kind === 'knight') {
+      this.playAction(unit, mode === 'patrol' ? 'walk' : 'idle');
+    } else {
+      this.playAction(unit, 'look');
+    }
+    unit.mixer.update(0);
+    unit.model.updateMatrixWorld(true);
+    return unit;
+  }
+
+  spawnKnights() {
+    const clone = () => this.SkeletonUtils.clone(this.knightTemplate);
+    this.knights.push(this.createUnit({
+      kind: 'knight',
+      model: clone(),
+      clips: this.knightClips,
+      x: Math.cos(0) * this.pathRadius,
+      z: Math.sin(0) * this.pathRadius,
+      radius: this.knightRadius,
+      mode: 'patrol',
+      pathAngle: 0
+    }));
+    this.knights.push(this.createUnit({
+      kind: 'knight',
+      model: clone(),
+      clips: this.knightClips,
+      x: Math.cos(Math.PI) * this.pathRadius,
+      z: Math.sin(Math.PI) * this.pathRadius,
+      radius: this.knightRadius,
+      mode: 'patrol',
+      pathAngle: Math.PI
+    }));
+  }
+
+  spawnOrcs() {
+    for (let i = 0; i < 3; i++) {
+      const spot = this.findClearSpot(this.orcRadius, 1.6);
+      const model = this.SkeletonUtils.clone(this.orcTemplate);
+      const orc = this.createUnit({
+        kind: 'orc',
+        model,
+        clips: this.orcClips,
+        x: spot.x,
+        z: spot.z,
+        radius: this.orcRadius,
+        mode: 'look'
+      });
+      orc.model.rotation.y = Math.random() * Math.PI * 2;
+      this.orcs.push(orc);
+    }
+  }
+
+  findClearSpot(radius, pad = 1.4) {
+    for (let i = 0; i < 100; i++) {
+      const x = (Math.random() - 0.5) * 14;
+      const z = (Math.random() - 0.5) * 14;
+      if (Math.hypot(x, z) > 7.6) {
+        continue;
+      }
+      if (!this.overlapsWorld(x, z, radius, pad)) {
+        return { x, z };
+      }
+    }
+    return { x: 6.5, z: -5.5 };
+  }
+
+  overlapsWorld(x, z, radius, pad) {
+    for (const unit of this.allUnits()) {
+      if (Math.hypot(x - unit.model.position.x, z - unit.model.position.z) < radius + unit.radius + pad) {
+        return true;
+      }
+    }
+    for (const o of this.obstacles) {
+      if (Math.hypot(x - o.x, z - o.z) < radius + o.r + pad) {
+        return true;
+      }
+    }
+    for (const knight of this.knights) {
+      if (knight.mode === 'patrol' && Math.abs(Math.hypot(x, z) - knight.pathRadius) < radius + this.knightRadius + 0.55) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  setUnitSelected(unit, selected) {
+    unit.selected = selected;
+    unit.ring.visible = selected;
+    unit.materials.forEach(({ material, emissiveIntensity }) => {
+      material.emissiveIntensity = selected
+        ? Math.max(emissiveIntensity, 0.12) + 0.55
+        : emissiveIntensity;
+    });
+  }
+
+  clearEnemySelection() {
+    if (this.selectedEnemy) {
+      this.setUnitSelected(this.selectedEnemy, false);
+      this.selectedEnemy = null;
+    }
+  }
+
+  selectKnights(knights, { playVoice = true } = {}) {
+    this.clearEnemySelection();
+    this.knights.forEach((knight) => {
+      this.setUnitSelected(knight, knights.includes(knight));
+    });
+    this.selectedKnights = knights.slice();
+    if (playVoice && knights.length) {
+      this.playBuffer(SERVICE_URL, { volume: 1 });
+    }
+    this.refreshToasts();
+  }
+
+  selectEnemy(orc) {
+    if (this.selectedKnights.length) {
       return;
     }
-    this.setSelected(false);
+    this.knights.forEach((knight) => this.setUnitSelected(knight, false));
+    this.selectedKnights = [];
+    if (this.selectedEnemy && this.selectedEnemy !== orc) {
+      this.setUnitSelected(this.selectedEnemy, false);
+    }
+    this.selectedEnemy = orc;
+    this.setUnitSelected(orc, true);
+    if (!orc.dead) {
+      this.playRandom(ROAR_URLS, 1);
+    }
+    this.refreshToasts();
+  }
+
+  deselectAll() {
+    this.knights.forEach((knight) => this.setUnitSelected(knight, false));
+    this.selectedKnights = [];
+    this.clearEnemySelection();
+    this.refreshToasts();
+  }
+
+  deselectUnit(unit) {
+    if (unit.kind === 'knight') {
+      this.selectKnights(this.selectedKnights.filter((k) => k !== unit), { playVoice: false });
+      return;
+    }
+    if (this.selectedEnemy === unit) {
+      this.clearEnemySelection();
+      this.refreshToasts();
+    }
+  }
+
+  makeToastCard(kind, unit) {
+    const isOrc = kind === 'orc';
+    const toast = document.createElement('div');
+    toast.className = isOrc ? 'toast enemy' : 'toast';
+    toast.innerHTML = `
+      <div class="toast-portrait-wrap">
+        <img class="toast-portrait" src="${isOrc ? ORC_PORTRAIT_URL : KNIGHT_PORTRAIT_URL}" alt="${isOrc ? 'Enemy' : 'Knight'}">
+      </div>
+      <div class="toast-meta">
+        <div class="toast-label">${isOrc ? 'Enemy' : 'Selected'}</div>
+        <div class="toast-name">${isOrc ? 'Enemy' : 'Knight'}</div>
+      </div>
+      <button class="toast-close" type="button" aria-label="Deselect">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    `;
+    toast.querySelector('.toast-close').addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.deselectUnit(unit);
+    });
+    return toast;
+  }
+
+  refreshToasts() {
+    this.toastStack.innerHTML = '';
+    if (this.selectedEnemy) {
+      this.toastStack.classList.remove('multi');
+      const card = this.makeToastCard('orc', this.selectedEnemy);
+      card.style.setProperty('--i', 0);
+      this.toastStack.appendChild(card);
+      return;
+    }
+    this.toastStack.classList.toggle('multi', this.selectedKnights.length > 1);
+    this.selectedKnights.forEach((knight, i) => {
+      const card = this.makeToastCard('knight', knight);
+      card.style.setProperty('--i', i);
+      this.toastStack.appendChild(card);
+    });
+  }
+
+  screenPoint(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+      nx: ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      ny: -((event.clientY - rect.top) / rect.height) * 2 + 1
+    };
+  }
+
+  unitScreenPos(unit) {
+    const v = new this.THREE.Vector3();
+    v.copy(unit.model.position);
+    v.y += 0.9;
+    v.project(this.camera);
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: (v.x * 0.5 + 0.5) * rect.width,
+      y: (-v.y * 0.5 + 0.5) * rect.height
+    };
+  }
+
+  hitUnit(event, units) {
+    const p = this.screenPoint(event);
+    this.raycaster.setFromCamera(new this.THREE.Vector2(p.nx, p.ny), this.camera);
+    let best = null;
+    let bestDist = Infinity;
+    for (const unit of units) {
+      unit.model.updateMatrixWorld(true);
+      const hits = this.raycaster.intersectObject(unit.model, true);
+      if (hits.length && hits[0].distance < bestDist) {
+        best = unit;
+        bestDist = hits[0].distance;
+      }
+    }
+    if (best) {
+      return best;
+    }
+    let bestScreen = 42;
+    for (const unit of units) {
+      const s = this.unitScreenPos(unit);
+      const dist = Math.hypot(s.x - p.x, s.y - p.y);
+      if (dist < bestScreen) {
+        best = unit;
+        bestScreen = dist;
+      }
+    }
+    return best;
+  }
+
+  updateMarquee(a, b) {
+    const left = Math.min(a.x, b.x);
+    const top = Math.min(a.y, b.y);
+    const width = Math.abs(a.x - b.x);
+    const height = Math.abs(a.y - b.y);
+    this.marqueeEl.style.display = 'block';
+    this.marqueeEl.style.left = `${left}px`;
+    this.marqueeEl.style.top = `${top}px`;
+    this.marqueeEl.style.width = `${width}px`;
+    this.marqueeEl.style.height = `${height}px`;
+  }
+
+  hideMarquee() {
+    this.marqueeEl.style.display = 'none';
+  }
+
+  knightsInBox(a, b) {
+    const left = Math.min(a.x, b.x);
+    const right = Math.max(a.x, b.x);
+    const top = Math.min(a.y, b.y);
+    const bottom = Math.max(a.y, b.y);
+    return this.knights.filter((knight) => {
+      const p = this.unitScreenPos(knight);
+      return p.x >= left && p.x <= right && p.y >= top && p.y <= bottom;
+    });
   }
 
   onPointerDown(event) {
     this.unlockAudio();
-    this.pointerDown = { x: event.clientX, y: event.clientY };
+    const p = this.screenPoint(event);
+    const knight = this.hitUnit(event, this.knights);
+    const orc = knight ? null : this.hitUnit(event, this.orcs);
+    this.pointerDown = { x: p.x, y: p.y, clientX: event.clientX, clientY: event.clientY, knight, orc };
+    this.dragBox = null;
+    if (!knight && !orc) {
+      this.controls.enabled = false;
+    }
+  }
+
+  onPointerMove(event) {
+    if (!this.pointerDown || this.pointerDown.knight || this.pointerDown.orc) {
+      return;
+    }
+    const p = this.screenPoint(event);
+    const dx = p.x - this.pointerDown.x;
+    const dy = p.y - this.pointerDown.y;
+    if (!this.dragBox && dx * dx + dy * dy > 36) {
+      this.dragBox = { start: { x: this.pointerDown.x, y: this.pointerDown.y } };
+    }
+    if (this.dragBox) {
+      this.dragBox.current = { x: p.x, y: p.y };
+      this.updateMarquee(this.dragBox.start, this.dragBox.current);
+    }
   }
 
   onPointerUp(event) {
-    if (!this.pointerDown || !this.knight) {
+    this.controls.enabled = true;
+    if (!this.pointerDown || !this.assetsReady) {
+      this.hideMarquee();
+      this.pointerDown = null;
+      this.dragBox = null;
       return;
     }
 
-    const dx = event.clientX - this.pointerDown.x;
-    const dy = event.clientY - this.pointerDown.y;
+    if (this.dragBox) {
+      const knights = this.knightsInBox(this.dragBox.start, this.dragBox.current);
+      if (knights.length) {
+        this.selectKnights(knights);
+      } else {
+        this.deselectAll();
+      }
+      this.hideMarquee();
+      this.pointerDown = null;
+      this.dragBox = null;
+      return;
+    }
+
+    const dx = event.clientX - this.pointerDown.clientX;
+    const dy = event.clientY - this.pointerDown.clientY;
+    const start = this.pointerDown;
     this.pointerDown = null;
     if (dx * dx + dy * dy > 16) {
       return;
     }
 
-    const rect = this.canvas.getBoundingClientRect();
-    const mouse = new this.THREE.Vector2(
-      ((event.clientX - rect.left) / rect.width) * 2 - 1,
-      -((event.clientY - rect.top) / rect.height) * 2 + 1
-    );
-    this.raycaster.setFromCamera(mouse, this.camera);
-    const hits = this.raycaster.intersectObjects(this.knightMeshes, true);
-    if (hits.length > 0) {
-      this.setSelected(true);
-      this.playBuffer(SERVICE_URL, { volume: 1 });
+    if (start.knight) {
+      this.selectKnights([start.knight]);
       return;
     }
-
-    if (this.orc && this.orcMeshes.length) {
-      const orcHits = this.raycaster.intersectObjects(this.orcMeshes, true);
-      if (orcHits.length > 0) {
-        this.selectOrc();
-        return;
+    if (start.orc) {
+      if (this.selectedKnights.length) {
+        this.commandAttack(start.orc);
+      } else {
+        this.selectEnemy(start.orc);
       }
-    }
-
-    if (!this.selected) {
       return;
     }
 
+    if (!this.selectedKnights.length) {
+      this.deselectAll();
+      return;
+    }
+
+    const p = this.screenPoint(event);
+    this.raycaster.setFromCamera(new this.THREE.Vector2(p.nx, p.ny), this.camera);
     const point = new this.THREE.Vector3();
     if (this.raycaster.ray.intersectPlane(this.groundPlane, point)) {
-      this.runTo(point.x, point.z);
+      this.commandMove(point.x, point.z);
     }
   }
 
-  showToast(kind) {
-    this.toastKind = kind;
-    const isOrc = kind === 'orc';
-    this.toastEl.classList.toggle('enemy', isOrc);
-    this.toastEl.classList.add('visible');
-    this.toastEl.setAttribute('aria-hidden', 'false');
-    this.toastPortrait.src = isOrc ? ORC_PORTRAIT_URL : KNIGHT_PORTRAIT_URL;
-    this.toastPortrait.alt = isOrc ? 'Enemy' : 'Knight';
-    this.toastLabel.textContent = isOrc ? 'Enemy' : 'Selected';
-    this.toastName.textContent = isOrc ? 'Enemy' : 'Knight';
-    this.closeBtn.setAttribute('aria-label', isOrc ? 'Deselect enemy' : 'Deselect knight');
-  }
-
-  hideToast() {
-    this.toastKind = null;
-    this.toastEl.classList.remove('visible', 'enemy');
-    this.toastEl.setAttribute('aria-hidden', 'true');
-  }
-
-  selectOrc() {
-    this.orcSelected = true;
-    this.showToast('orc');
-    if (!this.orcDead) {
-      this.playRandom(ROAR_URLS, 1);
-      if (this.selected) {
-        this.startChase();
-      }
-    }
-  }
-
-  setSelected(selected) {
-    this.selected = selected;
-    if (this.selectionRing) {
-      this.selectionRing.visible = selected;
-    }
-    this.knightMaterials.forEach(({ material, emissiveIntensity }) => {
-      material.emissiveIntensity = selected
-        ? Math.max(emissiveIntensity, 0.12) + 0.55
-        : emissiveIntensity;
+  commandMove(x, z) {
+    const selected = this.selectedKnights;
+    selected.forEach((knight, i) => {
+      const spread = selected.length > 1 ? 0.95 : 0;
+      const angle = (i / selected.length) * Math.PI * 2 + 0.2;
+      this.runTo(knight, x + Math.cos(angle) * spread, z + Math.sin(angle) * spread);
     });
-    if (selected) {
-      this.orcSelected = false;
-      this.showToast('knight');
-    } else if (this.toastKind === 'knight') {
-      this.hideToast();
-    }
-    if (!selected && this.mode !== 'attack') {
-      this.target = null;
-      this.waypoints = [];
-      this.mode = 'hold';
-      this.playAction('idle');
-    }
   }
 
-  runTo(x, z) {
-    if (this.mode === 'attack') {
+  commandAttack(orc) {
+    if (orc.dead) {
       return;
     }
-    this.target = { x, z };
-    this.mode = 'run';
-    this.waypoints = this.buildPath(x, z);
-    this.playAction('run');
+    this.selectedKnights.forEach((knight) => this.startChase(knight, orc));
   }
 
-  startChase() {
-    if (this.orcDead || this.mode === 'attack' || !this.orc) {
+  runTo(unit, x, z) {
+    if (unit.mode === 'attack') {
       return;
     }
-    this.mode = 'chase';
-    this.waypoints = this.buildPath(this.orc.position.x, this.orc.position.z, { ignoreOrc: true });
-    this.playAction('run');
+    unit.target = { x, z };
+    unit.chaseTarget = null;
+    unit.mode = 'run';
+    unit.waypoints = this.buildPath(unit, x, z);
+    this.playAction(unit, 'run');
   }
 
-  startAttack() {
-    this.mode = 'attack';
-    this.attackElapsed = 0;
-    this.attackHit = false;
-    if (this.orc) {
-      const dx = this.orc.position.x - this.knight.position.x;
-      const dz = this.orc.position.z - this.knight.position.z;
-      this.knight.rotation.y = Math.atan2(dx, dz) + this.facingOffset;
-    }
-    this.playAction('attack');
-    this.swishPlayed = false;
-  }
-
-  killOrc() {
-    if (this.orcDead || !this.orc) {
+  startChase(unit, orc) {
+    if (orc.dead || unit.mode === 'attack') {
       return;
     }
-    this.orcDead = true;
-    this.playOrcAction('dead');
+    unit.chaseTarget = orc;
+    unit.mode = 'chase';
+    unit.waypoints = this.buildPath(unit, orc.model.position.x, orc.model.position.z, { ignoreUnit: orc });
+    this.playAction(unit, 'run');
+  }
+
+  startAttack(unit, orc) {
+    unit.mode = 'attack';
+    unit.chaseTarget = orc;
+    unit.attackElapsed = 0;
+    unit.attackHit = false;
+    unit.swishPlayed = false;
+    const dx = orc.model.position.x - unit.model.position.x;
+    const dz = orc.model.position.z - unit.model.position.z;
+    unit.model.rotation.y = Math.atan2(dx, dz) + this.facingOffset;
+    this.playAction(unit, 'attack');
+  }
+
+  killOrc(orc) {
+    if (orc.dead) {
+      return;
+    }
+    orc.dead = true;
+    orc.mode = 'dead';
+    this.playAction(orc, 'dead');
     this.playRandom(DEATH_URLS, 1);
+    this.knights.forEach((knight) => {
+      if (knight.chaseTarget === orc && knight.mode !== 'attack') {
+        knight.chaseTarget = null;
+        knight.waypoints = [];
+        knight.target = null;
+        knight.mode = 'hold';
+        this.playAction(knight, 'idle');
+      }
+    });
   }
 
   playBuffer(url, { loop = false, volume = 1, delay = 0, fadeIn = 0 } = {}) {
@@ -814,48 +1147,30 @@ export default class CpgKnight extends HTMLElement {
 
   syncMoveSound() {
     let kind = null;
-    if (this.mode === 'run' || this.mode === 'chase') {
+    if (this.knights.some((k) => k.mode === 'run' || k.mode === 'chase')) {
       kind = 'run';
-    } else if (this.mode === 'patrol') {
+    } else if (this.knights.some((k) => k.mode === 'patrol')) {
       kind = 'walk';
     }
     this.setMoveSound(kind);
   }
 
-  playAction(name) {
+  playAction(unit, name) {
     const THREE = this.THREE;
-    const next = this.actions[name] || this.actions.walk;
-    if (!next || next === this.currentAction) {
+    const next = unit.actions[name] || unit.actions.walk || unit.actions.look;
+    if (!next || next === unit.currentAction) {
       return;
     }
-    const once = name === 'attack';
+    const once = name === 'attack' || name === 'dead';
     next.reset();
     next.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity);
     next.clampWhenFinished = once;
     next.setEffectiveWeight(1);
     next.play();
-    if (this.currentAction) {
-      this.currentAction.crossFadeTo(next, once ? 0.08 : 0.18, false);
+    if (unit.currentAction) {
+      unit.currentAction.crossFadeTo(next, once ? 0.08 : 0.18, false);
     }
-    this.currentAction = next;
-  }
-
-  playOrcAction(name) {
-    const THREE = this.THREE;
-    const next = this.orcActions[name];
-    if (!next || next === this.orcCurrentAction) {
-      return;
-    }
-    const once = name === 'dead';
-    next.reset();
-    next.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity);
-    next.clampWhenFinished = once;
-    next.setEffectiveWeight(1);
-    next.play();
-    if (this.orcCurrentAction) {
-      this.orcCurrentAction.crossFadeTo(next, 0.12, false);
-    }
-    this.orcCurrentAction = next;
+    unit.currentAction = next;
   }
 
   addBushes(THREE) {
@@ -866,38 +1181,16 @@ export default class CpgKnight extends HTMLElement {
       roughness: 0.88,
       metalness: 0.0
     });
-
-    const knightStart = {
-      x: Math.cos(this.pathAngle) * this.pathRadius,
-      z: Math.sin(this.pathAngle) * this.pathRadius
-    };
-    const orcPos = this.orc
-      ? { x: this.orc.position.x, z: this.orc.position.z }
-      : { x: -5.4, z: 3.2 };
-
     const count = 6;
     let attempts = 0;
-    while (this.obstacles.length < count && attempts < 120) {
+    while (this.obstacles.length < count && attempts < 140) {
       attempts += 1;
       const r = 0.58 + Math.random() * 0.42;
       const x = (Math.random() - 0.5) * 16;
       const z = (Math.random() - 0.5) * 16;
-      if (Math.hypot(x, z) > 8.2) {
+      if (Math.hypot(x, z) > 8.2 || this.overlapsWorld(x, z, r, 1.45)) {
         continue;
       }
-      if (Math.hypot(x - knightStart.x, z - knightStart.z) < r + this.knightRadius + 1.5) {
-        continue;
-      }
-      if (Math.hypot(x - orcPos.x, z - orcPos.z) < r + this.orcRadius + 1.5) {
-        continue;
-      }
-      if (Math.abs(Math.hypot(x, z) - this.pathRadius) < r + this.knightRadius + 0.6) {
-        continue;
-      }
-      if (this.obstacles.some((o) => Math.hypot(x - o.x, z - o.z) < r + o.r + 0.5)) {
-        continue;
-      }
-
       const bush = new THREE.Mesh(geometry, material);
       bush.position.set(x, 0, z);
       bush.scale.setScalar(r);
@@ -908,15 +1201,17 @@ export default class CpgKnight extends HTMLElement {
     }
   }
 
-  isBlocked(x, z, { ignoreOrc = false } = {}) {
-    const radius = this.knightRadius;
+  isBlocked(x, z, { ignoreUnit = null, ignoreTarget = null, radius = this.knightRadius } = {}) {
     for (const o of this.obstacles) {
       if (Math.hypot(x - o.x, z - o.z) < o.r + radius + 0.12) {
         return true;
       }
     }
-    if (!ignoreOrc && this.orc && !this.orcDead) {
-      if (Math.hypot(x - this.orc.position.x, z - this.orc.position.z) < this.orcRadius + radius + 0.08) {
+    for (const unit of this.allUnits()) {
+      if (unit === ignoreUnit || unit === ignoreTarget || unit.dead) {
+        continue;
+      }
+      if (Math.hypot(x - unit.model.position.x, z - unit.model.position.z) < unit.radius + radius + 0.08) {
         return true;
       }
     }
@@ -979,9 +1274,10 @@ export default class CpgKnight extends HTMLElement {
     return out;
   }
 
-  buildPath(goalX, goalZ, opts = {}) {
-    const start = { x: this.knight.position.x, z: this.knight.position.z };
-    const goal = this.nudgeOutOfObstacles(goalX, goalZ, this.knightRadius);
+  buildPath(unit, goalX, goalZ, extraOpts = {}) {
+    const opts = { ignoreUnit: unit, radius: unit.radius, ...extraOpts };
+    const start = { x: unit.model.position.x, z: unit.model.position.z };
+    const goal = this.nudgeOutOfObstacles(goalX, goalZ, unit.radius);
     if (this.lineClear(start.x, start.z, goal.x, goal.z, opts)) {
       return [goal];
     }
@@ -1120,32 +1416,32 @@ export default class CpgKnight extends HTMLElement {
     return this.simplifyPath([start, ...rev], opts).slice(1);
   }
 
-  followWaypoints(dt, speed, arriveDist) {
-    if (!this.waypoints.length) {
+  followWaypoints(unit, dt, speed, arriveDist) {
+    if (!unit.waypoints.length) {
       return true;
     }
-    const wp = this.waypoints[0];
-    const dx = wp.x - this.knight.position.x;
-    const dz = wp.z - this.knight.position.z;
+    const wp = unit.waypoints[0];
+    const dx = wp.x - unit.model.position.x;
+    const dz = wp.z - unit.model.position.z;
     const dist = Math.hypot(dx, dz);
-    const threshold = this.waypoints.length === 1 ? arriveDist : 0.28;
+    const threshold = unit.waypoints.length === 1 ? arriveDist : 0.28;
     if (dist <= threshold) {
-      this.waypoints.shift();
-      return this.waypoints.length === 0;
+      unit.waypoints.shift();
+      return unit.waypoints.length === 0;
     }
     const step = Math.min(speed * dt, dist);
-    this.knight.position.x += (dx / dist) * step;
-    this.knight.position.z += (dz / dist) * step;
-    this.knight.rotation.y = Math.atan2(dx, dz) + this.facingOffset;
+    unit.model.position.x += (dx / dist) * step;
+    unit.model.position.z += (dz / dist) * step;
+    unit.model.rotation.y = Math.atan2(dx, dz) + this.facingOffset;
     return false;
   }
 
-  separateFrom(ox, oz, otherRadius) {
-    const p = this.knight.position;
+  separateFrom(unit, ox, oz, otherRadius) {
+    const p = unit.model.position;
     const dx = p.x - ox;
     const dz = p.z - oz;
     const d = Math.hypot(dx, dz);
-    const minD = this.knightRadius + otherRadius;
+    const minD = unit.radius + otherRadius;
     if (d >= minD) {
       return;
     }
@@ -1158,97 +1454,38 @@ export default class CpgKnight extends HTMLElement {
     p.z += dz * push;
   }
 
-  resolveCollisions({ ignoreOrc = false } = {}) {
+  resolveCollisions(unit, { ignoreUnit = null } = {}) {
     for (const o of this.obstacles) {
-      this.separateFrom(o.x, o.z, o.r);
+      this.separateFrom(unit, o.x, o.z, o.r);
     }
-    if (!ignoreOrc && this.orc && !this.orcDead) {
-      this.separateFrom(this.orc.position.x, this.orc.position.z, this.orcRadius);
-    }
-  }
-
-  prepareSkinnedModel(model, meshList) {
-    model.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        meshList.push(child);
-        if (child.material) {
-          const materials = Array.isArray(child.material)
-            ? child.material
-            : [child.material];
-          materials.forEach((material) => {
-            material.metalness = 0.15;
-            material.roughness = 0.65;
-            if (material.emissive) {
-              material.emissiveIntensity = 0.08;
-            }
-            material.needsUpdate = true;
-          });
-        }
+    for (const other of this.allUnits()) {
+      if (other === unit || other === ignoreUnit || other.dead) {
+        continue;
       }
-    });
-    const box = new this.THREE.Box3().setFromObject(model);
-    model.position.y -= box.min.y;
-    return model.position.y;
+      this.separateFrom(unit, other.model.position.x, other.model.position.z, other.radius);
+    }
   }
 
-  loadKnight(THREE, GLTFLoader) {
-    const loader = new GLTFLoader();
+  loadClip(loader, url) {
+    return new Promise((resolve) => {
+      loader.load(
+        url,
+        (gltf) => resolve((gltf.animations && gltf.animations[0]) || null),
+        undefined,
+        () => resolve(null)
+      );
+    });
+  }
 
+  loadKnightAssets(THREE, GLTFLoader) {
+    const loader = new GLTFLoader();
     return new Promise((resolve, reject) => {
       loader.load(
         KNIGHT_WALK_URL,
         (gltf) => {
-          const model = gltf.scene;
-          this.knightMeshes = [];
-          this.knightMaterials = [];
-          model.traverse((child) => {
-            if (child.isMesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-              this.knightMeshes.push(child);
-              if (child.material) {
-                const materials = Array.isArray(child.material)
-                  ? child.material
-                  : [child.material];
-                materials.forEach((material) => {
-                  material.metalness = 0.15;
-                  material.roughness = 0.65;
-                  if (material.emissive) {
-                    material.emissiveIntensity = 0.08;
-                  }
-                  material.needsUpdate = true;
-                  this.knightMaterials.push({
-                    material,
-                    emissiveIntensity: material.emissiveIntensity
-                  });
-                });
-              }
-            }
-          });
-
-          const box = new THREE.Box3().setFromObject(model);
-          model.position.y -= box.min.y;
-          this.groundY = model.position.y;
-
-          this.knight = model;
-          this.scene.add(model);
-
-          this.mixer = new THREE.AnimationMixer(model);
-          this.mixer.addEventListener('finished', (event) => {
-            if (event.action === this.actions.attack && this.mode === 'attack') {
-              this.mode = 'hold';
-              this.playAction('idle');
-            }
-          });
+          this.knightTemplate = gltf.scene;
           const clips = gltf.animations || [];
-          const walkClip = clips.find((clip) => /walk/i.test(clip.name)) || clips[0];
-          if (walkClip) {
-            this.actions.walk = this.mixer.clipAction(walkClip);
-            this.playAction('walk');
-          }
-
+          this.knightClips.walk = clips.find((clip) => /walk/i.test(clip.name)) || clips[0];
           resolve();
         },
         (progress) => {
@@ -1263,37 +1500,17 @@ export default class CpgKnight extends HTMLElement {
     });
   }
 
-  loadClip(loader, url) {
-    return new Promise((resolve) => {
-      loader.load(
-        url,
-        (gltf) => resolve((gltf.animations && gltf.animations[0]) || null),
-        undefined,
-        () => resolve(null)
-      );
-    });
-  }
-
   async loadExtraClips(GLTFLoader) {
     const loader = new GLTFLoader();
-    const runClip = await this.loadClip(loader, KNIGHT_RUN_URL);
+    this.knightClips.run = await this.loadClip(loader, KNIGHT_RUN_URL);
     this.advanceLoader('Loading idle…');
-    const idleClip = await this.loadClip(loader, KNIGHT_IDLE_URL);
+    this.knightClips.idle = await this.loadClip(loader, KNIGHT_IDLE_URL);
     this.advanceLoader('Loading attack…');
-    const attackClip = await this.loadClip(loader, KNIGHT_ATTACK_URL);
+    this.knightClips.attack = await this.loadClip(loader, KNIGHT_ATTACK_URL);
     this.advanceLoader('Loading orc…');
-    if (runClip && this.mixer) {
-      this.actions.run = this.mixer.clipAction(runClip);
-    }
-    if (idleClip && this.mixer) {
-      this.actions.idle = this.mixer.clipAction(idleClip);
-    }
-    if (attackClip && this.mixer) {
-      this.actions.attack = this.mixer.clipAction(attackClip);
-    }
   }
 
-  async loadOrc(THREE, GLTFLoader) {
+  async loadOrcAssets(THREE, GLTFLoader) {
     const loader = new GLTFLoader();
     const gltf = await new Promise((resolve, reject) => {
       loader.load(
@@ -1309,27 +1526,10 @@ export default class CpgKnight extends HTMLElement {
         reject
       );
     });
-    const model = gltf.scene;
-    this.orcMeshes = [];
-    this.orcGroundY = this.prepareSkinnedModel(model, this.orcMeshes);
-    model.position.x = -5.4;
-    model.position.z = 3.2;
-    model.rotation.y = Math.PI * 0.35;
-    this.orc = model;
-    this.scene.add(model);
-
-    this.orcMixer = new THREE.AnimationMixer(model);
-    const lookClip = (gltf.animations && gltf.animations[0]) || null;
-    if (lookClip) {
-      this.orcActions.look = this.orcMixer.clipAction(lookClip);
-      this.playOrcAction('look');
-    }
-
+    this.orcTemplate = gltf.scene;
+    this.orcClips.look = (gltf.animations && gltf.animations[0]) || null;
     this.advanceLoader('Loading orc…');
-    const deadClip = await this.loadClip(loader, ORC_DEAD_URL);
-    if (deadClip && this.orcMixer) {
-      this.orcActions.dead = this.orcMixer.clipAction(deadClip);
-    }
+    this.orcClips.dead = await this.loadClip(loader, ORC_DEAD_URL);
   }
 
   onResize() {
@@ -1351,7 +1551,6 @@ export default class CpgKnight extends HTMLElement {
     if (!x && !z) {
       return;
     }
-
     const forward = new THREE.Vector3();
     this.camera.getWorldDirection(forward);
     forward.y = 0;
@@ -1368,86 +1567,89 @@ export default class CpgKnight extends HTMLElement {
     }
   }
 
-  updateMovement(dt) {
-    if (!this.assetsReady || !this.knight) {
+  updateUnit(unit, dt) {
+    if (unit.kind === 'orc') {
+      if (!unit.dead) {
+        this.resolveCollisions(unit);
+      }
+      unit.model.position.y = unit.groundY;
+      unit.ring.position.x = unit.model.position.x;
+      unit.ring.position.z = unit.model.position.z;
+      unit.mixer.update(dt);
       return;
     }
 
-    if (this.mode === 'chase' && this.orc && !this.orcDead) {
-      const dx = this.orc.position.x - this.knight.position.x;
-      const dz = this.orc.position.z - this.knight.position.z;
+    if (unit.mode === 'chase' && unit.chaseTarget && !unit.chaseTarget.dead) {
+      const orc = unit.chaseTarget;
+      const dx = orc.model.position.x - unit.model.position.x;
+      const dz = orc.model.position.z - unit.model.position.z;
       const dist = Math.hypot(dx, dz);
       if (dist <= this.attackRange) {
-        this.startAttack();
+        this.startAttack(unit, orc);
       } else {
-        if (!this.waypoints.length) {
-          this.waypoints = this.buildPath(this.orc.position.x, this.orc.position.z, { ignoreOrc: true });
+        if (!unit.waypoints.length) {
+          unit.waypoints = this.buildPath(unit, orc.model.position.x, orc.model.position.z, { ignoreUnit: orc });
         }
-        this.followWaypoints(dt, this.runSpeed, 0.35);
-        this.resolveCollisions({ ignoreOrc: true });
+        this.followWaypoints(unit, dt, this.runSpeed, 0.35);
+        this.resolveCollisions(unit, { ignoreUnit: orc });
       }
-    } else if (this.mode === 'run' && this.target) {
-      const arrived = this.followWaypoints(dt, this.runSpeed, 0.16);
-      this.resolveCollisions();
-      if (arrived || !this.waypoints.length) {
-        const dx = this.target.x - this.knight.position.x;
-        const dz = this.target.z - this.knight.position.z;
+    } else if (unit.mode === 'run' && unit.target) {
+      const arrived = this.followWaypoints(unit, dt, this.runSpeed, 0.16);
+      this.resolveCollisions(unit);
+      if (arrived || !unit.waypoints.length) {
+        const dx = unit.target.x - unit.model.position.x;
+        const dz = unit.target.z - unit.model.position.z;
         if (Math.hypot(dx, dz) < 0.2 || arrived) {
-          this.target = null;
-          this.waypoints = [];
-          this.mode = 'hold';
-          this.playAction('idle');
+          unit.target = null;
+          unit.waypoints = [];
+          unit.mode = 'hold';
+          this.playAction(unit, 'idle');
         }
       }
-    } else if (this.mode === 'attack') {
-      this.attackElapsed += dt;
-      if (!this.swishPlayed && this.attackElapsed >= 0.88) {
-        this.swishPlayed = true;
+    } else if (unit.mode === 'attack') {
+      unit.attackElapsed += dt;
+      if (!unit.swishPlayed && unit.attackElapsed >= 0.88) {
+        unit.swishPlayed = true;
         this.playRandom(SWISH_URLS, 2.6);
       }
-      if (!this.attackHit && this.attackElapsed >= 0.95) {
-        this.attackHit = true;
-        this.killOrc();
+      if (!unit.attackHit && unit.attackElapsed >= 0.95 && unit.chaseTarget) {
+        unit.attackHit = true;
+        this.killOrc(unit.chaseTarget);
       }
-      this.resolveCollisions({ ignoreOrc: true });
-    } else if (this.mode === 'patrol') {
-      this.pathAngle += (this.walkSpeed / this.pathRadius) * dt;
-      this.knight.position.x = Math.cos(this.pathAngle) * this.pathRadius;
-      this.knight.position.z = Math.sin(this.pathAngle) * this.pathRadius;
-      this.knight.rotation.y = -this.pathAngle + this.facingOffset;
-      this.resolveCollisions();
+      this.resolveCollisions(unit, { ignoreUnit: unit.chaseTarget });
+    } else if (unit.mode === 'patrol') {
+      unit.pathAngle += (this.walkSpeed / unit.pathRadius) * dt;
+      unit.model.position.x = Math.cos(unit.pathAngle) * unit.pathRadius;
+      unit.model.position.z = Math.sin(unit.pathAngle) * unit.pathRadius;
+      unit.model.rotation.y = -unit.pathAngle + this.facingOffset;
+      this.resolveCollisions(unit);
     } else {
-      this.resolveCollisions();
+      this.resolveCollisions(unit);
     }
 
-    this.knight.position.y = this.groundY;
-    if (this.selectionRing) {
-      this.selectionRing.position.x = this.knight.position.x;
-      this.selectionRing.position.z = this.knight.position.z;
+    unit.model.position.y = unit.groundY;
+    unit.ring.position.x = unit.model.position.x;
+    unit.ring.position.z = unit.model.position.z;
+    unit.mixer.update(dt);
+  }
+
+  updateMovement(dt) {
+    if (!this.assetsReady) {
+      return;
     }
-    if (this.orc) {
-      this.orc.position.y = this.orcGroundY;
-    }
+    this.knights.forEach((knight) => this.updateUnit(knight, dt));
+    this.orcs.forEach((orc) => this.updateUnit(orc, dt));
   }
 
   loop() {
     this.rafId = requestAnimationFrame(() => this.loop());
     const dt = this.clock.getDelta();
-
-    if (this.mixer) {
-      this.mixer.update(dt);
-    }
-    if (this.orcMixer) {
-      this.orcMixer.update(dt);
-    }
-
     if (this.assetsReady) {
       this.syncMoveSound();
       if (!this.ambienceSource) {
         this.startAmbience();
       }
     }
-
     this.panCamera(dt);
     this.updateMovement(dt);
     this.controls.update();
