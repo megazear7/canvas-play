@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Knight</title>
+  <meta name="description" content="A 3D knight walking on a green field.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="/images/icons/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#FF2F2F">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      margin: 0;
+      background-color: #87CEEB;
+    }
+  </style>
+</head>
+<body>
+  <cpg-knight></cpg-knight>
+  <script type="module">
+    import { CpgKnight } from '../index.js';
+  </script>
+</body>
+</html>
